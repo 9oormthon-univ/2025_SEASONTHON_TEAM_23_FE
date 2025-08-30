@@ -3,15 +3,22 @@ import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from 'src/types/navigation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LetterWriteScreen = () => {
   const [letter, setLetter] = useState('');
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-  const handleSave = () => {
-    Alert.alert('저장 완료', '편지가 저장되었습니다.');
-    setLetter('');
-    navigation.navigate('Tabs', { screen: 'Letter' }); 
+  const handleSave = async () => {
+    try {
+      // 편지 내용을 로컬에 저장하도록
+      await AsyncStorage.setItem('letter', letter);
+      Alert.alert('저장 완료', '편지가 저장되었습니다.');
+      setLetter('');
+      navigation.navigate('Tabs', { screen: 'Letter' }); 
+    } catch (error) {
+      Alert.alert('저장 실패', '다시 시도해 주세요.');
+    }
   };
 
   return (
