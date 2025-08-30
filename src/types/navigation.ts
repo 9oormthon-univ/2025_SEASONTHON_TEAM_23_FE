@@ -1,6 +1,9 @@
 export type RootStackParamList = {
   Onboarding: undefined;
-  Tabs: undefined;
+  Tabs: { screen?: string };
+  DiaryWritePage: undefined;
+  LetterWriteScreen: undefined;
+  LetterScreen: undefined; 
 };
 
 export type TabsParamList = {
