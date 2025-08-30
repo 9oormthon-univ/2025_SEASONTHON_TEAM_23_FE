@@ -5,6 +5,7 @@ import { type RootStackParamList } from '@/types/navigation';
 import TabNavigator from './TabNavigator';
 import {useAuth} from "@/provider/AuthProvider";
 import OnboardingScreen from "@/screens/onboarding/OnboardingScreen";
+import LetterWriteScreen from '../screens/letter/LetterWriteScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -18,6 +19,8 @@ const RootNavigator = () => {
         ) : (
             <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{headerShown: false}} />
         )}
+  <Stack.Screen name="LetterWriteScreen" component={LetterWriteScreen} />
+    <Stack.Screen name="LetterScreen" component={require('../screens/letter/LetterScreen').default} />
       </Stack.Navigator>
     </NavigationContainer>
   );
