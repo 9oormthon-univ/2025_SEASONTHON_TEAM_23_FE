@@ -9,3 +9,8 @@ export type TabsParamList = {
   Letter: undefined;
   Counseling: undefined;
 };
+
+export interface LetterContextType {
+  showMyLetters: boolean;
+  setShowMyLetters: (value: boolean) => void;
+}
