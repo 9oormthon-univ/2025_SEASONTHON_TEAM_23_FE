@@ -134,12 +134,13 @@ const LetterFeed: React.FC = () => {
                   <Text style={{ color: '#666', fontSize: 12 }}>🌸 {item.tribute_count ?? 0}</Text>
                 </View>
               </TouchableOpacity>
-              {/* action flower button (same appearance) only if user exists and is not the author */}
-              {((user as any)?.id ?? userId) && ((user as any)?.id ?? userId) !== item.user_id && (
+              
+              {/* userId가 사용자와 다른 사람에게만 노출되는 버튼 */}
+              {/* {((user as any)?.id ?? userId) && ((user as any)?.id ?? userId) !== item.user_id && (
                 <TouchableOpacity onPress={() => toggleTribute(item.id)} style={{ marginLeft: 12, padding: 8 }}>
                   <Text>🌸</Text>
                 </TouchableOpacity>
-              )}
+              )} */}
             </View>
           )}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
