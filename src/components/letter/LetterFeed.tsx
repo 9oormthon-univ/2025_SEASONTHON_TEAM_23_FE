@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/types/navigation';
 import axios from 'axios';
 import { useLetterFilter } from './LetterContext';
 
+type NavProp = NativeStackNavigationProp<RootStackParamList>;
+
 const LetterFeed: React.FC = () => {
+  const navigation = useNavigation<NavProp>();
   const { showMyLetters } = useLetterFilter();
   const [letters, setLetters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,10 +64,13 @@ const LetterFeed: React.FC = () => {
           data={letters}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={({ item }) => (
-            <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee' }}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
+              style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee' }}
+            >
               <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
               <Text style={{ color: '#888', fontSize: 12 }}>{item.created_at}</Text>
-            </View>
+            </TouchableOpacity>
           )}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
           style={{ marginTop: 16 }}
