@@ -13,6 +13,7 @@ const LOCAL_USER_ID = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
 const LetterWriteScreen = () => {
   const [letter, setLetter] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const route = useRoute<any>();
   const editingId = route?.params?.id ?? null;
@@ -24,7 +25,10 @@ const LetterWriteScreen = () => {
       try {
         const res = await axios.get(`http://10.0.2.2:3001/letters/${editingId}`);
         setLetter(res.data?.content ?? '');
-        setImageUri(res.data?.photo_url ?? null);
+        const photo = res.data?.photo_url ?? null;
+        setImageUri(photo);
+        // remember whether the original letter had a photo
+        setOriginalHasPhoto(!!photo);
       } catch (e) {
         // ignore load error
       }
@@ -33,22 +37,36 @@ const LetterWriteScreen = () => {
 
   const handleSave = async () => {
     try {
-      // build payload for json-server
+      // normalize imageUri: '' 를 null로 처리
+      const normalizedImageUri = imageUri && imageUri !== '' ? imageUri : null;
+
+      // build payload for json-server (POST용)
       const payload: any = {
         user_id: LOCAL_USER_ID,
         content: letter,
-        photo_url: imageUri,
         is_public: true,
         created_at: new Date().toISOString(),
         tribute_count: 0,
       };
+      // 신규 생성시에만 photo_url을 포함 (값이 있을 때)
+      if (normalizedImageUri !== null) {
+        payload.photo_url = normalizedImageUri;
+      }
 
       if (editingId) {
         // PATCH existing
-        await axios.patch(`http://10.0.2.2:3001/letters/${editingId}`, {
-          content: letter,
-          photo_url: imageUri,
-        });
+        // construct update object:
+        const normalizedImage = normalizedImageUri;
+        const updateData: any = { content: letter };
+        if (normalizedImage !== null) {
+          // 사용자가 새 이미지를 추가한 경우
+          updateData.photo_url = normalizedImage;
+        } else {
+          // 사용자가 이미지를 제거했을 때(original had photo), null로 설정
+          if (originalHasPhoto) updateData.photo_url = null;
+          // originalHasPhoto가 false면 photo_url 필드 자체를 생략해서 기존 값 유지
+        }
+        await axios.patch(`http://10.0.2.2:3001/letters/${editingId}`, updateData);
       } else {
         // POST new
         await axios.post('http://10.0.2.2:3001/letters', payload);
