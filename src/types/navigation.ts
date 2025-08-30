@@ -4,6 +4,7 @@ export type RootStackParamList = {
   DiaryWritePage: undefined;
   LetterWriteScreen: undefined;
   LetterScreen: undefined; 
+  LetterDetail: { id: string } | undefined;
 };
 
 export type TabsParamList = {
@@ -12,3 +13,8 @@ export type TabsParamList = {
   Letter: undefined;
   Counseling: undefined;
 };
+
+export interface LetterContextType {
+  showMyLetters: boolean;
+  setShowMyLetters: (value: boolean) => void;
+}
