@@ -1,6 +1,7 @@
 export type RootStackParamList = {
   Onboarding: undefined;
   Tabs: undefined;
+  LetterDetail: { id: string } | undefined;
 };
 
 export type TabsParamList = {
