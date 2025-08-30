@@ -11,11 +11,18 @@ const LetterWriteScreen = () => {
 
   const handleSave = async () => {
     try {
-      // 편지 내용을 로컬에 저장하도록
       await AsyncStorage.setItem('letter', letter);
-      Alert.alert('저장 완료', '편지가 저장되었습니다.');
+      Alert.alert(
+        '저장 완료',
+        '편지가 저장되었습니다.',
+        [
+          {
+            text: '확인',
+            onPress: () => navigation.navigate('Tabs', { screen: 'Letter' }),
+          },
+        ]
+      );
       setLetter('');
-      navigation.navigate('Tabs', { screen: 'Letter' }); 
     } catch (error) {
       Alert.alert('저장 실패', '다시 시도해 주세요.');
     }
