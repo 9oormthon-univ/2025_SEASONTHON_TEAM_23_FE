@@ -7,6 +7,7 @@ import axios from 'axios';
 import { useLetterFilter } from './LetterContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/provider/AuthProvider';
+import { formatKoreanDate } from '@/utils/formatDate';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -129,7 +130,7 @@ const LetterFeed: React.FC = () => {
               <TouchableOpacity onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })} style={{ flex: 1 }}>
                 <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
-                  <Text style={{ color: '#888', fontSize: 12, marginRight: 12 }}>{item.created_at}</Text>
+                  <Text style={{ color: '#888', fontSize: 12, marginRight: 12 }}>{formatKoreanDate(item.created_at)}</Text>
                   <Text style={{ color: '#666', fontSize: 12 }}>🌸 {item.tribute_count ?? 0}</Text>
                 </View>
               </TouchableOpacity>

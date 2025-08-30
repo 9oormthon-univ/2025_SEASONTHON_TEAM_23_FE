@@ -4,6 +4,7 @@ import axios from 'axios';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatKoreanDate } from '@/utils/formatDate';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
 
@@ -98,14 +99,14 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <ScrollView style={{flex:1, padding:16}}>
       <Text style={{fontSize:18, fontWeight:'bold', marginBottom:8}}>{letter.content}</Text>
-      <Text style={{fontSize:12, color:'#333', marginBottom:6}}>{author?.nickname ?? letter.user_id ?? '작성자 정보 없음'}</Text>
-      {/* show flower button if current user is not the author (we compare using userId fetched elsewhere; fallback: show) */}
+  <Text style={{fontSize:12, color:'#333', marginBottom:6}}>{author?.nickname ?? letter.user_id ?? '작성자 정보 없음'}</Text>
+  {/* show flower button if current user is not the author (we compare using userId fetched elsewhere; fallback: show) */}
       {letter && (
         <TouchableOpacity onPress={handleTribute} style={{ marginVertical: 8 }}>
           <Text>🌸 {letter.tribute_count ?? 0}</Text>
         </TouchableOpacity>
       )}
-      <Text style={{color:'#666', marginBottom:12}}>{letter.created_at}</Text>
+  <Text style={{color:'#666', marginBottom:12}}>{formatKoreanDate(letter.created_at)}</Text>
     </ScrollView>
   );
 };
