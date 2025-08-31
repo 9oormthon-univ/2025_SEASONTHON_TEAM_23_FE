@@ -3,86 +3,86 @@
     {
       "id": 1,
       "name": "펫로스 상담소",
-      "region_code": "GN",
+      "regionCode": "GN",
       "phone": "02-123-4567",
       "url": "http://petloss-clinic.com",
-      "created_by": "user123",
-      "is_verified": true,
-      "created_at": "2025-06-24T10:00:00Z"
+      "createdBy": "user123",
+      "isVerified": true,
+      "createdAt": "2025-06-24T10:00:00Z"
     }
   ],
   "preset_questions": [
     {
       "id": 1,
       "prompt": "오늘 하루 어떠셨나요?",
-      "is_active": true,
+      "isActive": true,
       "weight": 10,
-      "created_at": "2025-06-24T11:00:00Z"
+      "createdAt": "2025-06-24T11:00:00Z"
     }
   ],
   "emotions": [
     {
       "code": "SAD",
-      "label_ko": "슬픔",
+      "labelKo": "슬픔",
       "emoji": "😢",
-      "sort_order": 1
+      "sortOrder": 1
     }
   ],
   "users": [
     {
-      "kakao_id": "kakao_12345",
+      "kakaoId": "kakao_12345",
       "nickname": "멍이",
       "email": "happyuser@example.com",
-      "avatar_url": "http://example.com/avatars/1.jpg",
-      "created_at": "2025-06-24T12:00:00Z",
-      "updated_at": "2025-06-24T12:00:00Z",
+      "avatarUrl": "http://example.com/avatars/1.jpg",
+      "createdAt": "2025-06-24T12:00:00Z",
+      "updatedAt": "2025-06-24T12:00:00Z",
       "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
     }
   ],
   "diaries": [
     {
       "id": "b1cffc99-9c0b-4ef8-bb6d-6bb9bd380b22",
-      "user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      "question_id": 1,
-      "emotion_code": "REGRETFUL",
+      "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "questionId": 1,
+      "emotionCode": "REGRETFUL",
       "content": "더 잘해 줄걸 그랬어",
-      "created_at": "2025-06-24T13:00:00Z"
+      "createdAt": "2025-06-24T13:00:00Z"
     }
   ],
   "letters": [
     {
-      "user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
       "content": "사랑하는 멍이에게. 너무 보고 싶다.",
-      "photo_url": "http://example.com/photos/1.jpg",
-      "is_public": true,
-      "tribute_count": 5,
-      "created_at": "2025-06-24T14:00:00Z",
+      "photoUrl": "http://example.com/photos/1.jpg",
+      "isPublic": true,
+      "tributeCount": 5,
+      "createdAt": "2025-06-24T14:00:00Z",
       "id": "c2dffc99-9c0b-4ef8-bb6d-6bb9bd380c33"
     },
     {
-      "user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
       "content": "무지개다리를 건넌 철이야, 항상 행복하길 바라.",
-      "photo_url": "http://example.com/photos/2.jpg",
-      "is_public": false,
-      "tribute_count": 2,
-      "created_at": "2025-08-30T10:30:00Z",
+      "photoUrl": "http://example.com/photos/2.jpg",
+      "isPublic": false,
+      "tributeCount": 2,
+      "createdAt": "2025-08-30T10:30:00Z",
       "id": "c2dffc99-9c0b-4ef8-bb6d-6bb9bd380c34"
     }
   ],
   "tribute_messages": [
     {
       "key": "CONSOLATION",
-      "text_ko": "힘내세요",
-      "sort_order": 1
+      "textKo": "힘내세요",
+      "sortOrder": 1
     }
   ],
   "letter_tributes": [
     {
       "id": "d3effc99-9c0b-4ef8-bb6d-6bb9bd380d44",
-      "letter_id": "c2dffc99-9c0b-4ef8-bb6d-6bb9bd380c33",
-      "from_user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      "message_key": "KIND",
-      "created_at": "2025-06-24T15:00:00Z"
+      "letterId": "c2dffc99-9c0b-4ef8-bb6d-6bb9bd380c33",
+      "fromUserId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "messageKey": "KIND",
+      "createdAt": "2025-06-24T15:00:00Z"
     }
   ]
 }
