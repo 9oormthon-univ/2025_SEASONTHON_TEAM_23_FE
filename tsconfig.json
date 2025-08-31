@@ -21,15 +21,18 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@icon/*": ["assets/icons/*"],
-      "@image/*": ["assets/images/*"],
+      "@icons": ["assets/icons/index"],
+      "@icons/*": ["assets/icons/*"],
+      "@images/*": ["assets/images/*"],
+      "@fonts/*": ["assets/fonts/*"],
       "@auth/*": ["src/components/auth/*"],
       "@common/*": ["src/components/common/*"],
       "@home/*": ["src/components/home/*"],
       "@diary/*": ["src/components/diary/*"],
       "@letter/*": ["src/components/letter/*"],
-      "@counseling/*": ["src/components/counseling/*"]
+      "@counseling/*": ["src/components/counseling/*"],
+      "@navigation/*": ["src/components/navigation/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"]
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts", "src/types/**/*.d.ts"]
 }
