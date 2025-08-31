@@ -14,6 +14,7 @@ const LetterWriteScreen = () => {
   const [letter, setLetter] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
+  const [isPublic, setIsPublic] = useState<boolean>(true);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const route = useRoute<any>();
   const editingId = route?.params?.id ?? null;
@@ -25,6 +26,7 @@ const LetterWriteScreen = () => {
       try {
         const res = await axios.get(`http://10.0.2.2:3001/letters/${editingId}`);
         setLetter(res.data?.content ?? '');
+  setIsPublic(res.data?.is_public ?? true);
         const photo = res.data?.photo_url ?? null;
         setImageUri(photo);
         // remember whether the original letter had a photo
@@ -44,7 +46,7 @@ const LetterWriteScreen = () => {
       const payload: any = {
         user_id: LOCAL_USER_ID,
         content: letter,
-        is_public: true,
+  is_public: isPublic,
         created_at: new Date().toISOString(),
         tribute_count: 0,
       };
@@ -58,6 +60,8 @@ const LetterWriteScreen = () => {
         // construct update object:
         const normalizedImage = normalizedImageUri;
         const updateData: any = { content: letter };
+  // always include updated is_public
+  updateData.is_public = isPublic;
         if (normalizedImage !== null) {
           // 사용자가 새 이미지를 추가한 경우
           updateData.photo_url = normalizedImage;
@@ -66,7 +70,7 @@ const LetterWriteScreen = () => {
           if (originalHasPhoto) updateData.photo_url = null;
           // originalHasPhoto가 false면 photo_url 필드 자체를 생략해서 기존 값 유지
         }
-        await axios.patch(`http://10.0.2.2:3001/letters/${editingId}`, updateData);
+  await axios.patch(`http://10.0.2.2:3001/letters/${editingId}`, updateData);
       } else {
         // POST new
         await axios.post('http://10.0.2.2:3001/letters', payload);
@@ -94,6 +98,21 @@ const LetterWriteScreen = () => {
 
   return (
     <View className="flex-1 bg-white p-4">
+      {/* top-right toggle */}
+      <View className="flex-row justify-end mb-3">
+        <TouchableOpacity
+          onPress={() => setIsPublic(true)}
+          className={`px-4 py-2 rounded-l-lg ${isPublic ? 'bg-blue-500' : 'bg-gray-200'}`}
+        >
+          <Text className={`${isPublic ? 'text-white' : 'text-gray-700'}`}>전체공개</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setIsPublic(false)}
+          className={`px-4 py-2 rounded-r-lg ${!isPublic ? 'bg-blue-500' : 'bg-gray-200'}`}
+        >
+          <Text className={`${!isPublic ? 'text-white' : 'text-gray-700'}`}>나만보기</Text>
+        </TouchableOpacity>
+      </View>
       <TextInput
         className="flex-1 border border-gray-300 rounded-lg p-3 mb-4 text-base"
         multiline
