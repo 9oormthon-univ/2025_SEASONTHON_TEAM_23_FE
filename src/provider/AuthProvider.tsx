@@ -3,10 +3,11 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { api } from '@/services/axiosInstance';
 import { tokenStore } from '@/services/auth/tokenStore';
 import type { User } from '@/types/auth';
+import { signInWithKakao, signOutAll, unlinkAccount } from '@/services/auth/kakao';
 
 type AuthContextValue = {
   user: User | null;
-  setUser: (user: User) => void;
+  setUser: (user: User | null) => void; //백엔드 연동 시 지우기
   loading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
@@ -30,17 +31,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const login = async () => {
-    console.log('로그인 요청');
+    await signInWithKakao();
     await refreshUser();
   };
 
   const logout = async () => {
-    console.log('로그아웃 요청');
+    await signOutAll();
     setUser(null);
   };
 
   const unlink = async () => {
-    console.log('회원탈퇴 요청');
+    await unlinkAccount();
     setUser(null);
   };
 
