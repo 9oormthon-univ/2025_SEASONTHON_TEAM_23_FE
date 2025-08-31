@@ -21,8 +21,6 @@ const LetterFeed: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
-  const currentUserId = (user as any)?.id ?? userId ?? null;
-
   useEffect(() => {
     const fetchUserId = async () => {
       try {
@@ -80,37 +78,7 @@ const LetterFeed: React.FC = () => {
       if (!showMyLetters || userId) fetchLetters();
     }, [showMyLetters, userId, fetchLetters])
   );
-
-  const persistTributed = async (set: Set<string>) => {
-    try {
-      await AsyncStorage.setItem('tributed_letters', JSON.stringify(Array.from(set)));
-    } catch (e) {
-      // ignore
-    }
-  };
-
-  const toggleTribute = async (letterId: string) => {
-    const has = tributedIds.has(letterId);
-    const prevLetters = letters;
-
-    setLetters(prev => prev.map(l => (l.id === letterId ? { ...l, tribute_count: (l.tribute_count ?? 0) + (has ? -1 : 1) } : l)));
-    const newSet = new Set(tributedIds);
-    if (has) newSet.delete(letterId);
-    else newSet.add(letterId);
-    setTributedIds(newSet);
-    await persistTributed(newSet);
-
-    try {
-      const target = letters.find(l => l.id === letterId);
-      const nextCount = (target?.tribute_count ?? 0) + (has ? -1 : 1);
-      await axios.patch(`http://10.0.2.2:3001/letters/${letterId}`, { tribute_count: nextCount });
-    } catch (e) {
-      setLetters(prevLetters);
-      setTributedIds(tributedIds);
-      await persistTributed(tributedIds);
-    }
-  };
-
+  
   return (
     <View style={{ flex: 1, padding: 16 }}>
       <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 12 }}>
