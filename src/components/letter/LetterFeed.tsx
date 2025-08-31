@@ -21,16 +21,19 @@ const LetterFeed: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
+  const currentUserId = (user as any)?.id ?? userId ?? null;
+
   useEffect(() => {
     const fetchUserId = async () => {
       try {
         const res = await axios.get('http://10.0.2.2:3001/users');
         setUserId(res.data[0]?.id ?? null);
-      } catch (e) {
+      } catch (_) {
         setUserId(null);
       }
     };
     fetchUserId();
+
     // load tributed ids from storage
     (async () => {
       try {
@@ -45,17 +48,17 @@ const LetterFeed: React.FC = () => {
     })();
   }, []);
 
-  useEffect(() => {
-    // fetch handled by fetchLetters below
-  }, [showMyLetters, userId]);
-
   const fetchLetters = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       let url = 'http://10.0.2.2:3001/letters';
+      // userId가 사용자와 같은 편지만 요청
       if (showMyLetters && userId) {
         url += `?user_id=${userId}`;
+      } else if (!showMyLetters) {
+        // is_public이 true인 편지만 요청
+        url += `?is_public=true`;
       }
       const res = await axios.get(url);
       setLetters(res.data);
@@ -66,12 +69,12 @@ const LetterFeed: React.FC = () => {
     }
   }, [showMyLetters, userId]);
 
-  // initial fetch
+  // 처음에 받아오는 편지
   useEffect(() => {
     if (!showMyLetters || userId) fetchLetters();
   }, [showMyLetters, userId, fetchLetters]);
 
-  // refetch when this screen gains focus (e.g., returning from detail)
+  // 상세에서 돌아올때 새로고침 (refetch)
   useFocusEffect(
     useCallback(() => {
       if (!showMyLetters || userId) fetchLetters();
@@ -87,11 +90,9 @@ const LetterFeed: React.FC = () => {
   };
 
   const toggleTribute = async (letterId: string) => {
-    // check local record
     const has = tributedIds.has(letterId);
     const prevLetters = letters;
 
-    // optimistic update
     setLetters(prev => prev.map(l => (l.id === letterId ? { ...l, tribute_count: (l.tribute_count ?? 0) + (has ? -1 : 1) } : l)));
     const newSet = new Set(tributedIds);
     if (has) newSet.delete(letterId);
@@ -100,12 +101,10 @@ const LetterFeed: React.FC = () => {
     await persistTributed(newSet);
 
     try {
-      // PATCH the letter tribute_count on server
       const target = letters.find(l => l.id === letterId);
       const nextCount = (target?.tribute_count ?? 0) + (has ? -1 : 1);
       await axios.patch(`http://10.0.2.2:3001/letters/${letterId}`, { tribute_count: nextCount });
     } catch (e) {
-      // rollback on error: restore previous letters and tributedIds
       setLetters(prevLetters);
       setTributedIds(tributedIds);
       await persistTributed(tributedIds);
@@ -128,19 +127,13 @@ const LetterFeed: React.FC = () => {
           renderItem={({ item }) => (
             <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <TouchableOpacity onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })} style={{ flex: 1 }}>
-                <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
+                <Text style={{ fontWeight: 'bold' }}>{(item.content || '').trim() || '(내용 없음)'}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
                   <Text style={{ color: '#888', fontSize: 12, marginRight: 12 }}>{formatKoreanDate(item.created_at)}</Text>
                   <Text style={{ color: '#666', fontSize: 12 }}>🌸 {item.tribute_count ?? 0}</Text>
                 </View>
               </TouchableOpacity>
               
-              {/* userId가 사용자와 다른 사람에게만 노출되는 버튼 */}
-              {/* {((user as any)?.id ?? userId) && ((user as any)?.id ?? userId) !== item.user_id && (
-                <TouchableOpacity onPress={() => toggleTribute(item.id)} style={{ marginLeft: 12, padding: 8 }}>
-                  <Text>🌸</Text>
-                </TouchableOpacity>
-              )} */}
             </View>
           )}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
