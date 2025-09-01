@@ -4,19 +4,16 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
 import axios from 'axios';
+import { useTribute } from '@/provider/TributeProvider';
 import { useLetterFilter } from './LetterContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth } from '@/provider/AuthProvider';
-import { formatKoreanDate } from '@/utils/formatDate';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
 const LetterFeed: React.FC = () => {
   const navigation = useNavigation<NavProp>();
   const { showMyLetters } = useLetterFilter();
-  const { user } = useAuth();
   const [letters, setLetters] = useState<any[]>([]);
-  const [tributedIds, setTributedIds] = useState<Set<string>>(new Set());
+  const { tributedIds, toggleTribute, fetchTributes } = useTribute();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
@@ -31,18 +28,6 @@ const LetterFeed: React.FC = () => {
       }
     };
     fetchUserId();
-    // load tributed ids from storage
-    (async () => {
-      try {
-        const raw = await AsyncStorage.getItem('tributed_letters');
-        if (raw) {
-          const arr = JSON.parse(raw) as string[];
-          setTributedIds(new Set(arr));
-        }
-      } catch (e) {
-        // ignore
-      }
-    })();
   }, []);
 
   useEffect(() => {
@@ -89,37 +74,23 @@ const LetterFeed: React.FC = () => {
     }, [showMyLetters, userId, fetchLetters])
   );
 
-  const persistTributed = async (set: Set<string>) => {
-    try {
-      await AsyncStorage.setItem('tributed_letters', JSON.stringify(Array.from(set)));
-    } catch (e) {
-      // ignore
-    }
-  };
+  // 헌화 상태를 Provider에서 동기화
+  useEffect(() => {
+    if (userId) fetchTributes(userId);
+  }, [userId, fetchTributes]);
 
-  const toggleTribute = async (letterId: string) => {
-    // check local record
-    const has = tributedIds.has(letterId);
-    const prevLetters = letters;
-
-    // optimistic update
-    setLetters(prev => prev.map(l => (l.id === letterId ? { ...l, tribute_count: (l.tribute_count ?? 0) + (has ? -1 : 1) } : l)));
-    const newSet = new Set(tributedIds);
-    if (has) newSet.delete(letterId);
-    else newSet.add(letterId);
-    setTributedIds(newSet);
-    await persistTributed(newSet);
-
-    try {
-      // PATCH the letter tribute_count on server
-      const target = letters.find(l => l.id === letterId);
-      const nextCount = (target?.tribute_count ?? 0) + (has ? -1 : 1);
-      await axios.patch(`http://10.0.2.2:3001/letters/${letterId}`, { tribute_count: nextCount });
-    } catch (e) {
-      // rollback on error: restore previous letters and tributedIds
-      setLetters(prevLetters);
-      setTributedIds(tributedIds);
-      await persistTributed(tributedIds);
+  const handleTributePress = async (letterId: string) => {
+    console.log('handleTributePress called with:', letterId, 'userId:', userId);
+    if (userId) {
+      console.log('Before toggleTribute');
+      // Provider의 toggleTribute 호출
+      await toggleTribute(letterId, userId);
+      console.log('After toggleTribute');
+      // 편지 목록 다시 불러오기
+      await fetchLetters();
+      console.log('After fetchLetters');
+    } else {
+      console.log('No userId available');
     }
   };
 
@@ -147,7 +118,7 @@ const LetterFeed: React.FC = () => {
                   <Button
                     title={`🌸 ${item.tribute_count ?? 0}`}
                     color={tributedIds.has(item.id) ? '#d3d3d3' : undefined}
-                    onPress={() => toggleTribute(item.id)}
+                    onPress={() => handleTributePress(item.id)}
                   />
                 </View>
               </TouchableOpacity>
