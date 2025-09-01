@@ -2,7 +2,7 @@
   "expo": {
     "name": "PetFarewell",
     "slug": "PetFarewell",
-    "scheme": "parewell",
+    "scheme": "petfarewell",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -31,7 +31,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "parewell.app",
+              "host": "petfarewell.site",
               "pathPrefix": "/"
             }
           ]
@@ -43,6 +43,7 @@
         "expo-build-properties",
         {
           "android": {
+            "kotlinVersion": "2.0.21",
             "extraMavenRepos": ["https://devrepo.kakao.com/nexus/content/groups/public/"]
           }
         }
