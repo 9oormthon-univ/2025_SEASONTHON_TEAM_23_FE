@@ -5,8 +5,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          DEFAULT: '#6daa0f',
+        primary: {
+          DEFAULT: '#7EB658',
+          light: '#9CCC7B',
+        },
+        sub: {
+          100: '#64421A',
+          200: '#F9B313',
         },
         gray: {
           50: '#f5f5f5',
@@ -19,6 +24,12 @@ module.exports = {
           700: '#585858',
           800: '#313131',
           900: '#131313',
+        },
+        error: {
+          DEFAULT: '#FF2E45',
+        },
+        success: {
+          DEFAULT: '#1F66FF',
         },
       },
       fontFamily: {
