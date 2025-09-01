@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Button, Alert } from 'react-n
 import axios from 'axios';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTribute } from '@/provider/TributeProvider';
 import { formatKoreanDate } from '@/utils/formatDate';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
@@ -12,7 +12,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const id = route?.params?.id;
   const [letter, setLetter] = useState<any | null>(null);
   const [author, setAuthor] = useState<any | null>(null);
-  const [tributedIds, setTributedIds] = useState<Set<string>>(new Set());
+  const { tributedIds, toggleTribute } = useTribute();
+  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,53 +51,35 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   }, [id]);
 
   useEffect(() => {
-    (async () => {
+    const fetchUserId = async () => {
       try {
-        const raw = await AsyncStorage.getItem('tributed_letters');
-        if (raw) setTributedIds(new Set(JSON.parse(raw) as string[]));
+        const res = await axios.get('http://10.0.2.2:3001/users');
+        setUserId(res.data[0]?.id ?? null);
       } catch (e) {
-        // ignore
+        setUserId(null);
       }
-    })();
+    };
+    fetchUserId();
   }, []);
-
-  const persistTributed = async (set: Set<string>) => {
+  const handleTribute = async () => {
+    if (!letter) return;
+    if (!userId) {
+      Alert.alert('사용자 정보를 불러오지 못했습니다.');
+      return;
+    }
+    const has = tributedIds.has(letter.id);
+    // call provider to toggle tribute
+    await toggleTribute(letter.id, userId);
+    // refresh letter data from server
     try {
-      await AsyncStorage.setItem('tributed_letters', JSON.stringify(Array.from(set)));
+      const res = await axios.get(`http://10.0.2.2:3001/letters/${letter.id}`);
+      setLetter(res.data);
     } catch (e) {
       // ignore
     }
-  };
-
-  const handleTribute = async () => {
-    if (!letter) return;
-    const has = tributedIds.has(letter.id);
-    const prevLetter = letter;
-
-    // optimistic
-    setLetter({ ...letter, tribute_count: (letter.tribute_count ?? 0) + (has ? -1 : 1) });
-    const newSet = new Set(tributedIds);
-    if (has) newSet.delete(letter.id);
-    else newSet.add(letter.id);
-    setTributedIds(newSet);
-    await persistTributed(newSet);
-
-    // Alert 추가
-    if (has) {
-      Alert.alert('헌화가 취소되었습니다');
-    } else {
-      Alert.alert('헌화가 완료되었습니다');
-    }
-
-    try {
-      const nextCount = (prevLetter.tribute_count ?? 0) + (has ? -1 : 1);
-      await axios.patch(`http://10.0.2.2:3001/letters/${letter.id}`, { tribute_count: nextCount });
-    } catch (e) {
-      // rollback
-      setLetter(prevLetter);
-      setTributedIds(tributedIds);
-      await persistTributed(tributedIds);
-    }
+    // show alert
+    if (has) Alert.alert('헌화가 취소되었습니다');
+    else Alert.alert('헌화가 완료되었습니다');
   };
 
   if (loading) return <View style={{flex:1, padding:16}}><Text>로딩 중...</Text></View>;
@@ -110,7 +93,11 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       <Text style={{fontSize:18, fontWeight:'bold', marginBottom:8}}>{letter.content}</Text>
       {letter && (
         <TouchableOpacity onPress={handleTribute} style={{ marginVertical: 8 }}>
-          <Button title={`헌화하기`} onPress={handleTribute} /> 
+          <Button
+            title={`헌화하기`}
+            color={tributedIds.has(letter.id) ? '#888' : undefined}
+            onPress={handleTribute}
+          />
         </TouchableOpacity>
       )}
     </ScrollView>
