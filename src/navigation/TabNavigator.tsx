@@ -61,16 +61,10 @@ const TabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          header: () => <CustomHeader hasLogo icon="IcNotification" />,
+          header: () => <CustomHeader hasLogo hasButton icon="IcNotification" />,
         }}
       />
-      <Tab.Screen
-        name="Diary"
-        component={DiaryMainScreen}
-        options={{
-          header: () => <CustomHeader hasBack icon="IcNotification" title="오늘의 일기" />,
-        }}
-      />
+      <Tab.Screen name="Diary" component={DiaryMainScreen} />
       <Tab.Screen name="Letter" component={LetterScreen} />
       <Tab.Screen name="Counseling" component={CounselingScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
