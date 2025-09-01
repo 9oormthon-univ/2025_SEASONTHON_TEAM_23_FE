@@ -8,3 +8,5 @@ export { default as IcBrandLogo } from './ic-brand-logo.svg';
 export { default as IcBrandSubtitle } from './ic-brand-subtitle.svg';
 export { default as IcNotification } from './ic-notification.svg';
 export { default as IcBack } from './ic-back.svg';
+export { default as IcNext } from './ic-next.svg';
+export { default as IcPaw } from './ic-paw.svg';
