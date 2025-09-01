@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
 import type { IconMap, TabsParamList } from '@/types/navigation';
 import HomeScreen from '@/screens/home/HomeScreen';
-import DiaryScreen from '@/screens/diary/DiaryScreen';
+import DiaryMainScreen from '@/screens/diary/DiaryMainScreen';
 import LetterScreen from '@/screens/letter/LetterScreen';
 import CounselingScreen from '@/screens/counseling/CounselingScreen';
 import ProfileScreen from '@/screens/profile/ProfileScreen';
@@ -61,14 +61,14 @@ const TabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          header: () => <CustomHeader hasLogo hasIcon />,
+          header: () => <CustomHeader hasLogo icon="IcNotification" />,
         }}
       />
       <Tab.Screen
         name="Diary"
-        component={DiaryScreen}
+        component={DiaryMainScreen}
         options={{
-          header: () => <CustomHeader hasBack hasIcon title="오늘의 일기" />,
+          header: () => <CustomHeader hasBack icon="IcNotification" title="오늘의 일기" />,
         }}
       />
       <Tab.Screen name="Letter" component={LetterScreen} />
