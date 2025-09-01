@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Button } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
@@ -131,15 +131,13 @@ const LetterFeed: React.FC = () => {
                 <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
                   <Text style={{ color: '#888', fontSize: 12, marginRight: 12 }}>{formatKoreanDate(item.created_at)}</Text>
-                  <Text style={{ color: '#666', fontSize: 12 }}>🌸 {item.tribute_count ?? 0}</Text>
+                    <Button
+                      title={`🌸 ${item.tribute_count ?? 0}`}
+                      color={tributedIds.has(item.id) ? '#d3d3d3' : undefined}
+                      onPress={() => toggleTribute(item.id)}
+                    />
                 </View>
               </TouchableOpacity>
-              {/* action flower button (same appearance) only if user exists and is not the author */}
-              {((user as any)?.id ?? userId) && ((user as any)?.id ?? userId) !== item.user_id && (
-                <TouchableOpacity onPress={() => toggleTribute(item.id)} style={{ marginLeft: 12, padding: 8 }}>
-                  <Text>🌸</Text>
-                </TouchableOpacity>
-              )}
             </View>
           )}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
