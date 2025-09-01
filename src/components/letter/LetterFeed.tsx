@@ -57,8 +57,19 @@ const LetterFeed: React.FC = () => {
       if (showMyLetters && userId) {
         url += `?user_id=${userId}`;
       }
-      const res = await axios.get(url);
-      setLetters(res.data);
+      const [lettersRes, usersRes] = await Promise.all([
+        axios.get(url),
+        axios.get('http://10.0.2.2:3001/users')
+      ]);
+      const usersMap: Record<string, any> = {};
+      for (const u of usersRes.data) {
+        usersMap[u.id] = u;
+      }
+      const lettersWithAuthor = lettersRes.data.map((l: any) => ({
+        ...l,
+        author: usersMap[l.user_id] || null
+      }));
+      setLetters(lettersWithAuthor);
     } catch (e: any) {
       setError('편지 데이터를 불러오지 못했습니다.');
     } finally {
@@ -129,13 +140,15 @@ const LetterFeed: React.FC = () => {
             <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <TouchableOpacity onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })} style={{ flex: 1 }}>
                 <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
-                  <Text style={{ color: '#888', fontSize: 12, marginRight: 12 }}>{formatKoreanDate(item.created_at)}</Text>
-                    <Button
-                      title={`🌸 ${item.tribute_count ?? 0}`}
-                      color={tributedIds.has(item.id) ? '#d3d3d3' : undefined}
-                      onPress={() => toggleTribute(item.id)}
-                    />
+                <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
+                  <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
+                    {item.author?.nickname ? `${item.author.nickname}` : '작성자: 익명'}
+                  </Text>
+                  <Button
+                    title={`🌸 ${item.tribute_count ?? 0}`}
+                    color={tributedIds.has(item.id) ? '#d3d3d3' : undefined}
+                    onPress={() => toggleTribute(item.id)}
+                  />
                 </View>
               </TouchableOpacity>
             </View>
