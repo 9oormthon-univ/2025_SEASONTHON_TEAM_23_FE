@@ -23,38 +23,32 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   const toggleTribute = useCallback(async (letterId: string, userId: string) => {
-    console.log('TributeProvider toggleTribute called:', letterId, userId);
     const has = tributedIds.has(letterId);
-    console.log('Has tribute:', has);
     try {
       if (has) {
-        console.log('Deleting tribute');
-        // 먼저 삭제할 tribute 레코드의 id를 찾기
-        const tributesRes = await axios.get('http://10.0.2.2:3001/letter_tributes');
-        const targetTribute = tributesRes.data.find((t: any) => 
-          t.letter_id === letterId && t.from_user_id === userId
-        );
+        // 삭제할 tribute 레코드의 id를 찾기
+        const tributesRes = await axios.get('http://10.0.2.2:3001/letter_tributes', {
+          params: { letter_id: letterId, from_user_id: userId }
+        });
+        const targetTribute = tributesRes.data[0];
         if (targetTribute) {
           await axios.delete(`http://10.0.2.2:3001/letter_tributes/${targetTribute.id}`);
         }
       } else {
-        console.log('Adding tribute');
         await axios.post('http://10.0.2.2:3001/letter_tributes', {
           letter_id: letterId,
           from_user_id: userId,
           created_at: new Date().toISOString()
         });
       }
+
       // 현재 tribute_count를 가져와서 증감
-      console.log('Getting current letter data');
       const letterRes = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
       const currentCount = letterRes.data.tribute_count ?? 0;
       const nextCount = currentCount + (has ? -1 : 1);
-      console.log('Current count:', currentCount, 'Next count:', nextCount);
       await axios.patch(`http://10.0.2.2:3001/letters/${letterId}`, { tribute_count: nextCount });
-      console.log('Updated tribute count');
+
       await fetchTributes(userId);
-      console.log('Fetched updated tributes');
     } catch (e) {
       console.error('Error in toggleTribute:', e);
     }

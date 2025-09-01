@@ -80,17 +80,9 @@ const LetterFeed: React.FC = () => {
   }, [userId, fetchTributes]);
 
   const handleTributePress = async (letterId: string) => {
-    console.log('handleTributePress called with:', letterId, 'userId:', userId);
     if (userId) {
-      console.log('Before toggleTribute');
-      // Provider의 toggleTribute 호출
       await toggleTribute(letterId, userId);
-      console.log('After toggleTribute');
-      // 편지 목록 다시 불러오기
       await fetchLetters();
-      console.log('After fetchLetters');
-    } else {
-      console.log('No userId available');
     }
   };
 
