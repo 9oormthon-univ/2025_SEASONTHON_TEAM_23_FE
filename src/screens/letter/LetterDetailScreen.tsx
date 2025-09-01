@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Button, Alert } from 'react-native';
 import axios from 'axios';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
@@ -81,6 +81,13 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     setTributedIds(newSet);
     await persistTributed(newSet);
 
+    // Alert 추가
+    if (has) {
+      Alert.alert('헌화가 취소되었습니다');
+    } else {
+      Alert.alert('헌화가 완료되었습니다');
+    }
+
     try {
       const nextCount = (prevLetter.tribute_count ?? 0) + (has ? -1 : 1);
       await axios.patch(`http://10.0.2.2:3001/letters/${letter.id}`, { tribute_count: nextCount });
@@ -98,15 +105,14 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   return (
     <ScrollView style={{flex:1, padding:16}}>
+      <Text style={{color:'#666', marginBottom:12}}>{formatKoreanDate(letter.created_at)}</Text>
+      <Text style={{fontSize:12, color:'#333', marginBottom:6}}>{`${author.nickname}님의 추억이에요.`}</Text>
       <Text style={{fontSize:18, fontWeight:'bold', marginBottom:8}}>{letter.content}</Text>
-  <Text style={{fontSize:12, color:'#333', marginBottom:6}}>{author?.nickname ?? letter.user_id ?? '작성자 정보 없음'}</Text>
-  {/* show flower button if current user is not the author (we compare using userId fetched elsewhere; fallback: show) */}
       {letter && (
         <TouchableOpacity onPress={handleTribute} style={{ marginVertical: 8 }}>
-          <Text>🌸 {letter.tribute_count ?? 0}</Text>
+          <Button title={`헌화하기`} onPress={handleTribute} /> 
         </TouchableOpacity>
       )}
-  <Text style={{color:'#666', marginBottom:12}}>{formatKoreanDate(letter.created_at)}</Text>
     </ScrollView>
   );
 };
