@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Button, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Button, Alert, Image } from 'react-native';
 import axios from 'axios';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
@@ -89,8 +89,15 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <ScrollView style={{flex:1, padding:16}}>
       <Text style={{color:'#666', marginBottom:12}}>{formatKoreanDate(letter.created_at)}</Text>
-      <Text style={{fontSize:12, color:'#333', marginBottom:6}}>{`${author.nickname}님의 추억이에요.`}</Text>
+      <Text style={{fontSize:12, color:'#333', marginBottom:6}}>{`${author?.nickname ?? '작성자'}님의 추억이에요.`}</Text>
       <Text style={{fontSize:18, fontWeight:'bold', marginBottom:8}}>{letter.content}</Text>
+      {letter.photo_url ? (
+        <Image
+          source={{ uri: String(letter.photo_url) }}
+          style={{ width: '100%', height: 220, borderRadius: 8, marginBottom: 12 }}
+          resizeMode="cover"
+        />
+      ) : null}
       {letter && (
         <TouchableOpacity onPress={handleTribute} style={{ marginVertical: 8 }}>
           <Button
