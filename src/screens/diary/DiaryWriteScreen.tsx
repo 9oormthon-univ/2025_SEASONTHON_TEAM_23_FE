@@ -2,12 +2,12 @@ import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { useRef, useState } from 'react';
 import Icon from '@common/Icon';
 import { ACTIVE_UI, type EmojiKey, EMOJIS } from '@/constants/diary/emoji';
+import TextArea from '@common/TextArea';
 
 const MAX = 500;
 
 const DiaryWriteScreen = () => {
   const [value, setValue] = useState('');
-  const [focused, setFocused] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState<EmojiKey | null>(null);
   const inputRef = useRef<TextInput>(null);
   return (
@@ -18,31 +18,7 @@ const DiaryWriteScreen = () => {
             <Text className="body2 text-[#343434]">{`2025-09-01-월`}</Text>
             <Text className="subHeading3 text-gray-900">{`스스로에게 해주고 싶은 위로의 말은 무엇인가요?`}</Text>
           </View>
-          <Pressable
-            onPress={() => {
-              inputRef.current?.focus();
-            }}
-            className={`${focused && 'border border-gray-800'} w-full
-        justify-between rounded-[20px] bg-white p-5`}
-          >
-            <TextInput
-              ref={inputRef}
-              value={value}
-              onChangeText={setValue}
-              placeholder="텍스트를 입력해주세요."
-              placeholderTextColor="#BABABA"
-              multiline
-              textAlignVertical="top"
-              maxLength={MAX}
-              onFocus={() => setFocused(true)}
-              onBlur={() => setFocused(false)}
-              underlineColorAndroid="transparent"
-              className="body1 min-h-[274px] text-gray-900"
-            />
-            <Text className="captionSB self-end text-gray-400">
-              {value.length} / 최대 {MAX}자
-            </Text>
-          </Pressable>
+          <TextArea ref={inputRef} value={value} onChangeText={setValue} maxLength={MAX} />
         </View>
         <View className="items-center gap-4">
           <Text className="subHeading3 text-gray-900">{`오늘 어떤 하루를 보내셨나요?`}</Text>
