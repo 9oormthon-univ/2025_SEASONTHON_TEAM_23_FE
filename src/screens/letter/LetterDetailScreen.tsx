@@ -32,7 +32,12 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         const res = await axios.get(`http://10.0.2.2:3001/letters/${id}`);
         setLetter(res.data);
         // prefer camelCase fields from mocks
-        const userIdentifier = res.data?.userId ?? null;
+        const userIdentifier =
+          res.data?.userId ??
+          res.data?.user_id ??
+          res.data?.authorId ??
+          res.data?.author_id ??
+          null;
         if (userIdentifier) {
           try {
             const userRes = await axios.get(`http://10.0.2.2:3001/users/${userIdentifier}`);
@@ -131,13 +136,45 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     ]);
   };
 
+  const ownerId = letter
+    ? (letter.userId ?? letter.user_id ?? null)
+    : null;
+
+  const isOwner = Boolean(user?.id && ownerId && String(ownerId) === String(user.id));
+
+  const handleEdit = () => {
+    if (!letter) return;
+  // cast to any because LetterWriteScreen params may be undefined in RootStackParamList
+  navigation.navigate('LetterWriteScreen' as any, { id: String(letter.id) });
+  };
+
+  const handleDelete = () => {
+    if (!letter) return;
+    Alert.alert('편지 삭제', '정말로 이 편지를 삭제하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await axios.delete(`http://10.0.2.2:3001/letters/${String(letter.id)}`);
+            // after delete, go back to list
+            navigation.goBack();
+          } catch (e) {
+            Alert.alert('삭제 실패', '편지를 삭제하는 중 오류가 발생했습니다.');
+          }
+        }
+      }
+    ]);
+  };
+
   if (loading) return <View style={{ flex: 1, padding: 16 }}><Text>로딩 중...</Text></View>;
   if (error) return <View style={{ flex: 1, padding: 16 }}><Text>{error}</Text></View>;
   if (!letter) return <View style={{ flex: 1, padding: 16 }}><Text>편지를 찾을 수 없습니다.</Text></View>;
 
   return (
     <ScrollView style={{ flex: 1, padding: 16 }}>
-  <Text style={{ color: '#666', marginBottom: 12 }}>{formatKoreanDate(letter.createdAt)}</Text>
+      <Text style={{ color: '#666', marginBottom: 12 }}>{formatKoreanDate(letter.createdAt)}</Text>
       <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${author?.nickname ?? '작성자'}님의 추억이에요.`}</Text>
       <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{letter.content}</Text>
       {letter.photoUrl ? (
@@ -159,6 +196,12 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           onPress={handleTribute}
           disabled={isTributing}
         />
+      )}
+      {isOwner && (
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
+          <Button title="수정" onPress={handleEdit} />
+          <Button title="삭제" color="#d9534f" onPress={handleDelete} />
+        </View>
       )}
     </ScrollView>
   );
