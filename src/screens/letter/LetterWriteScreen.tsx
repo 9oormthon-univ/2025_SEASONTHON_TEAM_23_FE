@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, TextInput, Button, Alert, Image, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, Button, Alert, Image, TouchableOpacity, Text, Switch } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from 'src/types/navigation';
@@ -107,21 +107,7 @@ const LetterWriteScreen = () => {
 
   return (
     <View className="flex-1 bg-white p-4">
-      {/* top-right toggle */}
-      <View className="flex-row justify-end mb-3">
-        <TouchableOpacity
-          onPress={() => setIsPublic(true)}
-          className={`px-4 py-2 rounded-l-lg ${isPublic ? 'bg-blue-500' : 'bg-gray-200'}`}
-        >
-          <Text className={`${isPublic ? 'text-white' : 'text-gray-700'}`}>전체공개</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setIsPublic(false)}
-          className={`px-4 py-2 rounded-r-lg ${!isPublic ? 'bg-blue-500' : 'bg-gray-200'}`}
-        >
-          <Text className={`${!isPublic ? 'text-white' : 'text-gray-700'}`}>나만보기</Text>
-        </TouchableOpacity>
-      </View>
+      {/* visibility toggle: keep logic, present as Switch with helper text */}
       <TextInput
         className="flex-1 border border-gray-300 rounded-lg p-3 mb-4 text-base"
         multiline
@@ -130,6 +116,10 @@ const LetterWriteScreen = () => {
         onChangeText={setLetter}
         textAlignVertical="top"
       />
+      <View className="mb-3 flex-row items-center justify-end">
+        <Text className="mr-3 text-sm text-gray-700">전체공개하면 헌화를 받을 수 있어요.</Text>
+        <Switch value={isPublic} onValueChange={setIsPublic} />
+      </View>
       <Button title="사진 첨부" onPress={pickImage} />
       {imageUri && (
         <View className="relative self-center mb-4">
