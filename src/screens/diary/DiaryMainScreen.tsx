@@ -1,8 +1,12 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { DiaryStackParamList } from '@/types/navigation';
 import Icon from '@common/Icon';
 import EmotionCalendar from '@diary/EmotionCalendar';
 
 const DiaryMainScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
   return (
     <ScrollView>
       <View className="gap-7 bg-gray-50 pb-6 pt-8">
@@ -15,7 +19,7 @@ const DiaryMainScreen = () => {
             <Text className="subHeading3 text-center text-gray-900">{`진심으로 행복하다고 느꼈던\n하루에 대해 알려주세요.`}</Text>
           </View>
           <Pressable
-            onPress={() => console.log('일기 쓰러가기')}
+            onPress={() => navigation.navigate('DiaryWrite')}
             className="flex-row items-center gap-1 rounded-xl bg-primary px-9 py-2"
           >
             <Icon name="IcEdit" size={24} fill="white" />
