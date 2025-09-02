@@ -6,6 +6,7 @@ import type { RootStackParamList } from 'src/types/navigation';
 // AsyncStorage removed: not used in this screen
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
+import { useAuth } from '@/provider/AuthProvider';
 
 // local user id will be fetched from local mock server (/users)
 // do not hardcode — fetch at runtime so tests/dev can change db.json
@@ -15,7 +16,7 @@ const LetterWriteScreen = () => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
   const [isPublic, setIsPublic] = useState<boolean>(true);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user } = useAuth();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const route = useRoute<any>();
   const editingId = route?.params?.id ?? null;
@@ -38,17 +39,7 @@ const LetterWriteScreen = () => {
     })();
   }, [editingId]);
 
-  useEffect(() => {
-    const fetchUserId = async () => {
-      try {
-        const res = await axios.get('http://10.0.2.2:3001/users');
-        setUserId(res.data[0]?.id ?? null);
-      } catch (e) {
-        setUserId(null);
-      }
-    };
-    fetchUserId();
-  }, []);
+  // user is provided by AuthProvider (may be null in dev/mock mode)
 
   const handleSave = async () => {
     try {
@@ -57,7 +48,7 @@ const LetterWriteScreen = () => {
 
       // build payload for json-server (POST용)
       const payload: any = {
-        userId: userId!,
+        userId: user?.id!,
         content: letter,
         isPublic: isPublic,
         createdAt: new Date().toISOString(),
@@ -68,7 +59,7 @@ const LetterWriteScreen = () => {
         payload.photoUrl = normalizedImageUri;
       }
 
-      if (!userId) {
+      if (!user?.id) {
         Alert.alert('사용자 정보를 불러오지 못했습니다. 편지를 저장할 수 없습니다.');
         return;
       }
