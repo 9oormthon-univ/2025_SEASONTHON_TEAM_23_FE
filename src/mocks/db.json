@@ -1,7 +1,7 @@
 {
   "clinics": [
     {
-      "id": 1,
+      "id": "1",
       "name": "펫로스 상담소",
       "regionCode": "GN",
       "phone": "02-123-4567",
@@ -13,7 +13,7 @@
   ],
   "preset_questions": [
     {
-      "id": 1,
+      "id": "1",
       "prompt": "오늘 하루 어떠셨나요?",
       "isActive": true,
       "weight": 10,
@@ -25,7 +25,8 @@
       "code": "SAD",
       "labelKo": "슬픔",
       "emoji": "😢",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "id": "3df4"
     }
   ],
   "users": [
@@ -73,16 +74,17 @@
     {
       "key": "CONSOLATION",
       "textKo": "힘내세요",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "id": "e470"
     }
   ],
   "letter_tributes": [
     {
-      "id": "d3effc99-9c0b-4ef8-bb6d-6bb9bd380d44",
+      "id": "a41f",
       "letterId": "c2dffc99-9c0b-4ef8-bb6d-6bb9bd380c33",
       "fromUserId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      "messageKey": "KIND",
-      "createdAt": "2025-06-24T15:00:00Z"
+      "createdAt": "2025-09-02T14:16:18.314Z",
+      "messageKey": "SADNESS"
     }
   ]
 }
