@@ -4,7 +4,9 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
 import axios from 'axios';
+import { useAuth } from '@/provider/AuthProvider';
 import { useTribute } from '@/provider/TributeProvider';
+import { formatRelativeTime } from '@/utils/relativeTime';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -14,19 +16,9 @@ const LetterFeed: React.FC = () => {
   const { tributedIds, toggleTribute, fetchTributes } = useTribute();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchUserId = async () => {
-      try {
-        const res = await axios.get('http://10.0.2.2:3001/users');
-        setUserId(res.data[0]?.id ?? null);
-      } catch (e) {
-        setUserId(null);
-      }
-    };
-    fetchUserId();
-  }, []);
+  // user is provided by AuthProvider
 
   const fetchLetters = useCallback(async () => {
     setLoading(true);
@@ -41,38 +33,42 @@ const LetterFeed: React.FC = () => {
       for (const u of usersRes.data) {
         usersMap[u.id] = u;
       }
-      const lettersWithAuthor = lettersRes.data.map((l: any) => ({
-        ...l,
-        author: usersMap[l.userId ?? l.user_id] || null
-      }));
+      const lettersWithAuthor = lettersRes.data
+        .map((l: any) => ({
+          ...l,
+          // db.json uses camelCase keys (userId, tributeCount, photoUrl)
+          author: usersMap[l.userId] || null
+        }))
+        // only expose public letters in the feed
+        .filter((l: any) => l.isPublic === true);
       setLetters(lettersWithAuthor);
     } catch (e: any) {
       setError('편지 데이터를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, []);
 
-  // initial fetch
+  // 처음에 받아오는 편지
   useEffect(() => {
     fetchLetters();
-  }, [userId, fetchLetters]);
+  }, [fetchLetters]);
 
-  // refetch when this screen gains focus (e.g., returning from detail)
+  // 상세에서 돌아올때 새로고침 (refetch)
   useFocusEffect(
     useCallback(() => {
       fetchLetters();
-    }, [userId, fetchLetters])
+    }, [fetchLetters])
   );
 
   // 헌화 상태를 Provider에서 동기화
   useEffect(() => {
-    if (userId) fetchTributes(userId);
-  }, [userId, fetchTributes]);
+    if (user?.id) fetchTributes(user.id);
+  }, [user?.id, fetchTributes]);
 
   const handleTributePress = async (letterId: string) => {
-    if (userId) {
-      await toggleTribute(letterId, userId);
+    if (user?.id) {
+      await toggleTribute(letterId, user.id);
       await fetchLetters();
     }
   };
@@ -96,13 +92,14 @@ const LetterFeed: React.FC = () => {
                   <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
                     <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
-                    {item.author?.nickname ? `${item.author.nickname}` : '작성자: 익명'}
+                      {item.author?.nickname ? `${item.author.nickname}` : '작성자 정보 없음'}
+                      {item.createdAt ? ` · ${formatRelativeTime(item.createdAt)}` : ''}
                     </Text>
                   </View>
                 </TouchableOpacity>
                 <View style={{ width: 96, alignItems: 'flex-end' }}>
                 <Button
-                  title={`🌸 ${item.tributeCount ?? item.tribute_count ?? 0}`}
+                  title={`🌸 ${item.tributeCount ?? 0}`}
                   color={tributedIds.has(String(item.id)) ? '#d3d3d3' : undefined}
                   onPress={() => handleTributePress(String(item.id))}
                 />
