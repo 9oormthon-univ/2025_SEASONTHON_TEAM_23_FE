@@ -8,6 +8,32 @@ export const api = axios.create({
   timeout: 10000,
 });
 
+// helper: convert snake_case keys to camelCase recursively
+const toCamel = (input: any): any => {
+  if (Array.isArray(input)) return input.map(toCamel);
+  if (input && typeof input === 'object') {
+    const obj: Record<string, any> = {};
+    for (const [k, v] of Object.entries(input)) {
+      const camelKey = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+      obj[camelKey] = toCamel(v);
+    }
+    return obj;
+  }
+  return input;
+};
+
+// normalize successful responses to camelCase keys
+api.interceptors.response.use((res) => {
+  try {
+    if (res && res.data) res.data = toCamel(res.data);
+  } catch (e) {
+    // if conversion fails, leave original data
+    // eslint-disable-next-line no-console
+    console.debug('toCamel conversion failed', e);
+  }
+  return res;
+});
+
 let isRefreshing = false;
 let waiters: ((t: string | null) => void)[] = [];
 const notify = (t: string | null) => {

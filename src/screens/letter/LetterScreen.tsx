@@ -1,10 +1,14 @@
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
+import { LetterProvider } from '@/components/letter/LetterContext';
+import LetterFeed from '@/components/letter/LetterFeed';
 
 const LetterScreen = () => {
   return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-xl font-bold">한마디 편지</Text>
-    </View>
+    <LetterProvider>
+      <View className="flex-1 bg-white">
+        <LetterFeed />
+      </View>
+    </LetterProvider>
   );
 };
 
