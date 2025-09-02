@@ -4,7 +4,7 @@ import axios from 'axios';
 interface TributeContextType {
   tributedIds: Set<string>;
   fetchTributes: (userId: string) => Promise<void>;
-  toggleTribute: (letterId: string, userId: string) => Promise<void>;
+  toggleTribute: (letterId: string, userId: string, messageKey?: string) => Promise<void>;
 }
 
 const TributeContext = createContext<TributeContextType | undefined>(undefined);
@@ -22,7 +22,7 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, []);
 
-  const toggleTribute = useCallback(async (letterId: string, userId: string) => {
+  const toggleTribute = useCallback(async (letterId: string, userId: string, messageKey?: string) => {
     const has = tributedIds.has(letterId);
     try {
       if (has) {
@@ -35,11 +35,14 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
           await axios.delete(`http://10.0.2.2:3001/letter_tributes/${targetTribute.id}`);
         }
       } else {
-        await axios.post('http://10.0.2.2:3001/letter_tributes', {
+        // include message_key when creating a tribute
+        const payload: any = {
           letter_id: letterId,
           from_user_id: userId,
           created_at: new Date().toISOString()
-        });
+        };
+        if (messageKey) payload.message_key = messageKey;
+        await axios.post('http://10.0.2.2:3001/letter_tributes', payload);
       }
 
       // 현재 tribute_count를 가져와서 증감
