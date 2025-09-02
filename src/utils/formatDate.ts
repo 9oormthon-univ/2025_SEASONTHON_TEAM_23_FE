@@ -9,5 +9,12 @@ export function formatKoreanDate(input?: string | Date | null) {
   const hours = d.getHours();
   const minutes = d.getMinutes();
 
-  return `${year}년 ${month}월 ${date}일 ${hours}시 ${minutes}분`;
+  // 10 미만에는 0 붙이기
+  const mm = String(month).padStart(2, '0');
+  const dd = String(date).padStart(2, '0');
+
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const weekday = weekdays[d.getDay()];
+
+  return `${year}-${mm}-${dd}-${weekday} ${hours}시 ${minutes}분`;
 }
