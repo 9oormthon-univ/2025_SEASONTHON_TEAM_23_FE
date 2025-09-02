@@ -9,6 +9,7 @@ type HeaderProps = {
   hasLogo?: boolean;
   hasButton?: boolean;
   icon?: keyof typeof Icons;
+  iconSize?: number;
   iconColor?: string;
   title?: string;
   onPress?: () => void;
@@ -18,6 +19,7 @@ const CustomHeader = ({
   hasBack,
   hasLogo,
   icon,
+  iconSize = 32,
   iconColor = '#343434',
   hasButton,
   title,
@@ -34,7 +36,7 @@ const CustomHeader = ({
         {hasButton &&
           (icon ? (
             <Pressable onPress={onPress}>
-              <Icon name={icon} size={32} color={iconColor} />
+              <Icon name={icon} size={iconSize} color={iconColor} />
             </Pressable>
           ) : (
             <SaveButton onPress={onPress} />
