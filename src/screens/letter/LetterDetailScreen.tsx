@@ -9,15 +9,11 @@ import { formatKoreanDate } from '@/utils/formatDate';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
 
-// local fallback user id taken from db.json for development without authentication
-const LOCAL_USER_ID = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
-
 const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const id = route?.params?.id;
   const [letter, setLetter] = useState<any | null>(null);
   const [author, setAuthor] = useState<any | null>(null);
   const { tributedIds, toggleTribute } = useTribute();
-  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isTributing, setIsTributing] = useState(false);
@@ -54,21 +50,11 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     fetchDetail();
   }, [id]);
 
-  useEffect(() => {
-    const fetchUserId = async () => {
-      try {
-        const res = await axios.get('http://10.0.2.2:3001/users');
-          setUserId(res.data[0]?.id ?? null);
-      } catch (e) {
-        setUserId(null);
-      }
-    };
-    fetchUserId();
-  }, []);
+  // user is provided by AuthProvider; do not fetch local users here
 
   const handleTribute = async () => {
     if (!letter) return;
-    if (!userId) {
+    if (!user?.id) {
       Alert.alert('사용자 정보를 불러오지 못했습니다.');
       return;
     }
@@ -80,7 +66,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     if (has) {
       setIsTributing(true);
       try {
-        await toggleTribute(letterId, userId);
+  await toggleTribute(letterId, user.id);
         try {
           const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
           setLetter(res.data);
@@ -97,8 +83,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         text: '많이 힘드시죠? 기운 내세요.',
         onPress: async () => {
           setIsTributing(true);
-          try {
-            await toggleTribute(letterId, userId, 'CONSOLATION');
+            try {
+            await toggleTribute(letterId, user.id, 'CONSOLATION');
             try {
               const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
               setLetter(res.data);
@@ -113,8 +99,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         text: '너무 안타까워요. 힘 내세요.',
         onPress: async () => {
           setIsTributing(true);
-          try {
-            await toggleTribute(letterId, userId, 'SADNESS');
+            try {
+            await toggleTribute(letterId, user.id, 'SADNESS');
             try {
               const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
               setLetter(res.data);
@@ -129,8 +115,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         text: '저도 같은 마음이에요. 함께 이겨내요.',
         onPress: async () => {
           setIsTributing(true);
-          try {
-            await toggleTribute(letterId, userId, 'EMPATHY');
+            try {
+            await toggleTribute(letterId, user.id, 'EMPATHY');
             try {
               const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
               setLetter(res.data);

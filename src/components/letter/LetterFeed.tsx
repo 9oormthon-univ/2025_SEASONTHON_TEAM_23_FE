@@ -4,6 +4,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
 import axios from 'axios';
+import { useAuth } from '@/provider/AuthProvider';
 import { useTribute } from '@/provider/TributeProvider';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
@@ -14,19 +15,9 @@ const LetterFeed: React.FC = () => {
   const { tributedIds, toggleTribute, fetchTributes } = useTribute();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchUserId = async () => {
-      try {
-        const res = await axios.get('http://10.0.2.2:3001/users');
-        setUserId(res.data[0]?.id ?? null);
-      } catch (_) {
-        setUserId(null);
-      }
-    };
-    fetchUserId();
-  }, []);
+  // user is provided by AuthProvider
 
   const fetchLetters = useCallback(async () => {
     setLoading(true);
@@ -55,28 +46,28 @@ const LetterFeed: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, []);
 
   // 처음에 받아오는 편지
   useEffect(() => {
     fetchLetters();
-  }, [userId, fetchLetters]);
+  }, [fetchLetters]);
 
   // 상세에서 돌아올때 새로고침 (refetch)
   useFocusEffect(
     useCallback(() => {
       fetchLetters();
-    }, [userId, fetchLetters])
+    }, [fetchLetters])
   );
 
   // 헌화 상태를 Provider에서 동기화
   useEffect(() => {
-    if (userId) fetchTributes(userId);
-  }, [userId, fetchTributes]);
+    if (user?.id) fetchTributes(user.id);
+  }, [user?.id, fetchTributes]);
 
   const handleTributePress = async (letterId: string) => {
-    if (userId) {
-      await toggleTribute(letterId, userId);
+    if (user?.id) {
+      await toggleTribute(letterId, user.id);
       await fetchLetters();
     }
   };
