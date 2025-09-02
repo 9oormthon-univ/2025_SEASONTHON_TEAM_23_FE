@@ -98,6 +98,9 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           resizeMode="cover"
         />
       ) : null}
+      <Text style={{ fontSize: 14, color: '#555', marginBottom: 12 }}>
+        {letter.tribute_count}개의 헌화를 받았어요.
+      </Text>
       {letter && (
         <TouchableOpacity onPress={handleTribute} style={{ marginVertical: 8 }}>
           <Button
