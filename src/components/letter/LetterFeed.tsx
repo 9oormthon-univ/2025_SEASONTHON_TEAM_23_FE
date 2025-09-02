@@ -41,11 +41,14 @@ const LetterFeed: React.FC = () => {
       for (const u of usersRes.data) {
         usersMap[u.id] = u;
       }
-      const lettersWithAuthor = lettersRes.data.map((l: any) => ({
-        ...l,
-        // db.json uses camelCase keys (userId, tributeCount, photoUrl)
-        author: usersMap[l.userId] || null
-      }));
+      const lettersWithAuthor = lettersRes.data
+        .map((l: any) => ({
+          ...l,
+          // db.json uses camelCase keys (userId, tributeCount, photoUrl)
+          author: usersMap[l.userId] || null
+        }))
+        // only expose public letters in the feed
+        .filter((l: any) => l.isPublic === true);
       setLetters(lettersWithAuthor);
     } catch (e: any) {
       setError('편지 데이터를 불러오지 못했습니다.');
@@ -97,13 +100,13 @@ const LetterFeed: React.FC = () => {
                   <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
                     <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
-                    {item.author?.nickname ? `${item.author.nickname}` : '작성자: 익명'}
+                    {item.author?.nickname ? `${item.author.nickname}` : '작성자 정보 없음'}
                     </Text>
                   </View>
                 </TouchableOpacity>
                 <View style={{ width: 96, alignItems: 'flex-end' }}>
                 <Button
-                  title={`🌸 ${item.tributeCount ?? item.tribute_count ?? 0}`}
+                  title={`🌸 ${item.tributeCount ?? 0}`}
                   color={tributedIds.has(String(item.id)) ? '#d3d3d3' : undefined}
                   onPress={() => handleTributePress(String(item.id))}
                 />
