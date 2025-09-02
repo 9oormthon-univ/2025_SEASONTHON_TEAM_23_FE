@@ -7,14 +7,15 @@ import type { RootStackParamList } from 'src/types/navigation';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 
-// local fallback user id (from db.json)
-const LOCAL_USER_ID = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
+// local user id will be fetched from local mock server (/users)
+// do not hardcode — fetch at runtime so tests/dev can change db.json
 
 const LetterWriteScreen = () => {
   const [letter, setLetter] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
   const [isPublic, setIsPublic] = useState<boolean>(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const route = useRoute<any>();
   const editingId = route?.params?.id ?? null;
@@ -37,22 +38,39 @@ const LetterWriteScreen = () => {
     })();
   }, [editingId]);
 
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        const res = await axios.get('http://10.0.2.2:3001/users');
+        setUserId(res.data[0]?.id ?? null);
+      } catch (e) {
+        setUserId(null);
+      }
+    };
+    fetchUserId();
+  }, []);
+
   const handleSave = async () => {
     try {
       // normalize imageUri: '' 를 null로 처리
       const normalizedImageUri = imageUri && imageUri !== '' ? imageUri : null;
 
       // build payload for json-server (POST용)
-  const payload: any = {
-    userId: LOCAL_USER_ID,
-    content: letter,
-  isPublic: isPublic,
-    createdAt: new Date().toISOString(),
-    tributeCount: 0,
-  };
-      // 신규 생성시에만 photo_url을 포함 (값이 있을 때)
+      const payload: any = {
+        userId: userId!,
+        content: letter,
+        isPublic: isPublic,
+        createdAt: new Date().toISOString(),
+        tributeCount: 0,
+      };
+      // 신규 생성시에만 photoUrl을 포함 (값이 있을 때)
       if (normalizedImageUri !== null) {
-        payload.photo_url = normalizedImageUri;
+        payload.photoUrl = normalizedImageUri;
+      }
+
+      if (!userId) {
+        Alert.alert('사용자 정보를 불러오지 못했습니다. 편지를 저장할 수 없습니다.');
+        return;
       }
 
       if (editingId) {
@@ -60,8 +78,8 @@ const LetterWriteScreen = () => {
         // construct update object:
         const normalizedImage = normalizedImageUri;
         const updateData: any = { content: letter };
-  // always include updated isPublic
-  updateData.isPublic = isPublic;
+        // always include updated isPublic
+        updateData.isPublic = isPublic;
         if (normalizedImage !== null) {
           // 사용자가 새 이미지를 추가한 경우
           updateData.photoUrl = normalizedImage;
@@ -70,7 +88,7 @@ const LetterWriteScreen = () => {
           if (originalHasPhoto) updateData.photoUrl = null;
           // originalHasPhoto가 false면 photoUrl 필드 자체를 생략해서 기존 값 유지
         }
-  await axios.patch(`http://10.0.2.2:3001/letters/${editingId}`, updateData);
+        await axios.patch(`http://10.0.2.2:3001/letters/${editingId}`, updateData);
       } else {
         // POST new
         await axios.post('http://10.0.2.2:3001/letters', payload);
