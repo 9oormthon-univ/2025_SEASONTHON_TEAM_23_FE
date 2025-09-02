@@ -162,7 +162,9 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         />
       ) : null}
       <Text style={{ fontSize: 14, color: '#555', marginBottom: 12 }}>
-  {letter.tributeCount ?? 0}개의 헌화를 받았어요.
+        {letter.tributeCount === 0
+          ? "첫 번째로 헌화해 주세요."
+          : `${letter.tributeCount}개의 헌화를 받았어요.`}
       </Text>
       {letter && (
         <Button
