@@ -1,9 +1,11 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
 export type RootStackParamList = {
   Onboarding: undefined;
-  Tabs: { screen?: string };
+  Tabs: NavigatorScreenParams<TabsParamList>;
   DiaryWritePage: undefined;
   LetterWriteScreen: undefined;
-  LetterScreen: undefined; 
+  LetterScreen: undefined;
   LetterDetail: { id: string } | undefined;
 };
 
