@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Button, Alert, Image } from 'react-native';
+import { View, Text, ScrollView, Button, Alert, Image } from 'react-native';
 import axios from 'axios';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
@@ -16,6 +16,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTributing, setIsTributing] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({ title: '편지 내용' });
@@ -67,16 +68,23 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       Alert.alert('사용자 정보를 불러오지 못했습니다.');
       return;
     }
-    const has = tributedIds.has(letter.id);
+    if (isTributing) return;
+
+    const letterId = String(letter.id);
+    const has = tributedIds.has(letterId);
 
     if (has) {
-      // 이미 헌화한 경우 즉시 취소
-      await toggleTribute(letter.id, userId);
+      setIsTributing(true);
       try {
-        const res = await axios.get(`http://10.0.2.2:3001/letters/${letter.id}`);
-        setLetter(res.data);
-      } catch (e) {}
-      Alert.alert('헌화가 취소되었습니다');
+        await toggleTribute(letterId, userId);
+        try {
+          const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
+          setLetter(res.data);
+        } catch (e) {}
+        Alert.alert('헌화가 취소되었습니다');
+      } finally {
+        setIsTributing(false);
+      }
       return;
     }
 
@@ -85,35 +93,49 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       {
         text: '많이 힘드시죠? 기운 내세요.',
         onPress: async () => {
-          await toggleTribute(letter.id, userId, 'CONSOLATION');
+          setIsTributing(true);
           try {
-            const res = await axios.get(`http://10.0.2.2:3001/letters/${letter.id}`);
-            setLetter(res.data);
-          } catch (e) {}
-          Alert.alert('헌화가 완료되었습니다');
+            await toggleTribute(letterId, userId, 'CONSOLATION');
+            try {
+              const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
+              setLetter(res.data);
+            } catch (e) {}
+            Alert.alert('헌화가 완료되었습니다');
+          } finally {
+            setIsTributing(false);
+          }
         }
       },
       {
         text: '너무 안타까워요. 힘 내세요.',
         onPress: async () => {
-          await toggleTribute(letter.id, userId, 'SADNESS');
+          setIsTributing(true);
           try {
-            const res = await axios.get(`http://10.0.2.2:3001/letters/${letter.id}`);
-            setLetter(res.data);
-          } catch (e) {}
-          Alert.alert('헌화가 완료되었습니다');
+            await toggleTribute(letterId, userId, 'SADNESS');
+            try {
+              const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
+              setLetter(res.data);
+            } catch (e) {}
+            Alert.alert('헌화가 완료되었습니다');
+          } finally {
+            setIsTributing(false);
+          }
         }
       },
       {
         text: '저도 같은 마음이에요. 함께 이겨내요.',
         onPress: async () => {
-          await toggleTribute(letter.id, userId, 'EMPATHY');
+          setIsTributing(true);
           try {
-            const res = await axios.get(`http://10.0.2.2:3001/letters/${letter.id}`);
-            setLetter(res.data);
-          } catch (e) {}
-          // 토스트로 헌화 완료 메시지 표시
-          Alert.alert('헌화가 완료되었습니다');
+            await toggleTribute(letterId, userId, 'EMPATHY');
+            try {
+              const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
+              setLetter(res.data);
+            } catch (e) {}
+            Alert.alert('헌화가 완료되었습니다');
+          } finally {
+            setIsTributing(false);
+          }
         }
       },
       { text: '취소', style: 'cancel' }
@@ -140,13 +162,12 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         {letter.tribute_count}개의 헌화를 받았어요.
       </Text>
       {letter && (
-        <TouchableOpacity onPress={handleTribute} style={{ marginVertical: 8 }}>
-          <Button
-            title={`헌화하기`}
-            color={tributedIds.has(letter.id) ? '#888' : undefined}
-            onPress={handleTribute}
-          />
-        </TouchableOpacity>
+        <Button
+          title="헌화하기"
+          color={tributedIds.has(String(letter.id)) ? '#888' : undefined}
+          onPress={handleTribute}
+          disabled={isTributing}
+        />
       )}
     </ScrollView>
   );
