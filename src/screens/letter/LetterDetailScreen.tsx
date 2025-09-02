@@ -68,18 +68,56 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       return;
     }
     const has = tributedIds.has(letter.id);
-    // call provider to toggle tribute
-    await toggleTribute(letter.id, userId);
-    // refresh letter data from server
-    try {
-      const res = await axios.get(`http://10.0.2.2:3001/letters/${letter.id}`);
-      setLetter(res.data);
-    } catch (e) {
-      // ignore
+
+    if (has) {
+      // 이미 헌화한 경우 즉시 취소
+      await toggleTribute(letter.id, userId);
+      try {
+        const res = await axios.get(`http://10.0.2.2:3001/letters/${letter.id}`);
+        setLetter(res.data);
+      } catch (e) {}
+      Alert.alert('헌화가 취소되었습니다');
+      return;
     }
-    // show alert
-    if (has) Alert.alert('헌화가 취소되었습니다');
-    else Alert.alert('헌화가 완료되었습니다');
+
+    // 헌화할 때 메시지를 선택하게 함 모달 창으로
+    Alert.alert('헌화 메시지 선택', '전달할 메시지를 선택하세요', [
+      {
+        text: '많이 힘드시죠? 기운 내세요.',
+        onPress: async () => {
+          await toggleTribute(letter.id, userId, 'CONSOLATION');
+          try {
+            const res = await axios.get(`http://10.0.2.2:3001/letters/${letter.id}`);
+            setLetter(res.data);
+          } catch (e) {}
+          Alert.alert('헌화가 완료되었습니다');
+        }
+      },
+      {
+        text: '너무 안타까워요. 힘 내세요.',
+        onPress: async () => {
+          await toggleTribute(letter.id, userId, 'SADNESS');
+          try {
+            const res = await axios.get(`http://10.0.2.2:3001/letters/${letter.id}`);
+            setLetter(res.data);
+          } catch (e) {}
+          Alert.alert('헌화가 완료되었습니다');
+        }
+      },
+      {
+        text: '저도 같은 마음이에요. 함께 이겨내요.',
+        onPress: async () => {
+          await toggleTribute(letter.id, userId, 'EMPATHY');
+          try {
+            const res = await axios.get(`http://10.0.2.2:3001/letters/${letter.id}`);
+            setLetter(res.data);
+          } catch (e) {}
+          // 토스트로 헌화 완료 메시지 표시
+          Alert.alert('헌화가 완료되었습니다');
+        }
+      },
+      { text: '취소', style: 'cancel' }
+    ]);
   };
 
   if (loading) return <View style={{flex:1, padding:16}}><Text>로딩 중...</Text></View>;
