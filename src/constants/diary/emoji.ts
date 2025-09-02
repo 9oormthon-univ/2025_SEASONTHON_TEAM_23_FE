@@ -1,9 +1,9 @@
 export const EMOJIS = {
-  best: { icon: 'IcSmiley', labelKo: '최고예요', msg: '오늘은 최고의 하루예요.' },
-  good: { icon: 'IcSmiley', labelKo: '좋아요', msg: '오늘은 좋은 하루예요.' },
-  soso: { icon: 'IcSmiley', labelKo: '평범해요', msg: '오늘은 평범한 하루예요.' },
-  sad: { icon: 'IcSad', labelKo: '슬퍼요', msg: '오늘은 슬픈 하루였어요.' },
-  bad: { icon: 'IcBad', labelKo: '별로예요', msg: '오늘은 별로인 하루였어요.' },
+  best: { icon: 'IcSmiley', labelKo: '최고예요', emotion: '오늘은 최고의 하루예요.' },
+  good: { icon: 'IcSmiley', labelKo: '좋아요', emotion: '오늘은 좋은 하루예요.' },
+  soso: { icon: 'IcSmiley', labelKo: '평범해요', emotion: '오늘은 평범한 하루예요.' },
+  sad: { icon: 'IcSad', labelKo: '슬퍼요', emotion: '오늘은 슬픈 하루였어요.' },
+  bad: { icon: 'IcBad', labelKo: '별로예요', emotion: '오늘은 별로인 하루였어요.' },
 } as const;
 export type EmojiKey = keyof typeof EMOJIS;
 
