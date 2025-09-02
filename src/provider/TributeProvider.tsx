@@ -14,9 +14,9 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const fetchTributes = useCallback(async (userId: string) => {
     try {
-      const res = await axios.get('http://10.0.2.2:3001/letter_tributes');
-      const myTributes = res.data.filter((t: any) => t.fromUserId === userId || t.from_user_id === userId);
-      setTributedIds(new Set(myTributes.map((t: any) => String(t.letterId ?? t.letter_id))));
+  const res = await axios.get('http://10.0.2.2:3001/letter_tributes');
+  const myTributes = res.data.filter((t: any) => t.fromUserId === userId);
+  setTributedIds(new Set(myTributes.map((t: any) => String(t.letterId))));
     } catch (e) {
       setTributedIds(new Set());
     }
@@ -47,7 +47,7 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       // 현재 tribute_count를 가져와서 증감
   const letterRes = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-  let currentCount = letterRes.data.tributeCount ?? letterRes.data.tribute_count ?? 0;
+  let currentCount = letterRes.data.tributeCount ?? 0;
   // defensive: treat negative currentCount as 0
   if (currentCount < 0) currentCount = 0;
   const nextCount = currentCount + (has ? -1 : 1);

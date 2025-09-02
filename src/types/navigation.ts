@@ -1,8 +1,13 @@
 import * as Icons from '@icons';
 
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
 export type RootStackParamList = {
   Onboarding: undefined;
-  Tabs: undefined;
+  Tabs: NavigatorScreenParams<TabsParamList>;
+  DiaryWritePage: undefined;
+  LetterWriteScreen: undefined;
+  LetterScreen: undefined;
   LetterDetail: { id: string };
 };
 
