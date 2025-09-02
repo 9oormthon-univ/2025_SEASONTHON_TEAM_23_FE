@@ -107,15 +107,18 @@ const LetterWriteScreen = () => {
 
   return (
     <View className="flex-1 bg-white p-4">
-      {/* visibility toggle: keep logic, present as Switch with helper text */}
-      <TextInput
-        className="flex-1 border border-gray-300 rounded-lg p-3 mb-4 text-base"
-        multiline
-        placeholder="편지를 작성하세요..."
-        value={letter}
-        onChangeText={setLetter}
-        textAlignVertical="top"
-      />
+      <View className="mb-4 relative">
+        <TextInput
+          className="w-full border border-gray-300 rounded-lg p-3 text-base min-h-[120px] pb-7"
+          multiline
+          placeholder="편지를 작성하세요..."
+          value={letter}
+          maxLength={100}
+          onChangeText={setLetter}
+          textAlignVertical="top"
+        />
+        <Text className="absolute right-4 bottom-4 text-xs text-gray-400">{`${letter.length}/최대 100자`}</Text>
+      </View>
       <View className="mb-3 flex-row items-center justify-end">
         <Text className="mr-3 text-sm text-gray-700">전체공개하면 헌화를 받을 수 있어요.</Text>
         <Switch value={isPublic} onValueChange={setIsPublic} />
