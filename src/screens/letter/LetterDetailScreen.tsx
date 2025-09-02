@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Button, Alert, Image } from 'react-native';
 import axios from 'axios';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -30,15 +30,13 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       try {
         const res = await axios.get(`http://10.0.2.2:3001/letters/${id}`);
         setLetter(res.data);
-        // try to fetch author info: if letter contains nickname, use it; else use user_id
         const nick = res.data?.nickname ?? null;
-        const userIdentifier = nick ?? res.data?.user_id ?? null;
+        const userIdentifier = nick ?? res.data?.userId ?? res.data?.user_id ?? null;
         if (userIdentifier) {
           try {
             const userRes = await axios.get(`http://10.0.2.2:3001/users/${userIdentifier}`);
             setAuthor(userRes.data);
           } catch (userErr) {
-            // ignore user fetch error, author stays null
             setAuthor(null);
           }
         }
@@ -62,6 +60,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     };
     fetchUserId();
   }, []);
+
   const handleTribute = async () => {
     if (!letter) return;
     if (!userId) {
@@ -88,7 +87,6 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       return;
     }
 
-    // 헌화할 때 메시지를 선택하게 함 모달 창으로
     Alert.alert('헌화 메시지 선택', '전달할 메시지를 선택하세요', [
       {
         text: '많이 힘드시죠? 기운 내세요.',
@@ -142,24 +140,24 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     ]);
   };
 
-  if (loading) return <View style={{flex:1, padding:16}}><Text>로딩 중...</Text></View>;
-  if (error) return <View style={{flex:1, padding:16}}><Text>{error}</Text></View>;
-  if (!letter) return <View style={{flex:1, padding:16}}><Text>편지를 찾을 수 없습니다.</Text></View>;
+  if (loading) return <View style={{ flex: 1, padding: 16 }}><Text>로딩 중...</Text></View>;
+  if (error) return <View style={{ flex: 1, padding: 16 }}><Text>{error}</Text></View>;
+  if (!letter) return <View style={{ flex: 1, padding: 16 }}><Text>편지를 찾을 수 없습니다.</Text></View>;
 
   return (
-    <ScrollView style={{flex:1, padding:16}}>
-      <Text style={{color:'#666', marginBottom:12}}>{formatKoreanDate(letter.created_at)}</Text>
-      <Text style={{fontSize:12, color:'#333', marginBottom:6}}>{`${author?.nickname ?? '작성자'}님의 추억이에요.`}</Text>
-      <Text style={{fontSize:18, fontWeight:'bold', marginBottom:8}}>{letter.content}</Text>
-      {letter.photo_url ? (
+    <ScrollView style={{ flex: 1, padding: 16 }}>
+      <Text style={{ color: '#666', marginBottom: 12 }}>{formatKoreanDate(letter.createdAt ?? letter.created_at)}</Text>
+      <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${author?.nickname ?? '작성자'}님의 추억이에요.`}</Text>
+      <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{letter.content}</Text>
+      {(letter.photoUrl ?? letter.photo_url) ? (
         <Image
-          source={{ uri: String(letter.photo_url) }}
+          source={{ uri: String(letter.photoUrl ?? letter.photo_url) }}
           style={{ width: '100%', height: 220, borderRadius: 8, marginBottom: 12 }}
           resizeMode="cover"
         />
       ) : null}
       <Text style={{ fontSize: 14, color: '#555', marginBottom: 12 }}>
-        {letter.tribute_count}개의 헌화를 받았어요.
+        {(letter.tributeCount ?? letter.tribute_count ?? 0)}개의 헌화를 받았어요.
       </Text>
       {letter && (
         <Button

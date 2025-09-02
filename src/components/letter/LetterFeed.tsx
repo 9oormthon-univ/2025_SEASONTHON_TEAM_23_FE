@@ -43,7 +43,7 @@ const LetterFeed: React.FC = () => {
       }
       const lettersWithAuthor = lettersRes.data.map((l: any) => ({
         ...l,
-        author: usersMap[l.user_id] || null
+        author: usersMap[l.userId ?? l.user_id] || null
       }));
       setLetters(lettersWithAuthor);
     } catch (e: any) {
@@ -96,16 +96,16 @@ const LetterFeed: React.FC = () => {
                   <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
                     <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
-                      {item.author?.nickname ? `${item.author.nickname}` : '작성자: 익명'}
+                    {item.author?.nickname ? `${item.author.nickname}` : '작성자: 익명'}
                     </Text>
                   </View>
                 </TouchableOpacity>
                 <View style={{ width: 96, alignItems: 'flex-end' }}>
-                  <Button
-                    title={`🌸 ${item.tribute_count ?? 0}`}
-                    color={tributedIds.has(String(item.id)) ? '#d3d3d3' : undefined}
-                    onPress={() => handleTributePress(String(item.id))}
-                  />
+                <Button
+                  title={`🌸 ${item.tributeCount ?? item.tribute_count ?? 0}`}
+                  color={tributedIds.has(String(item.id)) ? '#d3d3d3' : undefined}
+                  onPress={() => handleTributePress(String(item.id))}
+                />
                 </View>
             </View>
           )}
