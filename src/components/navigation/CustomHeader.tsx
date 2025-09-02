@@ -9,11 +9,20 @@ type HeaderProps = {
   hasLogo?: boolean;
   hasButton?: boolean;
   icon?: keyof typeof Icons;
+  iconColor?: string;
   title?: string;
   onPress?: () => void;
 };
 
-const CustomHeader = ({ hasBack, hasLogo, icon, hasButton, title, onPress }: HeaderProps) => {
+const CustomHeader = ({
+  hasBack,
+  hasLogo,
+  icon,
+  iconColor = '#343434',
+  hasButton,
+  title,
+  onPress,
+}: HeaderProps) => {
   return (
     <SafeAreaView edges={['top']} className="bg-white">
       <View className="flex-row items-center justify-between px-7 py-4">
@@ -25,7 +34,7 @@ const CustomHeader = ({ hasBack, hasLogo, icon, hasButton, title, onPress }: Hea
         {hasButton &&
           (icon ? (
             <Pressable onPress={onPress}>
-              <Icon name={icon} size={32} color="#131313" />
+              <Icon name={icon} size={32} color={iconColor} />
             </Pressable>
           ) : (
             <SaveButton onPress={onPress} />
