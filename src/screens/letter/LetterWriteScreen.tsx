@@ -25,10 +25,10 @@ const LetterWriteScreen = () => {
     (async () => {
       try {
         const res = await axios.get(`http://10.0.2.2:3001/letters/${editingId}`);
-        setLetter(res.data?.content ?? '');
-  setIsPublic(res.data?.is_public ?? true);
-        const photo = res.data?.photo_url ?? null;
-        setImageUri(photo);
+    setLetter(res.data?.content ?? '');
+  setIsPublic(res.data?.isPublic ?? true);
+    const photo = res.data?.photoUrl ?? null;
+    setImageUri(photo);
         // remember whether the original letter had a photo
         setOriginalHasPhoto(!!photo);
       } catch (e) {
@@ -43,13 +43,13 @@ const LetterWriteScreen = () => {
       const normalizedImageUri = imageUri && imageUri !== '' ? imageUri : null;
 
       // build payload for json-server (POST용)
-      const payload: any = {
-        user_id: LOCAL_USER_ID,
-        content: letter,
-  is_public: isPublic,
-        created_at: new Date().toISOString(),
-        tribute_count: 0,
-      };
+  const payload: any = {
+    userId: LOCAL_USER_ID,
+    content: letter,
+  isPublic: isPublic,
+    createdAt: new Date().toISOString(),
+    tributeCount: 0,
+  };
       // 신규 생성시에만 photo_url을 포함 (값이 있을 때)
       if (normalizedImageUri !== null) {
         payload.photo_url = normalizedImageUri;
@@ -60,15 +60,15 @@ const LetterWriteScreen = () => {
         // construct update object:
         const normalizedImage = normalizedImageUri;
         const updateData: any = { content: letter };
-  // always include updated is_public
-  updateData.is_public = isPublic;
+  // always include updated isPublic
+  updateData.isPublic = isPublic;
         if (normalizedImage !== null) {
           // 사용자가 새 이미지를 추가한 경우
-          updateData.photo_url = normalizedImage;
+          updateData.photoUrl = normalizedImage;
         } else {
           // 사용자가 이미지를 제거했을 때(original had photo), null로 설정
-          if (originalHasPhoto) updateData.photo_url = null;
-          // originalHasPhoto가 false면 photo_url 필드 자체를 생략해서 기존 값 유지
+          if (originalHasPhoto) updateData.photoUrl = null;
+          // originalHasPhoto가 false면 photoUrl 필드 자체를 생략해서 기존 값 유지
         }
   await axios.patch(`http://10.0.2.2:3001/letters/${editingId}`, updateData);
       } else {

@@ -5,7 +5,11 @@ export type AppTokens = {
 };
 
 export type User = {
+  kakaoId: string;
+  nickname: string;
   email: string;
-  nickname?: string;
-  profileImageUrl?: string;
+  avatarUrl: string;
+  createdAt: string;
+  updatedAt: string;
+  id: string;
 };

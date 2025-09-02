@@ -8,14 +8,16 @@ module.exports = function (api) {
         {
           alias: {
             '@': './src',
-            '@icon': './assets/icons',
-            '@image/*': './assets/images',
+            '@icons': './assets/icons',
+            '@images/*': './assets/images',
+            '@fonts/*': './assets/fonts',
             '@auth/*': './src/components/auth',
             '@common/*': './src/components/common',
             '@home/*': './src/components/home',
             '@diary/*': './src/components/diary',
             '@letter/*': './src/components/letter',
             '@counseling/*': './src/components/counseling',
+            '@navigation/*': './src/components/navigation',
           },
           extensions: ['.tsx', '.ts', '.js', '.jsx'],
         },

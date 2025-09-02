@@ -1,0 +1,105 @@
+{
+  "clinics": [
+    {
+      "id": "1",
+      "name": "펫로스 상담소",
+      "regionCode": "GN",
+      "phone": "02-123-4567",
+      "url": "http://petloss-clinic.com",
+      "createdBy": "user123",
+      "isVerified": true,
+      "createdAt": "2025-06-24T10:00:00Z"
+    }
+  ],
+  "preset_questions": [
+    {
+      "id": "1",
+      "prompt": "오늘 하루 어떠셨나요?",
+      "isActive": true,
+      "weight": 10,
+      "createdAt": "2025-06-24T11:00:00Z"
+    }
+  ],
+  "emotions": [
+    {
+      "code": "SAD",
+      "labelKo": "슬픔",
+      "emoji": "😢",
+      "sortOrder": 1,
+      "id": "3df4"
+    }
+  ],
+  "users": [
+    {
+      "kakaoId": "kakao_12345",
+      "nickname": "멍이",
+      "email": "happyuser@example.com",
+      "avatarUrl": "http://example.com/avatars/1.jpg",
+      "createdAt": "2025-06-24T12:00:00Z",
+      "updatedAt": "2025-06-24T12:00:00Z",
+      "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+    }
+  ],
+  "diaries": [
+    {
+      "id": "b1cffc99-9c0b-4ef8-bb6d-6bb9bd380b22",
+      "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "questionId": 1,
+      "emotionCode": "REGRETFUL",
+      "content": "더 잘해 줄걸 그랬어",
+      "createdAt": "2025-06-24T13:00:00Z"
+    }
+  ],
+  "letters": [
+    {
+      "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "content": "사랑하는 멍이에게. 너무 보고 싶다.",
+      "photoUrl": "http://example.com/photos/1.jpg",
+      "isPublic": true,
+      "tributeCount": 5,
+      "createdAt": "2025-06-24T14:00:00Z",
+      "id": "c2dffc99-9c0b-4ef8-bb6d-6bb9bd380c33"
+    },
+    {
+      "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "content": "무지개다리를 건넌 철이야, 항상 행복하길 바라.",
+      "photoUrl": "http://example.com/photos/2.jpg",
+      "isPublic": false,
+      "tributeCount": 2,
+      "createdAt": "2025-08-30T10:30:00Z",
+      "id": "c2dffc99-9c0b-4ef8-bb6d-6bb9bd380c34"
+    },
+    {
+      "id": "759a",
+      "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "content": "ㅇㅁㄴㅇㅁㄴㅇ",
+      "isPublic": false,
+      "createdAt": "2025-09-02T16:39:06.089Z",
+      "tributeCount": 1
+    }
+  ],
+  "tribute_messages": [
+    {
+      "key": "CONSOLATION",
+      "textKo": "힘내세요",
+      "sortOrder": 1,
+      "id": "e470"
+    }
+  ],
+  "letter_tributes": [
+    {
+      "id": "a41f",
+      "letterId": "c2dffc99-9c0b-4ef8-bb6d-6bb9bd380c33",
+      "fromUserId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "createdAt": "2025-09-02T14:16:18.314Z",
+      "messageKey": "SADNESS"
+    },
+    {
+      "id": "0645",
+      "letterId": "759a",
+      "fromUserId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "createdAt": "2025-09-02T16:39:11.855Z",
+      "messageKey": "EMPATHY"
+    }
+  ]
+}
