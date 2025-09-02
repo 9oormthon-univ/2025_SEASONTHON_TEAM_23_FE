@@ -5,13 +5,11 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
 import axios from 'axios';
 import { useTribute } from '@/provider/TributeProvider';
-import { useLetterFilter } from './LetterContext';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
 const LetterFeed: React.FC = () => {
   const navigation = useNavigation<NavProp>();
-  const { showMyLetters } = useLetterFilter();
   const [letters, setLetters] = useState<any[]>([]);
   const { tributedIds, toggleTribute, fetchTributes } = useTribute();
   const [loading, setLoading] = useState(true);
@@ -30,18 +28,11 @@ const LetterFeed: React.FC = () => {
     fetchUserId();
   }, []);
 
-  useEffect(() => {
-    // fetch handled by fetchLetters below
-  }, [showMyLetters, userId]);
-
   const fetchLetters = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      let url = 'http://10.0.2.2:3001/letters';
-      if (showMyLetters && userId) {
-        url += `?user_id=${userId}`;
-      }
+      const url = 'http://10.0.2.2:3001/letters';
       const [lettersRes, usersRes] = await Promise.all([
         axios.get(url),
         axios.get('http://10.0.2.2:3001/users')
@@ -60,18 +51,18 @@ const LetterFeed: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [showMyLetters, userId]);
+  }, [userId]);
 
   // initial fetch
   useEffect(() => {
-    if (!showMyLetters || userId) fetchLetters();
-  }, [showMyLetters, userId, fetchLetters]);
+    fetchLetters();
+  }, [userId, fetchLetters]);
 
   // refetch when this screen gains focus (e.g., returning from detail)
   useFocusEffect(
     useCallback(() => {
-      if (!showMyLetters || userId) fetchLetters();
-    }, [showMyLetters, userId, fetchLetters])
+      fetchLetters();
+    }, [userId, fetchLetters])
   );
 
   // 헌화 상태를 Provider에서 동기화
@@ -88,9 +79,6 @@ const LetterFeed: React.FC = () => {
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
-      <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 12 }}>
-        {showMyLetters ? '내가 쓴 편지 목록' : '모두의 편지 목록'}
-      </Text>
       {loading ? (
         <Text>로딩 중...</Text>
       ) : error ? (
@@ -101,19 +89,24 @@ const LetterFeed: React.FC = () => {
           keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={({ item }) => (
             <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <TouchableOpacity onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })} style={{ flex: 1 }}>
-                <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
-                  <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
-                    {item.author?.nickname ? `${item.author.nickname}` : '작성자: 익명'}
-                  </Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
+                  style={{ flex: 1, marginRight: 12 }}
+                >
+                  <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
+                    <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
+                      {item.author?.nickname ? `${item.author.nickname}` : '작성자: 익명'}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <View style={{ width: 96, alignItems: 'flex-end' }}>
                   <Button
                     title={`🌸 ${item.tribute_count ?? 0}`}
-                    color={tributedIds.has(item.id) ? '#d3d3d3' : undefined}
-                    onPress={() => handleTributePress(item.id)}
+                    color={tributedIds.has(String(item.id)) ? '#d3d3d3' : undefined}
+                    onPress={() => handleTributePress(String(item.id))}
                   />
                 </View>
-              </TouchableOpacity>
             </View>
           )}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
