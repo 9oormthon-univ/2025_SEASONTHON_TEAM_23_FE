@@ -6,6 +6,7 @@ import type { RootStackParamList } from '@/types/navigation';
 import axios from 'axios';
 import { useAuth } from '@/provider/AuthProvider';
 import { useTribute } from '@/provider/TributeProvider';
+import { formatRelativeTime } from '@/utils/relativeTime';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -91,7 +92,8 @@ const LetterFeed: React.FC = () => {
                   <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
                     <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
-                    {item.author?.nickname ? `${item.author.nickname}` : '작성자 정보 없음'}
+                      {item.author?.nickname ? `${item.author.nickname}` : '작성자 정보 없음'}
+                      {item.createdAt ? ` · ${formatRelativeTime(item.createdAt)}` : ''}
                     </Text>
                   </View>
                 </TouchableOpacity>
