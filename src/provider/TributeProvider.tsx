@@ -46,10 +46,13 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
 
       // 현재 tribute_count를 가져와서 증감
-      const letterRes = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-      const currentCount = letterRes.data.tribute_count ?? 0;
-      const nextCount = currentCount + (has ? -1 : 1);
-      await axios.patch(`http://10.0.2.2:3001/letters/${letterId}`, { tribute_count: nextCount });
+  const letterRes = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
+  let currentCount = letterRes.data.tribute_count ?? 0;
+  // defensive: treat negative currentCount as 0
+  if (currentCount < 0) currentCount = 0;
+  const nextCount = currentCount + (has ? -1 : 1);
+  const safeCount = Math.max(0, nextCount);
+  await axios.patch(`http://10.0.2.2:3001/letters/${letterId}`, { tribute_count: safeCount });
 
       await fetchTributes(userId);
     } catch (e) {
