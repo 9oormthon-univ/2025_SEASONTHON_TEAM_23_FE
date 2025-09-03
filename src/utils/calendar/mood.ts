@@ -1,6 +1,6 @@
-/** mood 번호 → 원형 배경색(hex) */
+import type { EmojiKey } from '@/constants/diary/emoji';
+
 export const moodColorFromNumber = (mood?: number): string | undefined => {
-  // 예시 매핑: 0=best, 1=good, 2=soso, 3=sad, 4=bad
   switch (mood) {
     case 0:
       return '#A6EB7C'; // best
@@ -14,5 +14,20 @@ export const moodColorFromNumber = (mood?: number): string | undefined => {
       return '#F5F5F5'; // bad(연한 회색)
     default:
       return undefined;
+  }
+};
+
+export const emojiKeyToMood = (key: EmojiKey): number => {
+  switch (key) {
+    case 'best':
+      return 0;
+    case 'good':
+      return 1;
+    case 'soso':
+      return 2;
+    case 'sad':
+      return 3;
+    case 'bad':
+      return 4;
   }
 };
