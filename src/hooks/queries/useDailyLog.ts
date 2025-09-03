@@ -4,10 +4,10 @@ import { fetchDailyLogs } from '@/services/dailyLog';
 import { moodColorFromNumber } from '@/utils/calendar/mood';
 import type { DailyLog } from '@/types/diary';
 
-export const useDailyLogs = (userId?: string) => {
+export const useDailyLogs = (userId?: number) => {
   const query = useQuery({
     queryKey: ['daily-logs', userId],
-    queryFn: () => fetchDailyLogs(userId as string),
+    queryFn: () => fetchDailyLogs(userId as number),
     enabled: !!userId,
   });
 
