@@ -1,8 +1,6 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import * as Icons from '@icons';
 
-import type { NavigatorScreenParams } from '@react-navigation/native';
-
 export type RootStackParamList = {
   Onboarding: undefined;
   Tabs: NavigatorScreenParams<TabsParamList>;
