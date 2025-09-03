@@ -1,17 +1,15 @@
 import { Alert } from 'react-native';
 import { useCallback, useState } from 'react';
 import { useAuth } from '@/provider/AuthProvider';
-import { users } from '@/mocks/db.json';
 
 export const useKakaoLogin = () => {
-  const { setUser } = useAuth();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const onKakaoPress = useCallback(async () => {
     try {
       setLoading(true);
-      // await login();
-      setUser(users[0]);
+      await login();
     } catch (error: any) {
       const msg =
         error?.message ??
@@ -20,7 +18,7 @@ export const useKakaoLogin = () => {
     } finally {
       setLoading(false);
     }
-  }, [setUser]);
+  }, []);
 
   return { loading, onKakaoPress };
 };
