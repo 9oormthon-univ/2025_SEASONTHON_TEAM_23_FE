@@ -25,6 +25,14 @@ module.exports = {
           800: '#313131',
           900: '#131313',
         },
+        emoji: {
+          best: '#A6EB7C',
+          good: '#8FC3F6',
+          soso: '#F3DE77',
+          sad: '#585858',
+          bad: '#585858',
+          off: '#F5F5F5',
+        },
         error: {
           DEFAULT: '#FF2E45',
         },
