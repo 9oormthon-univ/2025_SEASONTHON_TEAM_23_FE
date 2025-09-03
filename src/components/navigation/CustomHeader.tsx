@@ -1,19 +1,9 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Pressable, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { HeaderProps } from '@/types/Header';
 import Icon from '@common/Icon';
-import * as Icons from '@icons';
 import SaveButton from '@common/SaveButton';
-
-type HeaderProps = {
-  hasBack?: boolean;
-  hasLogo?: boolean;
-  hasButton?: boolean;
-  icon?: keyof typeof Icons;
-  iconSize?: number;
-  iconColor?: string;
-  title?: string;
-  onPress?: () => void;
-};
 
 const CustomHeader = ({
   hasBack,
@@ -25,11 +15,16 @@ const CustomHeader = ({
   title,
   onPress,
 }: HeaderProps) => {
+  const navigation = useNavigation();
   return (
     <SafeAreaView edges={['top']} className="bg-white">
       <View className="flex-row items-center justify-between px-7 py-4">
         <View className="flex-row gap-5">
-          {hasBack && <Icon name="IcBack" size={28} color={'#131313'} />}
+          {hasBack && (
+            <Pressable onPress={() => navigation.goBack()}>
+              <Icon name="IcBack" size={28} color={'#131313'} />
+            </Pressable>
+          )}
           {hasLogo && <Icon name="IcBrandLogo" width={94} height={30} />}
           {title && <Text className="subHeading2B color-gray-900">{title}</Text>}
         </View>
