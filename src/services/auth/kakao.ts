@@ -33,9 +33,16 @@ export const signInWithKakao = async (): Promise<void> => {
 };
 
 export const signOutAll = async (): Promise<void> => {
+  const pair = await tokenStore.loadPair();
+  const refreshToken = pair?.refreshToken ?? null;
+
   try {
-    await api.post('/auth/logout');
-  } catch {}
+    if (refreshToken) {
+      await api.post('/auth/logout', { refreshToken });
+    }
+  } catch (e) {
+    console.debug('로그아웃 요청 실패', e);
+  }
   try {
     await kakaoLogout();
   } catch {}
