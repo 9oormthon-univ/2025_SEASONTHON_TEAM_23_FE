@@ -22,18 +22,6 @@ const toCamel = (input: any): any => {
   return input;
 };
 
-// normalize successful responses to camelCase keys
-api.interceptors.response.use((res) => {
-  try {
-    if (res && res.data) res.data = toCamel(res.data);
-  } catch (e) {
-    // if conversion fails, leave original data
-    // eslint-disable-next-line no-console
-    console.debug('toCamel conversion failed', e);
-  }
-  return res;
-});
-
 let isRefreshing = false;
 let waiters: ((t: string | null) => void)[] = [];
 const notify = (t: string | null) => {
