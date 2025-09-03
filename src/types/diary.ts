@@ -31,3 +31,8 @@ export type DailyLog = {
   preview: string;
   mood: number;
 };
+
+export type DailyTopic = {
+  topic: string;
+  date: string;
+};
