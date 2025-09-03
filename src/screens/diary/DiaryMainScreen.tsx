@@ -1,12 +1,27 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAuth } from '@/provider/AuthProvider';
+import { useDailyLogs } from '@/hooks/queries/useDailyLog';
 import type { DiaryStackParamList } from '@/types/navigation';
 import Icon from '@common/Icon';
 import EmotionCalendar from '@diary/EmotionCalendar';
+import Loader from '@common/Loader';
 
 const DiaryMainScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
+  const { user } = useAuth();
+  const userId = user!.id;
+  const { byDate, isLoading } = useDailyLogs(userId);
+
+  const handleSelectDate = (iso: string) => {
+    if (byDate[iso]) {
+      navigation.navigate('DiaryByDate', { date: iso });
+    } else {
+      navigation.navigate('DiaryWrite', { date: iso });
+    }
+  };
+
   return (
     <ScrollView>
       <View className="gap-7 bg-gray-50 pb-6 pt-8">
@@ -27,7 +42,8 @@ const DiaryMainScreen = () => {
           </Pressable>
         </View>
         <View>
-          <EmotionCalendar />
+          {isLoading && <Loader />}
+          <EmotionCalendar userId={userId} onSelectDate={handleSelectDate} />
         </View>
       </View>
     </ScrollView>

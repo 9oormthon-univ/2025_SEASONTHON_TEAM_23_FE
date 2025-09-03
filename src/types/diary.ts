@@ -23,3 +23,11 @@ export type Diaries = {
   content: string;
   createdAt: string;
 };
+
+export type DailyLog = {
+  id: number;
+  logDate: string;
+  topic: string;
+  preview: string;
+  mood: number;
+};
