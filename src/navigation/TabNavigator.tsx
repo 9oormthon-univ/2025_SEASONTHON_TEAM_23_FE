@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
 import type { IconMap, TabsParamList } from '@/types/navigation';
 import HomeScreen from '@/screens/home/HomeScreen';
-import DiaryScreen from '@/screens/diary/DiaryScreen';
+import DiaryStackNavigator from '@/navigation/diary/DiaryStackNavigator';
 import LetterScreen from '@/screens/letter/LetterScreen';
 import CounselingScreen from '@/screens/counseling/CounselingScreen';
 import ProfileScreen from '@/screens/profile/ProfileScreen';
@@ -37,7 +37,6 @@ const TabNavigator = () => {
 
         return {
           headerTitleAlign: 'center',
-          tabBarHideOnKeyboard: true,
           tabBarStyle: {
             backgroundColor: tabBarBg,
             height: 105,
@@ -61,16 +60,10 @@ const TabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          header: () => <CustomHeader hasLogo hasIcon />,
+          header: () => <CustomHeader hasLogo hasButton icon="IcNotification" />,
         }}
       />
-      <Tab.Screen
-        name="Diary"
-        component={DiaryScreen}
-        options={{
-          header: () => <CustomHeader hasBack hasIcon title="오늘의 일기" />,
-        }}
-      />
+      <Tab.Screen name="Diary" component={DiaryStackNavigator} options={{ headerShown: false }} />
       <Tab.Screen name="Letter" component={LetterScreen} />
       <Tab.Screen name="Counseling" component={CounselingScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />

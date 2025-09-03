@@ -34,5 +34,6 @@
       "@navigation/*": ["src/components/navigation/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts", "src/types/**/*.d.ts"]
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts", "src/types/**/*.d.ts"],
+  "exclude": ["node_modules"]
 }
