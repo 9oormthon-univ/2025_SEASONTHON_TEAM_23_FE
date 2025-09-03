@@ -23,7 +23,7 @@ export const getKakaoAccessToken = async (): Promise<string> => {
 export const signInWithKakao = async (): Promise<User> => {
   const kakaoAccessToken = await getKakaoAccessToken();
 
-  const { data } = await api.post('/api/auth/kakao', {
+  const { data } = await api.post('/auth/kakao', {
     kakaoAccessToken,
   });
 
@@ -41,7 +41,7 @@ export const signOutAll = async (): Promise<void> => {
 
   try {
     if (refreshToken) {
-      await api.post('/api/auth/logout', { refreshToken });
+      await api.post('/auth/logout', { refreshToken });
     }
   } catch (e) {
     console.debug('로그아웃 요청 실패', e);
@@ -53,7 +53,7 @@ export const signOutAll = async (): Promise<void> => {
 };
 
 export const unlinkAccount = async (): Promise<void> => {
-  await api.post('/api/auth/unlink');
+  await api.post('/auth/unlink');
   try {
     await kakaoLogout();
   } catch {}
