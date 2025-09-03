@@ -1,17 +1,50 @@
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
-import { useRef, useState } from 'react';
+import { View, Text, TextInput, Pressable, ScrollView, Switch } from 'react-native';
+import { useLayoutEffect, useRef, useState } from 'react';
 import Icon from '@common/Icon';
 import { ACTIVE_UI, type EmojiKey, EMOJIS } from '@/constants/diary/emoji';
 import TextArea from '@common/TextArea';
+import { useAuth } from '@/provider/AuthProvider';
+import { useNavigation } from '@react-navigation/native';
+import { useDiarySubmit } from '@/hooks/diary/useDiarySubmit';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { DiaryStackParamList } from '@/types/navigation';
+import { setHeaderExtras } from '@/types/Header';
+import Loader from '@common/Loader';
+import { todayISO } from '@/utils/calendar/date';
 
 const MAX = 500;
 
 const DiaryWriteScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList, 'DiaryWrite'>>();
+  const { user } = useAuth();
+  const userId = Number(user?.id);
+
   const [value, setValue] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState<EmojiKey | null>(null);
+  const [needAiReflection, setNeedAiReflection] = useState<boolean>(true);
+
+  const date = todayISO();
+
+  const { submit, isSubmitting } = useDiarySubmit({
+    userId,
+    selectedEmoji,
+    content: value,
+    needAiReflection,
+    onSuccess: () => navigation.replace('DiaryByDate', { date }),
+  });
+  useLayoutEffect(() => {
+    setHeaderExtras(navigation, {
+      title: '오늘의 일기',
+      hasBack: true,
+      hasButton: true,
+      onPress: submit,
+    });
+  }, [navigation, submit]);
   const inputRef = useRef<TextInput>(null);
+
   return (
     <ScrollView>
+      {isSubmitting && <Loader />}
       <View className="gap-7 bg-gray-50 px-7 pb-[72px] pt-9">
         <View className="items-center gap-4">
           <View className="items-center gap-6">
@@ -44,6 +77,18 @@ const DiaryWriteScreen = () => {
               );
             })}
           </View>
+        </View>
+        <View className="flex-row justify-between rounded-[20px] bg-white px-8 py-5">
+          <View>
+            <Text className="captionSB text-gray-900">{`이 글에 대한`}</Text>
+            <Text className="body1 leading-6 text-gray-900">{`공감문을 받을 수 있어요.`}</Text>
+          </View>
+          <Switch
+            value={needAiReflection}
+            onValueChange={setNeedAiReflection}
+            trackColor={{ false: '#CECECE', true: '#7EB658' }}
+            thumbColor="#FFFFFF"
+          />
         </View>
       </View>
     </ScrollView>
