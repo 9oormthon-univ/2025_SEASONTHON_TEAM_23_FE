@@ -6,6 +6,7 @@ import {
 } from '@react-native-seoul/kakao-login';
 import { api } from '../axiosInstance';
 import { tokenStore } from './tokenStore';
+import type { User } from '@/types/auth';
 
 export const getKakaoAccessToken = async (): Promise<string> => {
   let token: KakaoOAuthToken | null;
@@ -19,10 +20,10 @@ export const getKakaoAccessToken = async (): Promise<string> => {
   return at;
 };
 
-export const signInWithKakao = async (): Promise<void> => {
+export const signInWithKakao = async (): Promise<User> => {
   const kakaoAccessToken = await getKakaoAccessToken();
 
-  const { data } = await api.post('/auth/kakao', {
+  const { data } = await api.post('/api/auth/kakao', {
     kakaoAccessToken,
   });
 
@@ -30,6 +31,8 @@ export const signInWithKakao = async (): Promise<void> => {
     accessToken: data.accessToken,
     refreshToken: data.refreshToken,
   });
+
+  return data.user;
 };
 
 export const signOutAll = async (): Promise<void> => {
@@ -38,7 +41,7 @@ export const signOutAll = async (): Promise<void> => {
 
   try {
     if (refreshToken) {
-      await api.post('/auth/logout', { refreshToken });
+      await api.post('/api/auth/logout', { refreshToken });
     }
   } catch (e) {
     console.debug('로그아웃 요청 실패', e);
@@ -50,7 +53,7 @@ export const signOutAll = async (): Promise<void> => {
 };
 
 export const unlinkAccount = async (): Promise<void> => {
-  await api.post('/auth/unlink');
+  await api.post('/api/auth/unlink');
   try {
     await kakaoLogout();
   } catch {}
