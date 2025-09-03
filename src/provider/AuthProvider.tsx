@@ -7,7 +7,6 @@ import { signInWithKakao, signOutAll, unlinkAccount } from '@/services/auth/kaka
 
 type AuthContextValue = {
   user: User | null;
-  setUser: (user: User | null) => void; //백엔드 연동 시 지우기
   loading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
@@ -54,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, login, logout, unlink, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, unlink, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

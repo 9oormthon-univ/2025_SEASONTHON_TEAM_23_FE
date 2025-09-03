@@ -4,7 +4,7 @@ import { addMonthsISO, monthStartISO, todayISO } from '@/utils/calendar/date';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
 
 type Params = {
-  userId: string;
+  userId: number;
   onSelectDate: (isoDate: string) => void;
   initialMonthISO?: string;
 };

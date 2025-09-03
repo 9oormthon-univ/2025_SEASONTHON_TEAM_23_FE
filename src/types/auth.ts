@@ -1,15 +1,12 @@
 export type AppTokens = {
   accessToken: string;
   refreshToken: string;
-  accessTokenExpiresAt?: number;
 };
 
 export type User = {
-  kakaoId: string;
+  id: number;
   nickname: string;
-  email: string;
-  avatarUrl: string;
-  createdAt: string;
-  updatedAt: string;
-  id: string;
+  profileImageUrl?: string;
 };
+
+export type AuthResponse = AppTokens & { user: User };

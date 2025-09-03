@@ -5,7 +5,7 @@ import CustomDay from '@diary/CustomDay';
 import { useEmotionCalendar } from '@/hooks/diary/useEmotionCalendar';
 
 type EmotionCalendarProps = {
-  userId: string;
+  userId: number;
   onSelectDate: (isoDate: string) => void;
   initialMonthISO?: string;
 };
