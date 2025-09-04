@@ -39,14 +39,14 @@ export default function HomeScreen({
     <SafeAreaView className="flex-1 bg-[#0E1621] px-6">
       <StatusBar barStyle="light-content" />
       <View className="mt-6">
-        <Text className="text-[#F2F5F7] text-[28px] font-extrabold mb-1" numberOfLines={1}>
+        <Text className="text-[#C8D1DB] text-[28px] font-extrabold mb-1" numberOfLines={1}>
           {nickname} 님,
         </Text>
         <Text className="text-[#C8D1DB] text-[16px] font-medium">오늘도 편안한 하루 보내세요.</Text>
       </View>
 
       <View className="gap-7 pb-6 pt-8 bg-transparent">
-        <View className="relative mx-7 items-center gap-5 overflow-hidden rounded-[20px] bg-[#E9EDF1] px-6 py-5">
+        <View className="relative mx-7 items-center gap-5 overflow-hidden rounded-[20px] bg-white px-6 py-5">
           {topicIsLoading && <Loader />}
           <View className="gap-4">
             <View className="items-center">
