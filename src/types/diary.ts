@@ -31,3 +31,19 @@ export type DailyLog = {
   preview: string;
   mood: number;
 };
+
+export type CreateDailyLogBody = {
+  logDate: string; // 'YYYY-MM-DD'
+  mood: number; // 서버 규약(0~N)
+  content: string; // 본문
+  needAiReflection: boolean; // 짧은 공감문 생성 여부
+};
+
+export type CreateDailyLogResponse = {
+  id: number;
+};
+
+export type DailyTopic = {
+  topic: string;
+  date: string;
+};

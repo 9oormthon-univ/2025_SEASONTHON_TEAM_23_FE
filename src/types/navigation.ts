@@ -20,8 +20,8 @@ export type TabsParamList = {
 
 export type DiaryStackParamList = {
   DiaryMain: undefined;
-  DiaryWrite: { date?: string } | undefined;
-  DiaryByDate: { date: string } | undefined;
+  DiaryWrite: { topic: string };
+  DiaryByDate: { date: string };
 };
 
 export type IconMap = Record<

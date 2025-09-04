@@ -27,7 +27,7 @@ const LetterFeed: React.FC = () => {
       const url = 'http://10.0.2.2:3001/letters';
       const [lettersRes, usersRes] = await Promise.all([
         axios.get(url),
-        axios.get('http://10.0.2.2:3001/users')
+        axios.get('http://10.0.2.2:3001/users'),
       ]);
       const usersMap: Record<string, any> = {};
       for (const u of usersRes.data) {
@@ -37,7 +37,7 @@ const LetterFeed: React.FC = () => {
         .map((l: any) => ({
           ...l,
           // db.json uses camelCase keys (userId, tributeCount, photoUrl)
-          author: usersMap[l.userId] || null
+          author: usersMap[l.userId] || null,
         }))
         // only expose public letters in the feed
         .filter((l: any) => l.isPublic === true);
@@ -63,12 +63,12 @@ const LetterFeed: React.FC = () => {
 
   // 헌화 상태를 Provider에서 동기화
   useEffect(() => {
-    if (user?.id) fetchTributes(user.id);
-  }, [user?.id, fetchTributes]);
+    if (user?.userId) fetchTributes(user.userId);
+  }, [user?.userId, fetchTributes]);
 
   const handleTributePress = async (letterId: string) => {
-    if (user?.id) {
-      await toggleTribute(letterId, user.id);
+    if (user?.userId) {
+      await toggleTribute(letterId, user.userId);
       await fetchLetters();
     }
   };
@@ -84,26 +84,35 @@ const LetterFeed: React.FC = () => {
           data={letters}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={({ item }) => (
-            <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
-                  style={{ flex: 1, marginRight: 12 }}
-                >
-                  <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
-                    <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
-                      {item.author?.nickname ? `${item.author.nickname}` : '작성자 정보 없음'}
-                      {item.createdAt ? ` · ${formatRelativeTime(item.createdAt)}` : ''}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <View style={{ width: 96, alignItems: 'flex-end' }}>
+            <View
+              style={{
+                padding: 12,
+                borderBottomWidth: 1,
+                borderColor: '#eee',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
+                style={{ flex: 1, marginRight: 12 }}
+              >
+                <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
+                  <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
+                    {item.author?.nickname ? `${item.author.nickname}` : '작성자 정보 없음'}
+                    {item.createdAt ? ` · ${formatRelativeTime(item.createdAt)}` : ''}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              <View style={{ width: 96, alignItems: 'flex-end' }}>
                 <Button
                   title={`🌸 ${item.tributeCount ?? 0}`}
                   color={tributedIds.has(String(item.id)) ? '#d3d3d3' : undefined}
                   onPress={() => handleTributePress(String(item.id))}
                 />
-                </View>
+              </View>
             </View>
           )}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
