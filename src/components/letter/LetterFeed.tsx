@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Button } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
@@ -13,7 +13,7 @@ type NavProp = NativeStackNavigationProp<RootStackParamList>;
 const LetterFeed: React.FC = () => {
   const navigation = useNavigation<NavProp>();
   const [letters, setLetters] = useState<any[]>([]);
-  const { tributedIds, toggleTribute, fetchTributes } = useTribute();
+  const { tributedIds, fetchTributes } = useTribute();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
@@ -72,12 +72,7 @@ const LetterFeed: React.FC = () => {
     if (user?.id) fetchTributes(user.id);
   }, [user?.id, fetchTributes]);
 
-  const handleTributePress = async (letterId: string) => {
-    if (user?.id) {
-      await toggleTribute(letterId, user.id);
-      await loadLetters();
-    }
-  };
+  // tribute toggle is handled inside detail screen; no direct button here
 
   return (
     <View style={{ flex: 1, padding: 16 }}>

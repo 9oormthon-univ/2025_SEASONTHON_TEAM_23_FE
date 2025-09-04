@@ -32,14 +32,7 @@ const notify = (t: string | null) => {
 api.interceptors.request.use((config) => {
   const token = tokenStore.getAccess();
   if (token) config.headers.Authorization = `Bearer ${token}`;
-  // debug: log outgoing request method/url and whether Authorization header is present
-  try {
-    // avoid leaking full tokens in logs; show masked snippet for debugging
-    const auth = String(config.headers?.Authorization ?? '');
-    const masked = auth ? `${auth.slice(0, 20)}...${auth.slice(-6)}` : '';
-    // eslint-disable-next-line no-console
-    console.debug('[api] request', config.method, config.url, 'hasAuth=', Boolean(auth), 'auth=', masked);
-  } catch (e) {}
+  // debug logs removed
   return config;
 });
 
@@ -88,11 +81,7 @@ api.interceptors.response.use(
       }
     }
 
-      // debug: log response status, url, body and headers when an error occurs
-      try {
-        // eslint-disable-next-line no-console
-        console.debug('[api] response error', config?.url, 'status=', response?.status, 'data=', response?.data, 'headers=', response?.headers);
-      } catch (e) {}
+  // debug logs removed
 
       throw error;
   }
