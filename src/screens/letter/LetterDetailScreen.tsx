@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Button, Alert, Image } from 'react-native';
-import axios from 'axios';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
 import { useAuth } from '@/provider/AuthProvider';
 import { formatKoreanDate } from '@/utils/formatDate';
+import { fetchLetterById } from '@/services/letters';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
 
@@ -29,22 +29,14 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       setLoading(true);
       setError(null);
       try {
-        const res = await axios.get(`http://10.0.2.2:3001/letters/${id}`);
-        setLetter(res.data);
-        // prefer camelCase fields from mocks
-        const userIdentifier =
-          res.data?.userId ??
-          res.data?.user_id ??
-          res.data?.authorId ??
-          res.data?.author_id ??
-          null;
-        if (userIdentifier) {
-          try {
-            const userRes = await axios.get(`http://10.0.2.2:3001/users/${userIdentifier}`);
-            setAuthor(userRes.data);
-          } catch (userErr) {
-            setAuthor(null);
-          }
+        const res = await fetchLetterById(id);
+        const letterData = (res as any)?.data ?? res;
+        setLetter(letterData);
+
+        if (letterData?.author) {
+          setAuthor(letterData.author);
+        } else {
+          setAuthor(null);
         }
       } catch (e) {
         setError('편지를 불러오지 못했습니다.');
@@ -54,8 +46,6 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     };
     fetchDetail();
   }, [id]);
-
-  // user is provided by AuthProvider; do not fetch local users here
 
   const handleTribute = async () => {
     if (!letter) return;
@@ -71,10 +61,11 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     if (has) {
       setIsTributing(true);
       try {
-  await toggleTribute(letterId, user.id);
+        await toggleTribute(letterId, user.id);
         try {
-          const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-          setLetter(res.data);
+          const res = await fetchLetterById(letterId);
+          const updated = (res as any)?.data ?? res;
+          setLetter(updated);
         } catch (e) {}
         Alert.alert('헌화가 취소되었습니다');
       } finally {
@@ -88,11 +79,12 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         text: '많이 힘드시죠? 기운 내세요.',
         onPress: async () => {
           setIsTributing(true);
-            try {
+          try {
             await toggleTribute(letterId, user.id, 'CONSOLATION');
             try {
-              const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-              setLetter(res.data);
+              const res = await fetchLetterById(letterId);
+              const updated = (res as any)?.data ?? res;
+              setLetter(updated);
             } catch (e) {}
             Alert.alert('헌화가 완료되었습니다');
           } finally {
@@ -104,11 +96,12 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         text: '너무 안타까워요. 힘 내세요.',
         onPress: async () => {
           setIsTributing(true);
-            try {
+          try {
             await toggleTribute(letterId, user.id, 'SADNESS');
             try {
-              const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-              setLetter(res.data);
+              const res = await fetchLetterById(letterId);
+              const updated = (res as any)?.data ?? res;
+              setLetter(updated);
             } catch (e) {}
             Alert.alert('헌화가 완료되었습니다');
           } finally {
@@ -120,11 +113,12 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         text: '저도 같은 마음이에요. 함께 이겨내요.',
         onPress: async () => {
           setIsTributing(true);
-            try {
+          try {
             await toggleTribute(letterId, user.id, 'EMPATHY');
             try {
-              const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-              setLetter(res.data);
+              const res = await fetchLetterById(letterId);
+              const updated = (res as any)?.data ?? res;
+              setLetter(updated);
             } catch (e) {}
             Alert.alert('헌화가 완료되었습니다');
           } finally {
@@ -144,8 +138,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const handleEdit = () => {
     if (!letter) return;
-  // cast to any because LetterWriteScreen params may be undefined in RootStackParamList
-  navigation.navigate('LetterWriteScreen' as any, { id: String(letter.id) });
+    // cast to any because LetterWriteScreen params may be undefined in RootStackParamList
+    navigation.navigate('LetterWriteScreen' as any, { id: String(letter.id) });
   };
 
   const handleDelete = () => {
@@ -157,7 +151,6 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         style: 'destructive',
         onPress: async () => {
           try {
-            await axios.delete(`http://10.0.2.2:3001/letters/${String(letter.id)}`);
             // after delete, go back to list
             navigation.goBack();
           } catch (e) {
@@ -175,7 +168,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <ScrollView style={{ flex: 1, padding: 16 }}>
       <Text style={{ color: '#666', marginBottom: 12 }}>{formatKoreanDate(letter.createdAt)}</Text>
-      <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${author?.nickname ?? '작성자'}님의 추억이에요.`}</Text>
+      <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${author?.nickname ?? '작성자 정보 없음'}님의 추억이에요.`}</Text>
       <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{letter.content}</Text>
       {letter.photoUrl ? (
         <Image
