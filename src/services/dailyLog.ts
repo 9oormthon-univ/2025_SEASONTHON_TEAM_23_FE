@@ -4,6 +4,7 @@ import type {
   CreateDailyLogResponse,
   DailyLog,
   DailyLogDetail,
+  UpdateDailyLogBody,
 } from '@/types/diary';
 
 export const fetchDailyLogs = async (userId: number) => {
@@ -19,4 +20,8 @@ export const createDailyLog = async (body: CreateDailyLogBody): Promise<CreateDa
 export const fetchDailyLogDetail = async (logId: number): Promise<DailyLogDetail> => {
   const { data } = await api.get<DailyLogDetail>(`/daily-log/${logId}`);
   return data;
+};
+
+export const updateDailyLog = async (logId: number, body: UpdateDailyLogBody): Promise<void> => {
+  await api.put(`/daily-log/update/${logId}`, body);
 };

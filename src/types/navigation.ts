@@ -22,6 +22,7 @@ export type DiaryStackParamList = {
   DiaryMain: undefined;
   DiaryWrite: { topic: string; date?: string };
   DiaryByDate: { logId: number };
+  DiaryEdit: { logId: number };
 };
 
 export type IconMap = Record<
