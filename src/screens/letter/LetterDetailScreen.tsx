@@ -10,7 +10,7 @@ import { fetchLetterById } from '@/services/letters';
 type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
 
 const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
-  const id = route?.params?.id;
+   const id = route?.params?.id;
   const [letter, setLetter] = useState<any | null>(null);
   const [author, setAuthor] = useState<any | null>(null);
   const { tributedIds, toggleTribute } = useTribute();
@@ -18,6 +18,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [error, setError] = useState<string | null>(null);
   const [isTributing, setIsTributing] = useState(false);
   const { user } = useAuth();
+
+  const currentUserId = user?.userId
 
   useEffect(() => {
     navigation.setOptions({ title: '편지 내용' });
@@ -49,8 +51,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const handleTribute = async () => {
     if (!letter) return;
-    if (!user?.id) {
-      Alert.alert('사용자 정보를 불러오지 못했습니다.');
+    if (!currentUserId) {
+      Alert.alert('로그인이 필요합니다.', '헌화하려면 로그인 후 다시 시도해 주세요.');
       return;
     }
     if (isTributing) return;
@@ -61,7 +63,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     if (has) {
       setIsTributing(true);
       try {
-        await toggleTribute(letterId, user.id);
+        await toggleTribute(letterId, currentUserId);
         try {
           const res = await fetchLetterById(letterId);
           const updated = (res as any)?.data ?? res;
@@ -80,7 +82,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         onPress: async () => {
           setIsTributing(true);
           try {
-            await toggleTribute(letterId, user.id, 'CONSOLATION');
+            await toggleTribute(letterId, currentUserId, 'CONSOLATION');
             try {
               const res = await fetchLetterById(letterId);
               const updated = (res as any)?.data ?? res;
@@ -97,7 +99,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         onPress: async () => {
           setIsTributing(true);
           try {
-            await toggleTribute(letterId, user.id, 'SADNESS');
+            await toggleTribute(letterId, currentUserId, 'SADNESS');
             try {
               const res = await fetchLetterById(letterId);
               const updated = (res as any)?.data ?? res;
@@ -114,7 +116,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         onPress: async () => {
           setIsTributing(true);
           try {
-            await toggleTribute(letterId, user.id, 'EMPATHY');
+            await toggleTribute(letterId, currentUserId, 'EMPATHY');
             try {
               const res = await fetchLetterById(letterId);
               const updated = (res as any)?.data ?? res;
@@ -130,11 +132,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     ]);
   };
 
-  const ownerId = letter
-    ? (letter.userId ?? letter.user_id ?? null)
-    : null;
-
-  const isOwner = Boolean(user?.id && ownerId && String(ownerId) === String(user.id));
+  const ownerId = letter ? (letter.userId ?? letter.user_id ?? null) : null;
+  const isOwner = Boolean(currentUserId && ownerId && String(ownerId) === String(currentUserId));
 
   const handleEdit = () => {
     if (!letter) return;

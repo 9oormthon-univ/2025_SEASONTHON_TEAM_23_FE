@@ -1,12 +1,10 @@
 import { api } from './axiosInstance';
 
 export type Letter = {
-  letterId: number;
-  title: string;
+  id: number;
+  userId: number;
   content: string;
-  authorId?: number;
   createdAt?: string;
-  updatedAt?: string;
   [key: string]: any;
 };
 
@@ -46,5 +44,27 @@ export const uploadLetterImage = async (file: { uri: string; name?: string; type
   const { data } = await api.post('/upload', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
+  return data;
+};
+
+// 헌화(tributes) 관련 API 헬퍼들
+export const fetchTributes = async (params?: Record<string, any>) => {
+  const { data } = await api.get('/tributes', { params });
+  return data;
+};
+
+export const createTribute = async (payload: { letterId: string | number; fromUserId: number; messageKey?: string; createdAt?: string }) => {
+  const { data } = await api.post('/tributes', payload);
+  return data;
+};
+
+export const deleteTributeById = async (tributeId: string | number) => {
+  const { data } = await api.delete(`/tributes/${tributeId}`);
+  return data;
+};
+
+// 편지의 일부 필드(예: tributeCount)만 업데이트하는 PATCH 유틸
+export const patchLetter = async (letterId: number | string, payload: Partial<{ tributeCount: number }>) => {
+  const { data } = await api.patch(`/letters/${letterId}`, payload);
   return data;
 };
