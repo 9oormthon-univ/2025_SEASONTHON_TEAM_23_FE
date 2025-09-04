@@ -1,9 +1,13 @@
-import { Image, Text, View } from 'react-native';
+import { Image, Text, View, Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/types/navigation';
 import { useAuth } from '@/provider/AuthProvider';
 import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
 
 const ProfileScreen = () => {
   const { user } = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { data, isLoading, isError, refetch } = useMyPageSummary(!!user);
 
   const profileImage = user?.profileImageUrl;
@@ -33,15 +37,15 @@ const ProfileScreen = () => {
           </Text>
         ) : (
           <View className="flex-row items-center justify-between">
-            <View className="flex-1 items-center">
+            <Pressable className="flex-1 items-center" onPress={() => navigation.navigate('MyDailyLogs')}>
               <Text className="captionB text-gray-500">일기</Text>
               <Text className="title2B text-gray-900 mt-1">{data?.dailyLogCount ?? 0}</Text>
-            </View>
+            </Pressable>
             <View className="w-px h-10 bg-gray-200" />
-            <View className="flex-1 items-center">
+            <Pressable className="flex-1 items-center" onPress={() => navigation.navigate('MyLetters')}>
               <Text className="captionB text-gray-500">편지</Text>
               <Text className="title2B text-gray-900 mt-1">{data?.letterCount ?? 0}</Text>
-            </View>
+            </Pressable>
             <View className="w-px h-10 bg-gray-200" />
             <View className="flex-1 items-center">
               <Text className="captionB text-gray-500">헌화</Text>
