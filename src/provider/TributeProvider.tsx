@@ -10,7 +10,7 @@ import {
 
 interface TributeContextType {
   tributedIds: Set<string>;
-  fetchTributes: () => Promise<void>;
+  fetchTributes: (currentUserId?: number) => Promise<void>;
   toggleTribute: (letterId: string, userId: number, messageKey?: string) => Promise<void>;
 }
 
@@ -19,27 +19,39 @@ const TributeContext = createContext<TributeContextType | undefined>(undefined);
 export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tributedIds, setTributedIds] = useState<Set<string>>(new Set());
 
-    const fetchTributes = useCallback(async () => {
+    const fetchTributes = useCallback(async (currentUserId?: number) => {
     try {
       // Swagger에 전역 GET /tributes 는 없음. 사용자별로는 /tributes/messages 로 우회.
         const res = await fetchTributeMessages();
+      console.debug('[TributeProvider] fetchTributeMessages response:', res);
       const list = (res as any)?.data ?? res ?? [];
+      console.debug('[TributeProvider] parsed list:', list);
       const ids = new Set<string>();
-      if (Array.isArray(list)) {
+      if (Array.isArray(list) && currentUserId) {
         for (const t of list) {
-          // 서버가 message 항목에 letterId를 내려준다는 가정. 없으면 스킵.
-          const lid = t?.letterId ?? t?.letter?.id;
-          if (lid != null) ids.add(String(lid));
+          // 서버 응답 구조: { id, letterId, fromUserId, messageKey, createdAt }
+          const lid = t?.letterId;
+          const fromUserId = t?.fromUserId;
+          console.debug('[TributeProvider] processing tribute:', t, 'letterId:', lid, 'fromUserId:', fromUserId, 'currentUserId:', currentUserId);
+          
+          // 현재 사용자가 헌화한 편지만 tributedIds에 추가
+          if (lid != null && fromUserId != null && Number(fromUserId) === Number(currentUserId)) {
+            ids.add(String(lid));
+            console.debug('[TributeProvider] added letterId to tributedIds:', lid);
+          }
         }
       }
       setTributedIds(ids);
+      console.debug('[TributeProvider] fetchTributes success, tributedIds=', Array.from(ids));
     } catch (e: any) {
       if (e?.response?.status === 403) {
-        console.warn('[TributeProvider] fetchTributes 403 - authorization required or token expired');
+        console.warn('[TributeProvider] fetchTributes 403 - authorization required or token expired, keeping existing state');
+        // Don't clear tributedIds on 403 - keep existing state
       } else {
         console.error('[TributeProvider] fetchTributes error', e);
+        setTributedIds(new Set());
+        console.debug('[TributeProvider] fetchTributes failed, tributedIds cleared');
       }
-      setTributedIds(new Set());
     }
   }, []);
 
@@ -64,7 +76,12 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         // Refresh letter detail and my tribute list
         await fetchLetterById(letterId);
-        await fetchTributes();
+        try {
+          await fetchTributes(userId);
+        } catch (e: any) {
+          // If fetchTributes fails, don't update local state - keep existing state
+          console.warn('[TributeProvider] fetchTributes failed after operation, keeping existing state:', e?.response?.status);
+        }
       } catch (e: any) {
         // 403이면 토큰/권한 문제 가능성 -> 상태 초기화 및 로그
         if (e?.response?.status === 403) {

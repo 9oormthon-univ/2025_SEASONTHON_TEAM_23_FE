@@ -69,7 +69,7 @@ const LetterFeed: React.FC = () => {
 
   // 헌화 상태를 Provider에서 동기화
   useEffect(() => {
-    if (user?.id) fetchTributes();
+    if (user?.id) fetchTributes(user.id);
   }, [user?.id, fetchTributes]);
 
   const handleTributePress = async (letterId: string) => {
@@ -106,7 +106,7 @@ const LetterFeed: React.FC = () => {
                 <View style={{ width: 96, alignItems: 'flex-end' }}>
                 <Button
                   title={`🌸 ${item.tributeCount ?? 0}`}
-                  color={tributedIds.has(String(item.id)) ? '#d3d3d3' : undefined}
+                  color={tributedIds.has(String(item.id)) ? '#888' : undefined}
                   onPress={() => handleTributePress(String(item.id))}
                 />
                 </View>
