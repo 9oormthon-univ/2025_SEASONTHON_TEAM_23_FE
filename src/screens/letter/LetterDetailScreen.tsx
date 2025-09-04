@@ -5,7 +5,7 @@ import type { RootStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
 import { useAuth } from '@/provider/AuthProvider';
 import { formatKoreanDate } from '@/utils/formatDate';
-import { fetchLetterById, deleteLetter, fetchTributes, deleteTributeById } from '@/services/letters';
+import { fetchLetterById, deleteLetter, fetchTributes as fetchLetterTributes } from '@/services/letters';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
 
@@ -48,10 +48,11 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const id = route?.params?.id;
   const [letter, setLetter] = useState<any | null>(null);
   const [author, setAuthor] = useState<any | null>(null);
-  const { tributedIds, toggleTribute, fetchTributes: refreshTributes } = useTribute();
+  const { toggleTribute, fetchTributes: refreshTributes } = useTribute();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isTributing, setIsTributing] = useState(false);
+  const [hasMyTribute, setHasMyTribute] = useState(false);
   const { user } = useAuth();
 
   // user id 정규화: 여러 후보 필드에서 찾아 숫자로 변환
@@ -87,8 +88,26 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   useEffect(() => {
     if (!currentUserId) return;
     // 호출 실패는 무시하고 로컬 상태만 갱신
-    void refreshTributes();
+    void refreshTributes(currentUserId);
   }, [currentUserId, refreshTributes]);
+
+  // 서버 기준으로 현재 사용자가 이 편지에 헌화했는지 판별
+  useEffect(() => {
+    const checkMyTribute = async () => {
+      try {
+        if (!id || !currentUserId) return;
+        const listRes = await fetchLetterTributes(String(id));
+        const arr = (listRes as any)?.data ?? listRes ?? [];
+        const mine = Array.isArray(arr)
+          ? arr.find((t: any) => String(t?.fromUserId) === String(currentUserId))
+          : undefined;
+        setHasMyTribute(Boolean(mine));
+      } catch (e) {
+        // ignore; keep previous state
+      }
+    };
+    void checkMyTribute();
+  }, [id, currentUserId]);
 
   const handleTribute = async () => {
     if (!letter) return;
@@ -100,7 +119,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
     // normalized letter.id 사용 (normalizeLetter로 보장)
     const letterId = String(letter.id ?? letter._raw?.id ?? '');
-    const has = tributedIds.has(letterId);
+  const has = hasMyTribute;
 
     if (has) {
       setIsTributing(true);
@@ -113,7 +132,10 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           setLetter(normalized);
           setAuthor(normalized?.author ?? null);
         } catch (e) {}
-        Alert.alert('헌화가 취소되었습니다');
+  // 서버 기준으로 다시 확인
+  try { await refreshTributes(currentUserId); } catch {}
+  setHasMyTribute(false);
+  Alert.alert('헌화가 취소되었습니다');
       } finally {
         setIsTributing(false);
       }
@@ -134,6 +156,9 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               setLetter(normalized);
               setAuthor(normalized?.author ?? null);
             } catch (e) {}
+            // 서버 기준으로 다시 확인
+            try { await refreshTributes(currentUserId); } catch {}
+            setHasMyTribute(true);
             Alert.alert('헌화가 완료되었습니다');
           } finally {
             setIsTributing(false);
@@ -153,6 +178,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               setLetter(normalized);
               setAuthor(normalized?.author ?? null);
             } catch (e) {}
+            try { await refreshTributes(currentUserId); } catch {}
+            setHasMyTribute(true);
             Alert.alert('헌화가 완료되었습니다');
           } finally {
             setIsTributing(false);
@@ -172,6 +199,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               setLetter(normalized);
               setAuthor(normalized?.author ?? null);
             } catch (e) {}
+            try { await refreshTributes(currentUserId); } catch {}
+            setHasMyTribute(true);
             Alert.alert('헌화가 완료되었습니다');
           } finally {
             setIsTributing(false);
@@ -216,57 +245,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     ]);
   };
 
-  const [isDeletingTribute, setIsDeletingTribute] = useState(false);
-
-  const handleDeleteTribute = async () => {
-    if (!letter) return;
-    if (!currentUserId) {
-      Alert.alert('로그인이 필요합니다.', '헌화를 취소하려면 로그인 후 다시 시도해 주세요.');
-      return;
-    }
-    if (isDeletingTribute) return;
-
-    const letterId = String(letter.id ?? letter._raw?.id ?? '');
-    try {
-      setIsDeletingTribute(true);
-      // GET /letters/:id/tributes?fromUserId=... to find the tribute id
-  // use provider fetchTributes via refreshTributes to get user's tributes
-  // fetchTributes provider sets tributedIds; we still attempt to get server list for deletion
-  await refreshTributes();
-  const res = await fetchTributes(letterId, { fromUserId: currentUserId });
-  const list = (res as any)?.data ?? res ?? [];
-      const target = Array.isArray(list) ? list[0] : list;
-      if (!target || !target.id) {
-        Alert.alert('헌화 정보 없음', '삭제할 헌화가 없습니다.');
-        return;
-      }
-      await deleteTributeById(target.id);
-
-      // refresh letter detail and tribute state
-      try {
-        const r = await fetchLetterById(letterId);
-        const raw = (r as any)?.data ?? r;
-        const normalized = normalizeLetter(raw);
-        setLetter(normalized);
-        setAuthor(normalized?.author ?? null);
-      } catch (e) {}
-      // ask provider to refresh tributes for the current user
-        try {
-          await refreshTributes();
-        } catch (e) {}
-
-      Alert.alert('헌화 취소 완료', '헌화가 취소되었습니다.');
-    } catch (e: any) {
-      const status = e?.response?.status;
-      if (status === 403) {
-        Alert.alert('권한 오류', '헌화를 취소할 권한이 없습니다. 다시 로그인해 주세요.');
-      } else {
-        Alert.alert('오류', '헌화 취소 중 오류가 발생했습니다.');
-      }
-    } finally {
-      setIsDeletingTribute(false);
-    }
-  };
+  // 임시 삭제 핸들러 제거 (미사용)
 
   if (loading) return <View style={{ flex: 1, padding: 16 }}><Text>로딩 중...</Text></View>;
   if (error) return <View style={{ flex: 1, padding: 16 }}><Text>{error}</Text></View>;
@@ -290,18 +269,20 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           : `${letter.tributeCount}개의 헌화를 받았어요.`}
       </Text>
       {letter && (
-        <Button
-          title="헌화하기"
-          color={tributedIds.has(String(letter.id)) ? '#888' : undefined}
-          onPress={handleTribute}
-          disabled={isTributing}
-        />
-      )}
-      {/* 임시: 사용자가 헌화한 경우 헌화 삭제 버튼 표시 (디버깅용) */}
-      {tributedIds.has(String(letter.id)) && (
-        <View style={{ marginTop: 12 }}>
-          <Button title="헌화 삭제 (임시)" color="#d9534f" onPress={handleDeleteTribute} disabled={isDeletingTribute} />
-        </View>
+        <>
+          <Button
+            title={hasMyTribute ? '취소하기' : '헌화하기'}
+            color={hasMyTribute ? '#888' : undefined}
+            onPress={handleTribute}
+            disabled={isTributing}
+          />
+          {/* Debug: log tributary state */}
+          {__DEV__ && (
+            <Text style={{ fontSize: 10, color: '#999', marginTop: 4 }}>
+              Debug: letterId={letter.id}, tributed={hasMyTribute ? 'YES' : 'NO'}
+            </Text>
+          )}
+        </>
       )}
       {isOwner && (
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
