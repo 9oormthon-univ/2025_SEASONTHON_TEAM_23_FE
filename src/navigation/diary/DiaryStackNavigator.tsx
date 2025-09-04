@@ -5,6 +5,7 @@ import DiaryWriteScreen from '@/screens/diary/DiaryWriteScreen';
 import DiaryByDateScreen from '@/screens/diary/DiaryByDateScreen';
 import CustomHeader from '@navigation/CustomHeader';
 import type { HeaderProps } from '@/types/Header';
+import DiaryEditScreen from '@/screens/diary/DiaryEditScreen';
 
 const Stack = createNativeStackNavigator<DiaryStackParamList>();
 
@@ -46,6 +47,11 @@ const DiaryStackNavigator = () => {
       <Stack.Screen
         name="DiaryByDate"
         component={DiaryByDateScreen}
+        options={{ title: '오늘의 일기' }}
+      />
+      <Stack.Screen
+        name="DiaryEdit"
+        component={DiaryEditScreen}
         options={{ title: '오늘의 일기' }}
       />
     </Stack.Navigator>

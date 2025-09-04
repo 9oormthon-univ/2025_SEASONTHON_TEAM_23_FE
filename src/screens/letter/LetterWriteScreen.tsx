@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react';
-import { View, TextInput, Button, Alert, Image, TouchableOpacity, Text, Switch } from 'react-native';
+import {
+  View,
+  TextInput,
+  Button,
+  Alert,
+  Image,
+  TouchableOpacity,
+  Text,
+  Switch,
+} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from 'src/types/navigation';
@@ -114,9 +123,9 @@ const LetterWriteScreen = () => {
 
   return (
     <View className="flex-1 bg-white p-4">
-      <View className="mb-4 relative">
+      <View className="relative mb-4">
         <TextInput
-          className="w-full border border-gray-300 rounded-lg p-3 text-base min-h-[120px] pb-7"
+          className="min-h-[120px] w-full rounded-lg border border-gray-300 p-3 pb-7 text-base"
           multiline
           placeholder="편지를 작성하세요..."
           value={letter}
@@ -124,7 +133,7 @@ const LetterWriteScreen = () => {
           onChangeText={setLetter}
           textAlignVertical="top"
         />
-        <Text className="absolute right-4 bottom-4 text-xs text-gray-400">{`${letter.length}/최대 100자`}</Text>
+        <Text className="absolute bottom-4 right-4 text-xs text-gray-400">{`${letter.length}/최대 100자`}</Text>
       </View>
       <View className="mb-3 flex-row items-center justify-end">
         <Text className="mr-3 text-sm text-gray-700">전체공개하면 헌화를 받을 수 있어요.</Text>
@@ -132,14 +141,14 @@ const LetterWriteScreen = () => {
       </View>
       <Button title="사진 첨부" onPress={pickImage} />
       {imageUri && (
-        <View className="relative self-center mb-4">
-          <Image source={{ uri: imageUri }} className="w-48 h-48 rounded-lg" />
+        <View className="relative mb-4 self-center">
+          <Image source={{ uri: imageUri }} className="h-48 w-48 rounded-lg" />
           <TouchableOpacity
-            className="absolute top-2 right-2"
+            className="absolute right-2 top-2"
             onPress={() => setImageUri(null)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <View className="w-6 h-6 rounded-full bg-white justify-center items-center shadow">
+            <View className="h-6 w-6 items-center justify-center rounded-full bg-white shadow">
               <Text className="text-lg font-bold text-gray-700">×</Text>
             </View>
           </TouchableOpacity>

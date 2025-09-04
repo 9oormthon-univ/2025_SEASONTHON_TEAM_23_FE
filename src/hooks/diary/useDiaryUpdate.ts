@@ -1,26 +1,28 @@
+// src/hooks/diary/useDiaryUpdate.ts
 import { useCallback } from 'react';
 import { Alert } from 'react-native';
-import { useCreateDailyLog } from '@/hooks/mutations/useCreateDailyLog';
+import { useUpdateDailyLog } from '@/hooks/mutations/useUpdateDailyLog';
 import { emojiKeyToMood } from '@/utils/calendar/mood';
 import type { EmojiKey } from '@/constants/diary/emoji';
-import { todayISO } from '@/utils/calendar/date';
 
-type UseDiarySubmitOptions = {
+type UseDiaryUpdateOptions = {
   userId?: number;
+  logId: number;
   selectedEmoji: EmojiKey | null;
   content: string;
   needAiReflection: boolean;
-  onSuccess?: (logId: number) => void;
+  onSuccess?: () => void;
 };
 
-export const useDiarySubmit = ({
+export const useDiaryUpdate = ({
   userId,
+  logId,
   selectedEmoji,
   content,
   needAiReflection,
   onSuccess,
-}: UseDiarySubmitOptions) => {
-  const { mutateAsync, isPending } = useCreateDailyLog(Number(userId));
+}: UseDiaryUpdateOptions) => {
+  const { mutateAsync, isPending } = useUpdateDailyLog();
 
   const submit = useCallback(async () => {
     try {
@@ -38,26 +40,26 @@ export const useDiarySubmit = ({
         return;
       }
 
-      const res = await mutateAsync({
-        logDate: todayISO(),
-        mood: emojiKeyToMood(selectedEmoji),
-        content: trimmed,
-        needAiReflection,
+      await mutateAsync({
+        logId,
+        userId,
+        body: {
+          mood: emojiKeyToMood(selectedEmoji),
+          content: trimmed,
+          needAiReflection,
+        },
       });
 
-      if (res?.id != null) {
-        onSuccess?.(res.id);
-      }
-
-      Alert.alert('완료', '일기가 저장되었습니다.');
+      Alert.alert('완료', '수정되었습니다.');
+      onSuccess?.();
     } catch (e: any) {
       const msg =
         e?.response?.data?.message ??
         e?.message ??
-        '일기 저장에 실패했어요. 잠시 후 다시 시도해 주세요.';
+        '일기 수정에 실패했어요. 잠시 후 다시 시도해 주세요.';
       Alert.alert('오류', msg);
     }
-  }, [userId, selectedEmoji, content, needAiReflection, mutateAsync, onSuccess]);
+  }, [userId, logId, selectedEmoji, content, needAiReflection, mutateAsync, onSuccess]);
 
   return { submit, isSubmitting: isPending };
 };

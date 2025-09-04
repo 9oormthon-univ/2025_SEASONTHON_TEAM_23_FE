@@ -28,5 +28,11 @@ export const useDailyLogs = (userId?: number) => {
     return map;
   }, [query.data]);
 
-  return { ...query, moodColorByDate, byDate };
+  const byLogId = useMemo(() => {
+    const map: Record<number, DailyLog> = {};
+    query.data?.forEach((l) => (map[l.id] = l));
+    return map;
+  }, [query.data]);
+
+  return { ...query, moodColorByDate, byDate, byLogId };
 };

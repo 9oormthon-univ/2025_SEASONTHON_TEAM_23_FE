@@ -69,8 +69,8 @@ const LetterFeed: React.FC = () => {
 
   // 헌화 상태를 Provider에서 동기화
   useEffect(() => {
-    if (user?.id) fetchTributes(user.id);
-  }, [user?.id, fetchTributes]);
+    if (user?.userId) fetchTributes(user.userId);
+  }, [user?.userId, fetchTributes]);
 
   // tribute toggle is handled inside detail screen; no direct button here
 
