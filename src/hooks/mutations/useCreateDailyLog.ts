@@ -1,10 +1,6 @@
-// src/hooks/mutations/useCreateDailyLog.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  createDailyLog,
-  type CreateDailyLogBody,
-  type CreateDailyLogResponse,
-} from '@/services/dailyLog';
+import { createDailyLog } from '@/services/dailyLog';
+import type { CreateDailyLogBody, CreateDailyLogResponse } from '@/types/diary';
 
 export const useCreateDailyLog = (userId: number) => {
   const qc = useQueryClient();

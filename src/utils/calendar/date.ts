@@ -2,6 +2,12 @@
 export const toISODate = (d: Date) =>
   new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())).toISOString().slice(0, 10);
 
+export const withKoreanDOW = (iso: string) => {
+  const d = new Date(iso);
+  const n = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
+  return `${iso}-${n}`;
+};
+
 /** 오늘 ISO ('YYYY-MM-DD') */
 export const todayISO = () => toISODate(new Date());
 

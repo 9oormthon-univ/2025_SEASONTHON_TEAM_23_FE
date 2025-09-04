@@ -4,33 +4,34 @@ import Icon from '@common/Icon';
 import { ACTIVE_UI, type EmojiKey, EMOJIS } from '@/constants/diary/emoji';
 import TextArea from '@common/TextArea';
 import { useAuth } from '@/provider/AuthProvider';
-import { useNavigation } from '@react-navigation/native';
+import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useDiarySubmit } from '@/hooks/diary/useDiarySubmit';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { DiaryStackParamList } from '@/types/navigation';
 import { setHeaderExtras } from '@/types/Header';
 import Loader from '@common/Loader';
-import { todayISO } from '@/utils/calendar/date';
 
 const MAX = 500;
 
+type DiaryWriteRoute = RouteProp<DiaryStackParamList, 'DiaryWrite'>;
+
 const DiaryWriteScreen = () => {
+  const { params } = useRoute<DiaryWriteRoute>();
+  const { topic } = params;
   const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList, 'DiaryWrite'>>();
   const { user } = useAuth();
-  const userId = Number(user?.id);
+  const userId = Number(user?.userId);
 
   const [value, setValue] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState<EmojiKey | null>(null);
   const [needAiReflection, setNeedAiReflection] = useState<boolean>(true);
-
-  const date = todayISO();
 
   const { submit, isSubmitting } = useDiarySubmit({
     userId,
     selectedEmoji,
     content: value,
     needAiReflection,
-    onSuccess: () => navigation.replace('DiaryByDate', { date }),
+    onSuccess: (logId) => navigation.replace('DiaryByDate', { logId }),
   });
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
@@ -45,11 +46,11 @@ const DiaryWriteScreen = () => {
   return (
     <ScrollView>
       {isSubmitting && <Loader />}
-      <View className="gap-7 bg-gray-50 px-7 pb-[72px] pt-9">
+      <View className="gap-7 bg-gray-50 px-7 pb-[72px] pt-10">
         <View className="items-center gap-4">
           <View className="items-center gap-6">
             <Text className="body2 text-[#343434]">{`2025-09-01-월`}</Text>
-            <Text className="subHeading3 text-gray-900">{`스스로에게 해주고 싶은 위로의 말은 무엇인가요?`}</Text>
+            <Text className="subHeading3 text-center text-gray-900">{topic}</Text>
           </View>
           <TextArea ref={inputRef} value={value} onChangeText={setValue} maxLength={MAX} />
         </View>

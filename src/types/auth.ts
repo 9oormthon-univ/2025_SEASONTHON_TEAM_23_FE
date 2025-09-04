@@ -9,4 +9,10 @@ export type User = {
   profileImageUrl?: string;
 };
 
+export type AuthMeResponse = {
+  userId: number;
+  nickname: string;
+  profileImageUrl?: string;
+};
+
 export type AuthResponse = AppTokens & { user: User };

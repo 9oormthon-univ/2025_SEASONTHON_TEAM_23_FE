@@ -190,16 +190,29 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           } catch (e) {
             Alert.alert('삭제 실패', '편지를 삭제하는 중 오류가 발생했습니다.');
           }
-        }
-      }
+        },
+      },
     ]);
   };
 
-  // 임시 삭제 핸들러 제거 (미사용)
-
-  if (loading) return <View style={{ flex: 1, padding: 16 }}><Text>로딩 중...</Text></View>;
-  if (error) return <View style={{ flex: 1, padding: 16 }}><Text>{error}</Text></View>;
-  if (!letter) return <View style={{ flex: 1, padding: 16 }}><Text>편지를 찾을 수 없습니다.</Text></View>;
+  if (loading)
+    return (
+      <View style={{ flex: 1, padding: 16 }}>
+        <Text>로딩 중...</Text>
+      </View>
+    );
+  if (error)
+    return (
+      <View style={{ flex: 1, padding: 16 }}>
+        <Text>{error}</Text>
+      </View>
+    );
+  if (!letter)
+    return (
+      <View style={{ flex: 1, padding: 16 }}>
+        <Text>편지를 찾을 수 없습니다.</Text>
+      </View>
+    );
 
   return (
     <ScrollView style={{ flex: 1, padding: 16 }}>
@@ -215,7 +228,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       ) : null}
       <Text style={{ fontSize: 14, color: '#555', marginBottom: 12 }}>
         {letter.tributeCount === 0
-          ? "첫 번째로 헌화해 주세요."
+          ? '첫 번째로 헌화해 주세요.'
           : `${letter.tributeCount}개의 헌화를 받았어요.`}
       </Text>
       {letter && (
