@@ -29,7 +29,7 @@ module.exports = {
           best: '#A6EB7C',
           good: '#8FC3F6',
           soso: '#F3DE77',
-          sad: '#585858',
+          sad: '#9D9D9D',
           bad: '#585858',
           off: '#F5F5F5',
         },
