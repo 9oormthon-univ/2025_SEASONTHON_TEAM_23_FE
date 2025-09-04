@@ -14,7 +14,7 @@ export const useEmotionCalendar = ({ userId, onSelectDate, initialMonthISO }: Pa
   const [current, setCurrent] = useState<string>(initialMonthISO ?? monthStartISO(new Date()));
 
   // 서버에서 가져온 일기들의 감정색상 매핑
-  const { moodColorByDate } = useDailyLogs(userId);
+  const { moodColorByDate, byDate } = useDailyLogs(userId);
 
   // 헤더에 넘길 레이블 (Header에서 monthKo(current)로 변환)
   const monthLabel = useMemo(() => current, [current]);
@@ -49,6 +49,7 @@ export const useEmotionCalendar = ({ userId, onSelectDate, initialMonthISO }: Pa
     monthLabel,
     today,
     moodColorByDate,
+    byDate,
     goPrev,
     goNext,
     onMonthChange,
