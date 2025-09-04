@@ -56,3 +56,9 @@ export type DailyLogDetail = {
   mood: number;
   aiReflection: string;
 };
+
+export type UpdateDailyLogBody = {
+  mood: number;
+  content: string;
+  needAiReflection: boolean;
+};
