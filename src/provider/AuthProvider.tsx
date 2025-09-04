@@ -46,7 +46,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     (async () => {
-      await tokenStore.loadPair();
+      const pair = await tokenStore.loadPair();
+      try {
+        const access = pair?.accessToken ?? null;
+        const refresh = pair?.refreshToken ?? null;
+        const masked = (t: string | null) => (t ? `${t.slice(0, 20)}...${t.slice(-6)}` : null);
+        // eslint-disable-next-line no-console
+        console.debug('[DEBUG tokens masked] access=', masked(access), 'refresh=', masked(refresh));
+        // In dev only, print full tokens so you can copy for curl. Remove this after use.
+        if (__DEV__) {
+          // eslint-disable-next-line no-console
+          console.debug('[DEBUG tokens full - DEV ONLY]', { access, refresh });
+        }
+      } catch (e) {
+        // ignore
+      }
       await refreshUser();
       setLoading(false);
     })();
