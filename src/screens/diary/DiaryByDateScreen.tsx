@@ -1,46 +1,85 @@
-import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
-import { useRef, useState } from 'react';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { ACTIVE_UI, EMOJIS } from '@/constants/diary/emoji';
-import { diaries } from '@/mocks/db.json';
 import Icon from '@common/Icon';
 import TextArea from '@common/TextArea';
+import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import type { DiaryStackParamList } from '@/types/navigation';
+import { useDailyLogDetail } from '@/hooks/queries/useDailyLogDetail';
+import { withKoreanDOW } from '@/utils/calendar/date';
+import { emojiKeyFromNumber } from '@/utils/calendar/mood';
+import Loader from '@common/Loader';
+import { keepAllKorean } from '@/utils/keepAll';
+import { useLayoutEffect } from 'react';
+import { setHeaderExtras } from '@/types/Header';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-const MAX = 500;
+type DiaryByDateRoute = RouteProp<DiaryStackParamList, 'DiaryByDate'>;
 
 const DiaryByDateScreen = () => {
-  const initialValue = diaries[0].content;
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<TextInput>(null);
+  const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
+  const { params } = useRoute<DiaryByDateRoute>();
+  const logId = params.logId;
+
+  useLayoutEffect(() => {
+    setHeaderExtras(navigation, {
+      title: '오늘의 일기',
+      hasBack: true,
+      hasButton: true,
+      icon: 'IcVerticalDots',
+      iconSize: 38,
+      iconColor: '#313131',
+    });
+  }, [navigation]);
+  const { data, isLoading, isError, refetch } = useDailyLogDetail(logId);
+
+  if (isLoading) return <Loader />;
+  if (isError || !data)
+    return (
+      <View className="flex-1 items-center justify-center bg-gray-50 p-7">
+        <Text className="body1 pb-4 text-error">{`일기 정보를 불러오지 못했어요.`}</Text>
+        <View className="overflow-hidden rounded-[20px]">
+          <Pressable
+            onPress={() => refetch()}
+            android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
+            className=" p-1"
+          >
+            <Text className="subHeading3 px-9 py-2 text-center text-error">⚠️ 다시 시도</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+
+  const date = withKoreanDOW(data.logDate);
+  const moodKey = emojiKeyFromNumber(data.mood);
+  const moodUI = ACTIVE_UI[moodKey];
+  const moodLabel = EMOJIS[moodKey];
+
   return (
     <ScrollView>
-      <View className="items-center gap-11 bg-gray-50 px-7 pb-[42px] pt-9">
-        <View className="w-full gap-7">
-          <View className="items-center gap-4">
-            <View className="items-center gap-6">
-              <Text className="body2 text-[#343434]">{`2025-09-01-월`}</Text>
-              <Text className="subHeading3 text-gray-900">{`스스로에게 해주고 싶은 위로의 말은 무엇인가요?`}</Text>
-            </View>
-            <TextArea
-              disabled
-              ref={inputRef}
-              value={value}
-              onChangeText={setValue}
-              maxLength={MAX}
-              showCounter={false}
-            />
+      <View className="gap-4 bg-gray-50 px-7 pb-[42px] pt-10">
+        <View className="items-center gap-4">
+          <View className="items-center gap-6">
+            <Text className="body2 text-[#343434]">{date}</Text>
+            <Text className="subHeading3 text-center text-gray-900">
+              {keepAllKorean(data.topic)}
+            </Text>
           </View>
-          <View className="flex-row justify-center gap-3 rounded-[20px] bg-white px-6 py-[26px]">
-            <Icon name={EMOJIS.best.icon} size={32} color={ACTIVE_UI.best.icon} />
-            <View
-              className={`gap-2 rounded-lg border p-2 ${ACTIVE_UI.best.border} ${ACTIVE_UI.best.bg}`}
-            >
-              <Text className="body2 text-gray-900">{EMOJIS.best.emotion}</Text>
-            </View>
+          <TextArea disabled value={data.content} showCounter={false} onChangeText={() => {}} />
+        </View>
+        {data?.aiReflection ? (
+          <View className="items-center gap-2.5 rounded-[20px] bg-[#C0E3A8] p-5">
+            <Icon name="IcFlower" size={24} color="#7EB658" />
+            <Text className="body1 text-center !leading-6 text-gray-900">
+              {keepAllKorean(data.aiReflection)}
+            </Text>
+          </View>
+        ) : null}
+        <View className="flex-row justify-center gap-3 rounded-[20px] bg-white px-6 py-[26px]">
+          <Icon name={moodLabel.icon} size={32} color={moodUI.icon} />
+          <View className={`gap-2 rounded-lg border p-2 ${moodUI.border} ${moodUI.bg}`}>
+            <Text className="body2 text-gray-900">{moodLabel.emotion}</Text>
           </View>
         </View>
-        <Pressable className="h-[46px] w-[154px] items-center justify-center rounded-xl bg-primary px-9 py-3">
-          <Text className="body1 leading-6 text-white">{`수정하기`}</Text>
-        </Pressable>
       </View>
     </ScrollView>
   );
