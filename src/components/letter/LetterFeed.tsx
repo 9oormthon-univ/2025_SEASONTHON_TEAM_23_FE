@@ -104,11 +104,12 @@ const LetterFeed: React.FC = () => {
                   </View>
                 </TouchableOpacity>
                 <View style={{ width: 96, alignItems: 'flex-end' }}>
-                <Button
-                  title={`🌸 ${item.tributeCount ?? 0}`}
-                  color={tributedIds.has(String(item.id)) ? '#888' : undefined}
-                  onPress={() => handleTributePress(String(item.id))}
-                />
+                  <Text
+                    style={{ color: tributedIds.has(String(item.id)) ? '#888' : undefined
+                    }} //이미 헌화한 편지면 회색
+                  >
+                    {`🌸 ${item.tributeCount ?? 0}`}
+                  </Text>
                 </View>
             </View>
           )}
