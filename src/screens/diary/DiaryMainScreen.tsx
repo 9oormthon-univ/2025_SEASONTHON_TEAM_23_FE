@@ -15,7 +15,7 @@ import { setHeaderExtras } from '@/types/Header';
 const DiaryMainScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
   const { user } = useAuth();
-  const userId = user!.id;
+  const userId = user!.userId;
 
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
@@ -32,8 +32,9 @@ const DiaryMainScreen = () => {
     : (data?.topic ?? '오늘의 주제가 없습니다.');
 
   const handleSelectDate = (iso: string) => {
-    if (byDate[iso]) {
-      navigation.navigate('DiaryByDate', { date: iso });
+    const log = byDate[iso];
+    if (log) {
+      navigation.navigate('DiaryByDate', { logId: log.id });
     } else {
       navigation.navigate('DiaryWrite', { topic: topicText });
     }
@@ -49,7 +50,7 @@ const DiaryMainScreen = () => {
               <Icon name="IcPaw" size={24} fill="#343434" />
               <Text className="body2 text-[#343434]">{`오늘의 질문`}</Text>
             </View>
-            {isError ? (
+            {topicIsLoading ? null : isError ? (
               <View className="overflow-hidden rounded-xl">
                 <Pressable
                   onPress={() => refetch()}
