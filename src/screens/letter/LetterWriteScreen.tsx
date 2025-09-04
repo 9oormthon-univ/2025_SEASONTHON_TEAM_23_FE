@@ -5,7 +5,7 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from 'src/types/navigation';
 // AsyncStorage removed: not used in this screen
 import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
+import { fetchLetterById, createLetter, updateLetter, uploadLetterImage } from '@/services/letters';
 import { useAuth } from '@/provider/AuthProvider';
 
 // local user id will be fetched from local mock server (/users)
@@ -22,15 +22,16 @@ const LetterWriteScreen = () => {
   const editingId = route?.params?.id ?? null;
 
   useEffect(() => {
-    // if editing, load existing letter into state
+    // if editing, load existing letter into state via services
     if (!editingId) return;
     (async () => {
       try {
-        const res = await axios.get(`http://10.0.2.2:3001/letters/${editingId}`);
-    setLetter(res.data?.content ?? '');
-  setIsPublic(res.data?.isPublic ?? true);
-    const photo = res.data?.photoUrl ?? null;
-    setImageUri(photo);
+        const res = await fetchLetterById(editingId);
+        const data = (res as any)?.data ?? res;
+        setLetter(data?.content ?? '');
+        setIsPublic(data?.isPublic ?? true);
+        const photo = data?.photoUrl ?? null;
+        setImageUri(photo);
         // remember whether the original letter had a photo
         setOriginalHasPhoto(!!photo);
       } catch (e) {
@@ -48,7 +49,8 @@ const LetterWriteScreen = () => {
 
       // build payload for json-server (POST용)
       const payload: any = {
-        userId: user?.id!,
+        // user id 필드명 환경에 따라 다를 수 있으므로 user?.id 또는 user?.userId 사용
+        userId: user?.id ?? user?.userId,
         content: letter,
         isPublic: isPublic,
         createdAt: new Date().toISOString(),
@@ -56,6 +58,9 @@ const LetterWriteScreen = () => {
       };
       // 신규 생성시에만 photoUrl을 포함 (값이 있을 때)
       if (normalizedImageUri !== null) {
+        // 선택: 서비스에서 파일 업로드 엔드포인트가 있고 uploadLetterImage를 사용한다면
+        // const uploaded = await uploadLetterImage({ uri: normalizedImageUri });
+        // payload.photoUrl = uploaded?.url ?? normalizedImageUri;
         payload.photoUrl = normalizedImageUri;
       }
 
@@ -79,10 +84,10 @@ const LetterWriteScreen = () => {
           if (originalHasPhoto) updateData.photoUrl = null;
           // originalHasPhoto가 false면 photoUrl 필드 자체를 생략해서 기존 값 유지
         }
-        await axios.patch(`http://10.0.2.2:3001/letters/${editingId}`, updateData);
+        await updateLetter(editingId, updateData);
       } else {
         // POST new
-        await axios.post('http://10.0.2.2:3001/letters', payload);
+        await createLetter(payload);
       }
 
       Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
