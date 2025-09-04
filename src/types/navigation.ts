@@ -8,6 +8,8 @@ export type RootStackParamList = {
   LetterWriteScreen: undefined;
   LetterScreen: undefined;
   LetterDetail: { id: string };
+  MyDailyLogs: undefined;
+  MyLetters: undefined;
 };
 
 export type TabsParamList = {
