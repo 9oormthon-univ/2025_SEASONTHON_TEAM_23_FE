@@ -47,3 +47,12 @@ export type DailyTopic = {
   topic: string;
   date: string;
 };
+
+export type DailyLogDetail = {
+  id: number;
+  logDate: string;
+  topic: string;
+  content: string;
+  mood: number;
+  aiReflection: string;
+};
