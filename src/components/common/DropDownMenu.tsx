@@ -30,7 +30,7 @@ const DropDownMenu = ({ visible, onDismiss, onEdit, onDelete }: DropDownMenuProp
             <Text className="body2 text-center text-gray-800">수정하기</Text>
           </Pressable>
         </View>
-        <View className="overflow-hidden rounded-t-lg border border-gray-400 bg-white">
+        <View className="overflow-hidden rounded-b-lg border border-gray-400 bg-white">
           <Pressable
             onPress={() => {
               onDismiss();
