@@ -83,9 +83,3 @@ export const fetchRecentTributeNotifications = async () => {
   const { data } = await api.get('/tributes/notifications/recent');
   return data;
 };
-
-// GET /tributes/messages — swagger spec
-export const fetchTributeMessages = async (params?: Record<string, any>) => {
-  const { data } = await api.get('/tributes/messages', { params });
-  return data;
-};
