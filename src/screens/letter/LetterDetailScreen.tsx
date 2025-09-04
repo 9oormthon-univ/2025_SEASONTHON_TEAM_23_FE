@@ -142,73 +142,23 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       return;
     }
 
-    Alert.alert('헌화 메시지 선택', '전달할 메시지를 선택하세요', [
-      {
-        text: 'THANKS.',
-        onPress: async () => {
-          setIsTributing(true);
-          try {
-            await toggleTribute(letterId, currentUserId, 'THANKS');
-            try {
-              const res = await fetchLetterById(letterId);
-              const raw = (res as any)?.data ?? res;
-              const normalized = normalizeLetter(raw);
-              setLetter(normalized);
-              setAuthor(normalized?.author ?? null);
-            } catch (e) {}
-            // 서버 기준으로 다시 확인
-            try { await refreshTributes(currentUserId); } catch {}
-            setHasMyTribute(true);
-            Alert.alert('헌화가 완료되었습니다');
-          } finally {
-            setIsTributing(false);
-          }
-        }
-      },
-      {
-        text: '너무 안타까워요. 힘 내세요.',
-        onPress: async () => {
-          setIsTributing(true);
-          try {
-            await toggleTribute(letterId, currentUserId, 'SADNESS');
-            try {
-              const res = await fetchLetterById(letterId);
-              const raw = (res as any)?.data ?? res;
-              const normalized = normalizeLetter(raw);
-              setLetter(normalized);
-              setAuthor(normalized?.author ?? null);
-            } catch (e) {}
-            try { await refreshTributes(currentUserId); } catch {}
-            setHasMyTribute(true);
-            Alert.alert('헌화가 완료되었습니다');
-          } finally {
-            setIsTributing(false);
-          }
-        }
-      },
-      {
-        text: '저도 같은 마음이에요. 함께 이겨내요.',
-        onPress: async () => {
-          setIsTributing(true);
-          try {
-            await toggleTribute(letterId, currentUserId, 'EMPATHY');
-            try {
-              const res = await fetchLetterById(letterId);
-              const raw = (res as any)?.data ?? res;
-              const normalized = normalizeLetter(raw);
-              setLetter(normalized);
-              setAuthor(normalized?.author ?? null);
-            } catch (e) {}
-            try { await refreshTributes(currentUserId); } catch {}
-            setHasMyTribute(true);
-            Alert.alert('헌화가 완료되었습니다');
-          } finally {
-            setIsTributing(false);
-          }
-        }
-      },
-      { text: '취소', style: 'cancel' }
-    ]);
+    // 메시지 선택 없이 즉시 헌화 생성
+    setIsTributing(true);
+    try {
+      await toggleTribute(letterId, currentUserId);
+      try {
+        const res = await fetchLetterById(letterId);
+        const raw = (res as any)?.data ?? res;
+        const normalized = normalizeLetter(raw);
+        setLetter(normalized);
+        setAuthor(normalized?.author ?? null);
+      } catch (e) {}
+      try { await refreshTributes(currentUserId); } catch {}
+      setHasMyTribute(true);
+      Alert.alert('헌화가 완료되었습니다');
+    } finally {
+      setIsTributing(false);
+    }
   };
 
   const ownerId = letter ? (letter.author?.id ?? letter.authorId ?? letter.author_id ?? letter._raw?.userId ?? letter._raw?.user_id ?? null) : null;
@@ -269,20 +219,12 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           : `${letter.tributeCount}개의 헌화를 받았어요.`}
       </Text>
       {letter && (
-        <>
-          <Button
-            title={hasMyTribute ? '취소하기' : '헌화하기'}
-            color={hasMyTribute ? '#888' : undefined}
-            onPress={handleTribute}
-            disabled={isTributing}
-          />
-          {/* Debug: log tributary state */}
-          {__DEV__ && (
-            <Text style={{ fontSize: 10, color: '#999', marginTop: 4 }}>
-              Debug: letterId={letter.id}, tributed={hasMyTribute ? 'YES' : 'NO'}
-            </Text>
-          )}
-        </>
+        <Button
+          title={hasMyTribute ? '취소하기' : '헌화하기'}
+          color={hasMyTribute ? '#888' : undefined}
+          onPress={handleTribute}
+          disabled={isTributing}
+        />
       )}
       {isOwner && (
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>

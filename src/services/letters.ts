@@ -66,12 +66,9 @@ export const fetchTributes = async (
 };
 
 // POST /letters/{letterId}/tributes — swagger spec
-export const createTribute = async (
-  letterId: string | number,
-  messageKey: string,
-) => {
-  const payload = { messageKey };
-  const { data } = await api.post(`/letters/${letterId}/tributes`, payload);
+export const createTribute = async (letterId: string | number) => {
+  // Backend no longer accepts a body; send an empty POST
+  const { data } = await api.post(`/letters/${letterId}/tributes`);
   return data;
 };
 
