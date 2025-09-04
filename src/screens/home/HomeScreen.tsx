@@ -8,18 +8,12 @@ import { useLayoutEffect } from 'react';
 import { setHeaderExtras } from '@/types/Header';
 import Loader from '@common/Loader';
 import { keepAllKorean } from '@/utils/keepAll';
+import { useAuth } from '@/provider/AuthProvider';
 
-type Props = {
-  nickname: string;
-  question: string;
-  onPressWrite: () => void;
-  onPressBell?: () => void;
-};
-
-export default function HomeScreen({
-  nickname
-}: Props) {
+export default function HomeScreen() {
   const navigation = useNavigation<BottomTabNavigationProp<TabsParamList>>();
+  const { user } = useAuth();
+  const nickname = user?.nickname ?? '사용자';
 
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
