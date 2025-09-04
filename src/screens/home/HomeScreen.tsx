@@ -1,8 +1,7 @@
 import { SafeAreaView, View, Text, Pressable, StatusBar } from "react-native";
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { DiaryStackParamList } from '@/types/navigation';
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { TabsParamList } from '@/types/navigation';
 import Icon from '@common/Icon';
 import { useDailyTopic } from "@/hooks/queries/useDailyTopic";
 import { useLayoutEffect } from 'react';
@@ -20,7 +19,8 @@ type Props = {
 export default function HomeScreen({
   nickname
 }: Props) {
-  const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
+  const navigation = useNavigation<BottomTabNavigationProp<TabsParamList>>();
+
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
       title: '오늘의 일기',
@@ -29,6 +29,7 @@ export default function HomeScreen({
       icon: 'IcNotification',
     });
   }, [navigation]);
+  
   const { data, isLoading: topicIsLoading, isError, refetch } = useDailyTopic();
   const topicText = isError
     ? '오늘의 주제를 불러오지 못했어요.'
@@ -69,7 +70,12 @@ export default function HomeScreen({
             )}
           </View>
           <Pressable
-            onPress={() => navigation.navigate('DiaryWrite', { topic: topicText })}
+            onPress={() =>
+              navigation.navigate('Diary', {
+                screen: 'DiaryWrite',
+                params: { topic: topicText },
+              })
+            }
             className="flex-row items-center gap-1 rounded-xl bg-primary px-9 py-2"
           >
             <Icon name="IcEdit" size={24} fill="white" />
