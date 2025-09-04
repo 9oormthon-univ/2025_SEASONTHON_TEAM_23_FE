@@ -10,7 +10,7 @@ import {
 
 interface TributeContextType {
   tributedIds: Set<string>;
-  fetchTributes: (userId: number) => Promise<void>;
+  fetchTributes: () => Promise<void>;
   toggleTribute: (letterId: string, userId: number, messageKey?: string) => Promise<void>;
 }
 
@@ -19,10 +19,10 @@ const TributeContext = createContext<TributeContextType | undefined>(undefined);
 export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tributedIds, setTributedIds] = useState<Set<string>>(new Set());
 
-  const fetchTributes = useCallback(async (userId: number) => {
+    const fetchTributes = useCallback(async () => {
     try {
       // Swagger에 전역 GET /tributes 는 없음. 사용자별로는 /tributes/messages 로 우회.
-      const res = await fetchTributeMessages();
+        const res = await fetchTributeMessages();
       const list = (res as any)?.data ?? res ?? [];
       const ids = new Set<string>();
       if (Array.isArray(list)) {
@@ -45,29 +45,26 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const toggleTribute = useCallback(
     async (letterId: string, userId: number, messageKey?: string) => {
-      const has = tributedIds.has(letterId);
       try {
-        if (has) {
-          // 기존 헌화 레코드 조회 후 삭제 (swagger 경로: GET /letters/{letterId}/tributes)
-          const list = await apiFetchTributes(String(letterId));
-          const arr = (list as any)?.data ?? list ?? [];
-          const mine = Array.isArray(arr)
-            ? arr.find((t: any) => String(t?.fromUserId ?? t?.userId) === String(userId))
-            : undefined;
-          if (mine?.id != null) {
-            await deleteTributeById(mine.id); // DELETE /tributes/{tributeId}
-          }
+        // Query server for existing tributes on this letter
+        const list = await apiFetchTributes(String(letterId));
+        const arr = (list as any)?.data ?? list ?? [];
+        const mine = Array.isArray(arr)
+          ? arr.find((t: any) => String(t?.fromUserId ?? t?.userId) === String(userId))
+          : undefined;
+
+        if (mine?.id != null) {
+          // If server already has my tribute, delete it
+          await deleteTributeById(mine.id);
         } else {
-          // 헌화 생성 (messageKey 포함 가능)
-          // call letter-specific endpoint to satisfy backend which expects POST /letters/:id/tributes
-          // createTribute signature: (letterId, messageKey?) -> body should be { messageKey }
+          // Otherwise create tribute
           const msgKey = messageKey ?? 'THANKS';
           await createTribute(String(letterId), msgKey);
         }
 
-        // 단건 새로고침으로 화면 동기화, 그리고 내 헌화 목록도 갱신
+        // Refresh letter detail and my tribute list
         await fetchLetterById(letterId);
-        await fetchTributes(userId);
+        await fetchTributes();
       } catch (e: any) {
         // 403이면 토큰/권한 문제 가능성 -> 상태 초기화 및 로그
         if (e?.response?.status === 403) {

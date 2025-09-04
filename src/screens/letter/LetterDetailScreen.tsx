@@ -5,7 +5,7 @@ import type { RootStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
 import { useAuth } from '@/provider/AuthProvider';
 import { formatKoreanDate } from '@/utils/formatDate';
-import { fetchLetterById, deleteLetter } from '@/services/letters';
+import { fetchLetterById, deleteLetter, fetchTributes, deleteTributeById } from '@/services/letters';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
 
@@ -48,7 +48,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const id = route?.params?.id;
   const [letter, setLetter] = useState<any | null>(null);
   const [author, setAuthor] = useState<any | null>(null);
-  const { tributedIds, toggleTribute } = useTribute();
+  const { tributedIds, toggleTribute, fetchTributes: refreshTributes } = useTribute();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isTributing, setIsTributing] = useState(false);
@@ -82,6 +82,13 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     };
     fetchDetail();
   }, [id]);
+
+  // 상세 화면 진입 시 현재 사용자의 헌화 목록을 불러와 tributedIds를 채웁니다.
+  useEffect(() => {
+    if (!currentUserId) return;
+    // 호출 실패는 무시하고 로컬 상태만 갱신
+    void refreshTributes();
+  }, [currentUserId, refreshTributes]);
 
   const handleTribute = async () => {
     if (!letter) return;
@@ -209,6 +216,58 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     ]);
   };
 
+  const [isDeletingTribute, setIsDeletingTribute] = useState(false);
+
+  const handleDeleteTribute = async () => {
+    if (!letter) return;
+    if (!currentUserId) {
+      Alert.alert('로그인이 필요합니다.', '헌화를 취소하려면 로그인 후 다시 시도해 주세요.');
+      return;
+    }
+    if (isDeletingTribute) return;
+
+    const letterId = String(letter.id ?? letter._raw?.id ?? '');
+    try {
+      setIsDeletingTribute(true);
+      // GET /letters/:id/tributes?fromUserId=... to find the tribute id
+  // use provider fetchTributes via refreshTributes to get user's tributes
+  // fetchTributes provider sets tributedIds; we still attempt to get server list for deletion
+  await refreshTributes();
+  const res = await fetchTributes(letterId, { fromUserId: currentUserId });
+  const list = (res as any)?.data ?? res ?? [];
+      const target = Array.isArray(list) ? list[0] : list;
+      if (!target || !target.id) {
+        Alert.alert('헌화 정보 없음', '삭제할 헌화가 없습니다.');
+        return;
+      }
+      await deleteTributeById(target.id);
+
+      // refresh letter detail and tribute state
+      try {
+        const r = await fetchLetterById(letterId);
+        const raw = (r as any)?.data ?? r;
+        const normalized = normalizeLetter(raw);
+        setLetter(normalized);
+        setAuthor(normalized?.author ?? null);
+      } catch (e) {}
+      // ask provider to refresh tributes for the current user
+        try {
+          await refreshTributes();
+        } catch (e) {}
+
+      Alert.alert('헌화 취소 완료', '헌화가 취소되었습니다.');
+    } catch (e: any) {
+      const status = e?.response?.status;
+      if (status === 403) {
+        Alert.alert('권한 오류', '헌화를 취소할 권한이 없습니다. 다시 로그인해 주세요.');
+      } else {
+        Alert.alert('오류', '헌화 취소 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setIsDeletingTribute(false);
+    }
+  };
+
   if (loading) return <View style={{ flex: 1, padding: 16 }}><Text>로딩 중...</Text></View>;
   if (error) return <View style={{ flex: 1, padding: 16 }}><Text>{error}</Text></View>;
   if (!letter) return <View style={{ flex: 1, padding: 16 }}><Text>편지를 찾을 수 없습니다.</Text></View>;
@@ -237,6 +296,12 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           onPress={handleTribute}
           disabled={isTributing}
         />
+      )}
+      {/* 임시: 사용자가 헌화한 경우 헌화 삭제 버튼 표시 (디버깅용) */}
+      {tributedIds.has(String(letter.id)) && (
+        <View style={{ marginTop: 12 }}>
+          <Button title="헌화 삭제 (임시)" color="#d9534f" onPress={handleDeleteTribute} disabled={isDeletingTribute} />
+        </View>
       )}
       {isOwner && (
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>

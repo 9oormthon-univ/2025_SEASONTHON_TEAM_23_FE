@@ -69,7 +69,7 @@ const LetterFeed: React.FC = () => {
 
   // 헌화 상태를 Provider에서 동기화
   useEffect(() => {
-    if (user?.id) fetchTributes(user.id);
+    if (user?.id) fetchTributes();
   }, [user?.id, fetchTributes]);
 
   const handleTributePress = async (letterId: string) => {
