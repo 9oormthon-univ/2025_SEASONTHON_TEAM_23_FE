@@ -3,10 +3,10 @@ import { View, Text, FlatList, TouchableOpacity, Button } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
-import axios from 'axios';
 import { useAuth } from '@/provider/AuthProvider';
 import { useTribute } from '@/provider/TributeProvider';
 import { formatRelativeTime } from '@/utils/relativeTime';
+import { fetchLetters } from '@/services/letters';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -18,47 +18,53 @@ const LetterFeed: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
-  // user is provided by AuthProvider
+  // 타임아웃 헬퍼: 주어진 Promise에 ms 밀리초 이후 타임아웃 적용
+  const withTimeout = useCallback(<T,>(p: Promise<T>, ms = 3000) => {
+    return new Promise<T>((resolve, reject) => {
+      const id = setTimeout(() => {
+        reject(new Error('timeout'));
+      }, ms);
+      p.then((res) => {
+        clearTimeout(id);
+        resolve(res);
+      }).catch((err) => {
+        clearTimeout(id);
+        reject(err);
+      });
+    });
+  }, []);
 
-  const fetchLetters = useCallback(async () => {
+  // 실제 데이터 로드 함수 (타임아웃 적용)
+  const loadLetters = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const url = 'http://10.0.2.2:3001/letters';
-      const [lettersRes, usersRes] = await Promise.all([
-        axios.get(url),
-        axios.get('http://10.0.2.2:3001/users')
-      ]);
-      const usersMap: Record<string, any> = {};
-      for (const u of usersRes.data) {
-        usersMap[u.id] = u;
-      }
-      const lettersWithAuthor = lettersRes.data
-        .map((l: any) => ({
-          ...l,
-          // db.json uses camelCase keys (userId, tributeCount, photoUrl)
-          author: usersMap[l.userId] || null
-        }))
-        // only expose public letters in the feed
-        .filter((l: any) => l.isPublic === true);
-      setLetters(lettersWithAuthor);
+      const res = await withTimeout(fetchLetters(), 3000);
+      const lettersData = (res as any)?.data ?? res;
+      const arr = Array.isArray(lettersData) ? lettersData : (lettersData?.content ?? []);
+      const visible = arr.filter((l: any) => l.isPublic === true);
+      setLetters(visible);
     } catch (e: any) {
-      setError('편지 데이터를 불러오지 못했습니다.');
+      if (e?.message === 'timeout') {
+        setError('요청이 너무 오래 걸립니다. 잠시 후 다시 시도하세요.');
+      } else {
+        setError('편지 데이터를 불러오지 못했습니다.');
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchLetters, withTimeout]);
 
   // 처음에 받아오는 편지
   useEffect(() => {
-    fetchLetters();
-  }, [fetchLetters]);
+    void loadLetters();
+  }, [loadLetters]);
 
   // 상세에서 돌아올때 새로고침 (refetch)
   useFocusEffect(
     useCallback(() => {
-      fetchLetters();
-    }, [fetchLetters])
+      void loadLetters();
+    }, [loadLetters])
   );
 
   // 헌화 상태를 Provider에서 동기화
@@ -69,7 +75,7 @@ const LetterFeed: React.FC = () => {
   const handleTributePress = async (letterId: string) => {
     if (user?.id) {
       await toggleTribute(letterId, user.id);
-      await fetchLetters();
+      await loadLetters();
     }
   };
 
