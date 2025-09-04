@@ -8,20 +8,6 @@ export const api = axios.create({
   timeout: 10000,
 });
 
-// helper: convert snake_case keys to camelCase recursively
-const toCamel = (input: any): any => {
-  if (Array.isArray(input)) return input.map(toCamel);
-  if (input && typeof input === 'object') {
-    const obj: Record<string, any> = {};
-    for (const [k, v] of Object.entries(input)) {
-      const camelKey = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
-      obj[camelKey] = toCamel(v);
-    }
-    return obj;
-  }
-  return input;
-};
-
 let isRefreshing = false;
 let waiters: ((t: string | null) => void)[] = [];
 const notify = (t: string | null) => {
