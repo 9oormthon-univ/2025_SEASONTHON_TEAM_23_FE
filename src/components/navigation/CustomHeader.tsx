@@ -18,7 +18,7 @@ const CustomHeader = ({
   const navigation = useNavigation();
   return (
     <SafeAreaView edges={['top']} className="bg-white">
-      <View className="flex-row items-center justify-between px-7 py-4">
+      <View className="h-[60px] flex-row items-center justify-between px-7 py-4">
         <View className="flex-row gap-5">
           {hasBack && (
             <Pressable onPress={() => navigation.goBack()}>

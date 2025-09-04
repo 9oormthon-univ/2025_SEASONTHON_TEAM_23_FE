@@ -28,5 +28,5 @@ export const ACTIVE_UI: Record<EmojiKey, { border: string; bg: string; icon: str
     bg: 'bg-emoji-off',
     icon: '#CECECE',
   },
-  bad: { border: 'border-emoji-bad', bg: 'bg-emoji-off', icon: 'white' },
+  bad: { border: 'border-emoji-bad', bg: 'bg-emoji-off', icon: '#808080' },
 };

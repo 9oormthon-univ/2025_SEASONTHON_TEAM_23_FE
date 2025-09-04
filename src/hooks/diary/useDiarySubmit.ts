@@ -10,7 +10,7 @@ type UseDiarySubmitOptions = {
   selectedEmoji: EmojiKey | null;
   content: string;
   needAiReflection: boolean;
-  onSuccess?: () => void;
+  onSuccess?: (logId: number) => void;
 };
 
 export const useDiarySubmit = ({
@@ -38,14 +38,17 @@ export const useDiarySubmit = ({
         return;
       }
 
-      await mutateAsync({
+      const res = await mutateAsync({
         logDate: todayISO(),
         mood: emojiKeyToMood(selectedEmoji),
         content: trimmed,
         needAiReflection,
       });
 
-      onSuccess?.();
+      if (res?.id != null) {
+        onSuccess?.(res.id);
+      }
+
       Alert.alert('완료', '일기가 저장되었습니다.');
     } catch (e: any) {
       const msg =
