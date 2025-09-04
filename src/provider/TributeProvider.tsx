@@ -24,7 +24,13 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const res = await apiFetchTributes({ fromUserId: userId });
       const list = (res as any)?.data ?? res ?? [];
       setTributedIds(new Set(list.map((t: any) => String(t.letterId))));
-    } catch (e) {
+    } catch (e: any) {
+      // 403이면 토큰/권한 문제 가능성 -> 로컬 상태 초기화, 로그 남김
+      if (e?.response?.status === 403) {
+        console.warn('[TributeProvider] fetchTributes 403 - authorization required or token expired');
+      } else {
+        console.error('[TributeProvider] fetchTributes error', e);
+      }
       setTributedIds(new Set());
     }
   }, []);
@@ -63,7 +69,15 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
         await patchLetter(letterId, { tributeCount: safeCount });
 
         await fetchTributes(userId);
-      } catch (e) {
+      } catch (e: any) {
+        // 403이면 토큰/권한 문제 가능성 -> 상태 초기화 및 로그
+        if (e?.response?.status === 403) {
+          console.warn('[TributeProvider] toggleTribute 403 - authorization required or token expired');
+          // 권한 문제 시 로컬 상태 초기화(안전하게)
+          setTributedIds(new Set());
+          // 필요하다면 여기서 추가 동작(예: 토큰 갱신/로그아웃 유도)을 수행하세요.
+          return;
+        }
         console.error('Error in toggleTribute:', e);
       }
     },

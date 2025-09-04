@@ -53,8 +53,17 @@ export const fetchTributes = async (letterId: string | number, params?: Record<s
   return data;
 };
 
-export const createTribute = async (payload: { letterId: string | number; fromUserId: number; messageKey?: string; createdAt?: string }) => {
-  const { data } = await api.post(`/letters/${payload.letterId}/tributes`, payload);
+export const createTribute = async (
+  letterId: string | number,
+  fromUserId: number,
+  messageKey?: string,
+  createdAt?: string,
+) => {
+  const { data } = await api.post(`/letters/${letterId}/tributes`, {
+    fromUserId,
+    messageKey,
+    createdAt,
+  });
   return data;
 };
 
