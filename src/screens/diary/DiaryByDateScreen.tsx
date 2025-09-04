@@ -9,9 +9,10 @@ import { withKoreanDOW } from '@/utils/calendar/date';
 import { emojiKeyFromNumber } from '@/utils/calendar/mood';
 import Loader from '@common/Loader';
 import { keepAllKorean } from '@/utils/keepAll';
-import { useLayoutEffect } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import { setHeaderExtras } from '@/types/Header';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import DropDownMenu from '@common/DropDownMenu';
 
 type DiaryByDateRoute = RouteProp<DiaryStackParamList, 'DiaryByDate'>;
 
@@ -19,6 +20,10 @@ const DiaryByDateScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
   const { params } = useRoute<DiaryByDateRoute>();
   const logId = params.logId;
+
+  const [menuVisible, setMenuVisible] = useState(false);
+  const openMenu = useCallback(() => setMenuVisible(true), []);
+  const closeMenu = useCallback(() => setMenuVisible(false), []);
 
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
@@ -28,9 +33,15 @@ const DiaryByDateScreen = () => {
       icon: 'IcVerticalDots',
       iconSize: 38,
       iconColor: '#313131',
+      onPress: openMenu,
     });
-  }, [navigation]);
+  }, [navigation, openMenu]);
   const { data, isLoading, isError, refetch } = useDailyLogDetail(logId);
+
+  const handleEdit = useCallback(() => {
+    navigation.navigate('DiaryEdit', { logId });
+  }, []);
+  const handleDelete = useCallback(() => {}, []);
 
   if (isLoading) return <Loader />;
   if (isError || !data)
@@ -55,33 +66,41 @@ const DiaryByDateScreen = () => {
   const moodLabel = EMOJIS[moodKey];
 
   return (
-    <ScrollView>
-      <View className="gap-4 bg-gray-50 px-7 pb-[42px] pt-10">
-        <View className="items-center gap-4">
-          <View className="items-center gap-6">
-            <Text className="body2 text-[#343434]">{date}</Text>
-            <Text className="subHeading3 text-center text-gray-900">
-              {keepAllKorean(data.topic)}
-            </Text>
+    <>
+      <ScrollView>
+        <View className="gap-4 bg-gray-50 px-7 pb-[42px] pt-10">
+          <View className="items-center gap-4">
+            <View className="items-center gap-6">
+              <Text className="body2 text-[#343434]">{date}</Text>
+              <Text className="subHeading3 text-center text-gray-900">
+                {keepAllKorean(data.topic)}
+              </Text>
+            </View>
+            <TextArea disabled value={data.content} showCounter={false} onChangeText={() => {}} />
           </View>
-          <TextArea disabled value={data.content} showCounter={false} onChangeText={() => {}} />
+          {data?.aiReflection ? (
+            <View className="items-center gap-2.5 rounded-[20px] bg-[#C0E3A8] p-5">
+              <Icon name="IcFlower" size={24} color="#7EB658" />
+              <Text className="body1 text-center !leading-6 text-gray-900">
+                {keepAllKorean(data.aiReflection)}
+              </Text>
+            </View>
+          ) : null}
+          <View className="flex-row justify-center gap-3 rounded-[20px] bg-white px-6 py-[26px]">
+            <Icon name={moodLabel.icon} size={32} color={moodUI.icon} />
+            <View className={`gap-2 rounded-lg border p-2 ${moodUI.border} ${moodUI.bg}`}>
+              <Text className="body2 text-gray-900">{moodLabel.emotion}</Text>
+            </View>
+          </View>
         </View>
-        {data?.aiReflection ? (
-          <View className="items-center gap-2.5 rounded-[20px] bg-[#C0E3A8] p-5">
-            <Icon name="IcFlower" size={24} color="#7EB658" />
-            <Text className="body1 text-center !leading-6 text-gray-900">
-              {keepAllKorean(data.aiReflection)}
-            </Text>
-          </View>
-        ) : null}
-        <View className="flex-row justify-center gap-3 rounded-[20px] bg-white px-6 py-[26px]">
-          <Icon name={moodLabel.icon} size={32} color={moodUI.icon} />
-          <View className={`gap-2 rounded-lg border p-2 ${moodUI.border} ${moodUI.bg}`}>
-            <Text className="body2 text-gray-900">{moodLabel.emotion}</Text>
-          </View>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+      <DropDownMenu
+        visible={menuVisible}
+        onDismiss={closeMenu}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+    </>
   );
 };
 
