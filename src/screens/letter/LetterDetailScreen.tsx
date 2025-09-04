@@ -1,23 +1,64 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Button, Alert, Image } from 'react-native';
-import axios from 'axios';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
 import { useAuth } from '@/provider/AuthProvider';
 import { formatKoreanDate } from '@/utils/formatDate';
+import { fetchLetterById, deleteLetter, fetchTributes as fetchLetterTributes } from '@/services/letters';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
+
+const normalizeLetter = (raw: any) => {
+	// 다양한 API 응답 형태를 하나의 표준형으로 변환
+	if (!raw) return null;
+	const id = raw.id ?? raw.letterId ?? raw._id ?? raw.letter_id ?? null;
+	const content = raw.content ?? raw.body ?? raw.text ?? '';
+	const createdAt = raw.createdAt ?? raw.created_at ?? raw.date ?? null;
+	const photoUrl = raw.photoUrl ?? raw.photo_url ?? raw.imageUrl ?? raw.image_url ?? null;
+	const tributeCount = Number(raw.tributeCount ?? raw.tribute_count ?? raw.tributes ?? 0) || 0;
+
+	// author 정보: 객체 또는 id 필드 후보들을 합쳐서 간단히 표현
+	const authorObj = raw.author ?? raw.user ?? null;
+	const authorId = raw.authorId ?? raw.author_id ?? raw.userId ?? raw.user_id ?? authorObj?.id ?? authorObj?.userId ?? null;
+	const author = authorObj
+		? {
+				id: authorObj.id ?? authorObj.userId ?? authorObj.user_id ?? null,
+				nickname: authorObj.nickname ?? authorObj.name ?? authorObj.displayName ?? null,
+		  }
+		: authorId
+		? { id: authorId, nickname: null }
+		: null;
+
+	return {
+		// 화면 전체에서 사용하기 쉬운 형태
+		id,
+		content,
+		createdAt,
+		photoUrl,
+		tributeCount,
+		author,
+		_raw: raw,
+		// 보존: 원본의 가능성 있는 식별자들
+		authorId,
+	};
+};
 
 const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const id = route?.params?.id;
   const [letter, setLetter] = useState<any | null>(null);
   const [author, setAuthor] = useState<any | null>(null);
-  const { tributedIds, toggleTribute } = useTribute();
+  const { toggleTribute, fetchTributes: refreshTributes } = useTribute();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isTributing, setIsTributing] = useState(false);
+  const [hasMyTribute, setHasMyTribute] = useState(false);
   const { user } = useAuth();
+
+  // user id 정규화: 여러 후보 필드에서 찾아 숫자로 변환
+  const rawUserId = (user as any)?.id ?? (user as any)?.userId ?? (user as any)?.user_id ?? null;
+  const parsedUserId = rawUserId != null ? Number(rawUserId) : NaN;
+  const currentUserId = !isNaN(parsedUserId) ? parsedUserId : null;
 
   useEffect(() => {
     navigation.setOptions({ title: '편지 내용' });
@@ -29,23 +70,11 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       setLoading(true);
       setError(null);
       try {
-        const res = await axios.get(`http://10.0.2.2:3001/letters/${id}`);
-        setLetter(res.data);
-        // prefer camelCase fields from mocks
-        const userIdentifier =
-          res.data?.userId ??
-          res.data?.user_id ??
-          res.data?.authorId ??
-          res.data?.author_id ??
-          null;
-        if (userIdentifier) {
-          try {
-            const userRes = await axios.get(`http://10.0.2.2:3001/users/${userIdentifier}`);
-            setAuthor(userRes.data);
-          } catch (userErr) {
-            setAuthor(null);
-          }
-        }
+        const res = await fetchLetterById(id);
+        const raw = (res as any)?.data ?? res;
+        const normalized = normalizeLetter(raw);
+        setLetter(normalized);
+        setAuthor(normalized?.author ?? null);
       } catch (e) {
         setError('편지를 불러오지 못했습니다.');
       } finally {
@@ -55,90 +84,85 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     fetchDetail();
   }, [id]);
 
-  // user is provided by AuthProvider; do not fetch local users here
+  // 상세 화면 진입 시 현재 사용자의 헌화 목록을 불러와 tributedIds를 채웁니다.
+  useEffect(() => {
+    if (!currentUserId) return;
+    // 호출 실패는 무시하고 로컬 상태만 갱신
+    void refreshTributes(currentUserId);
+  }, [currentUserId, refreshTributes]);
+
+  // 서버 기준으로 현재 사용자가 이 편지에 헌화했는지 판별
+  useEffect(() => {
+    const checkMyTribute = async () => {
+      try {
+        if (!id || !currentUserId) return;
+        const listRes = await fetchLetterTributes(String(id));
+        const arr = (listRes as any)?.data ?? listRes ?? [];
+        const mine = Array.isArray(arr)
+          ? arr.find((t: any) => String(t?.fromUserId) === String(currentUserId))
+          : undefined;
+        setHasMyTribute(Boolean(mine));
+      } catch (e) {
+        // ignore; keep previous state
+      }
+    };
+    void checkMyTribute();
+  }, [id, currentUserId]);
 
   const handleTribute = async () => {
     if (!letter) return;
-    if (!user?.userId) {
-      Alert.alert('사용자 정보를 불러오지 못했습니다.');
+    if (!currentUserId) {
+      Alert.alert('로그인이 필요합니다.', '헌화하려면 로그인 후 다시 시도해 주세요.');
       return;
     }
     if (isTributing) return;
 
-    const letterId = String(letter.id);
-    const has = tributedIds.has(letterId);
+    // normalized letter.id 사용 (normalizeLetter로 보장)
+    const letterId = String(letter.id ?? letter._raw?.id ?? '');
+  const has = hasMyTribute;
 
     if (has) {
       setIsTributing(true);
       try {
-        await toggleTribute(letterId, user.userId);
+        await toggleTribute(letterId, currentUserId);
         try {
-          const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-          setLetter(res.data);
+          const res = await fetchLetterById(letterId);
+          const raw = (res as any)?.data ?? res;
+          const normalized = normalizeLetter(raw);
+          setLetter(normalized);
+          setAuthor(normalized?.author ?? null);
         } catch (e) {}
-        Alert.alert('헌화가 취소되었습니다');
+  // 서버 기준으로 다시 확인
+  try { await refreshTributes(currentUserId); } catch {}
+  setHasMyTribute(false);
+  Alert.alert('헌화가 취소되었습니다');
       } finally {
         setIsTributing(false);
       }
       return;
     }
 
-    Alert.alert('헌화 메시지 선택', '전달할 메시지를 선택하세요', [
-      {
-        text: '많이 힘드시죠? 기운 내세요.',
-        onPress: async () => {
-          setIsTributing(true);
-          try {
-            await toggleTribute(letterId, user.userId, 'CONSOLATION');
-            try {
-              const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-              setLetter(res.data);
-            } catch (e) {}
-            Alert.alert('헌화가 완료되었습니다');
-          } finally {
-            setIsTributing(false);
-          }
-        },
-      },
-      {
-        text: '너무 안타까워요. 힘 내세요.',
-        onPress: async () => {
-          setIsTributing(true);
-          try {
-            await toggleTribute(letterId, user.userId, 'SADNESS');
-            try {
-              const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-              setLetter(res.data);
-            } catch (e) {}
-            Alert.alert('헌화가 완료되었습니다');
-          } finally {
-            setIsTributing(false);
-          }
-        },
-      },
-      {
-        text: '저도 같은 마음이에요. 함께 이겨내요.',
-        onPress: async () => {
-          setIsTributing(true);
-          try {
-            await toggleTribute(letterId, user.userId, 'EMPATHY');
-            try {
-              const res = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-              setLetter(res.data);
-            } catch (e) {}
-            Alert.alert('헌화가 완료되었습니다');
-          } finally {
-            setIsTributing(false);
-          }
-        },
-      },
-      { text: '취소', style: 'cancel' },
-    ]);
+    // 메시지 선택 없이 즉시 헌화 생성
+    setIsTributing(true);
+    try {
+      await toggleTribute(letterId, currentUserId);
+      try {
+        const res = await fetchLetterById(letterId);
+        const raw = (res as any)?.data ?? res;
+        const normalized = normalizeLetter(raw);
+        setLetter(normalized);
+        setAuthor(normalized?.author ?? null);
+      } catch (e) {}
+      try { await refreshTributes(currentUserId); } catch {}
+      setHasMyTribute(true);
+      Alert.alert('헌화가 완료되었습니다');
+    } finally {
+      setIsTributing(false);
+    }
   };
 
-  const ownerId = letter ? (letter.userId ?? letter.user_id ?? null) : null;
-
-  const isOwner = Boolean(user?.userId && ownerId && String(ownerId) === String(user.userId));
+  const ownerId = letter ? (letter.author?.id ?? letter.authorId ?? letter.author_id ?? letter._raw?.userId ?? letter._raw?.user_id ?? null) : null;
+  const isOwner = Boolean(currentUserId && ownerId && String(ownerId) === String(currentUserId));
 
   const handleEdit = () => {
     if (!letter) return;
@@ -155,9 +179,14 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         style: 'destructive',
         onPress: async () => {
           try {
-            await axios.delete(`http://10.0.2.2:3001/letters/${String(letter.id)}`);
-            // after delete, go back to list
-            navigation.goBack();
+            // call API to delete the letter, support multiple id fields from original
+            const rawId = letter.id ?? letter._raw?.id ?? letter._raw?.letterId ?? letter._raw?.letter_id ?? null;
+            if (!rawId) throw new Error('invalid_letter_id');
+            await deleteLetter(rawId);
+
+            Alert.alert('삭제 완료', '편지가 삭제되었습니다.', [
+              { text: '확인', onPress: () => navigation.goBack() }
+            ]);
           } catch (e) {
             Alert.alert('삭제 실패', '편지를 삭제하는 중 오류가 발생했습니다.');
           }
@@ -188,9 +217,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <ScrollView style={{ flex: 1, padding: 16 }}>
       <Text style={{ color: '#666', marginBottom: 12 }}>{formatKoreanDate(letter.createdAt)}</Text>
-      <Text
-        style={{ fontSize: 12, color: '#333', marginBottom: 6 }}
-      >{`${author?.nickname ?? '작성자'}님의 추억이에요.`}</Text>
+      <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${author?.nickname ?? '작성자 정보 없음'}님의 추억이에요.`}</Text>
       <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{letter.content}</Text>
       {letter.photoUrl ? (
         <Image
@@ -206,8 +233,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       </Text>
       {letter && (
         <Button
-          title="헌화하기"
-          color={tributedIds.has(String(letter.id)) ? '#888' : undefined}
+          title={hasMyTribute ? '취소하기' : '헌화하기'}
+          color={hasMyTribute ? '#888' : undefined}
           onPress={handleTribute}
           disabled={isTributing}
         />

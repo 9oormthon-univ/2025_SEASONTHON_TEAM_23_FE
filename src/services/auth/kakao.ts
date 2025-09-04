@@ -44,7 +44,7 @@ export const signOutAll = async (): Promise<void> => {
       await api.post('/auth/logout', { refreshToken });
     }
   } catch (e) {
-    console.debug('로그아웃 요청 실패', e);
+    // ignore logout error
   }
   try {
     await kakaoLogout();

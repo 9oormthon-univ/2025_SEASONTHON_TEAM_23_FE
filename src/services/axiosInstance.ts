@@ -18,6 +18,7 @@ const notify = (t: string | null) => {
 api.interceptors.request.use((config) => {
   const token = tokenStore.getAccess();
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  // debug logs removed
   return config;
 });
 
@@ -66,6 +67,8 @@ api.interceptors.response.use(
       }
     }
 
-    throw error;
+  // debug logs removed
+
+      throw error;
   }
 );

@@ -1,9 +1,13 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import axios from 'axios';
+import {
+  fetchTributes as apiFetchTributes, // GET /letters/{letterId}/tributes — swagger
+  createTribute,                    // POST /letters/{letterId}/tributes — swagger
+  deleteTributeById,                // DELETE /tributes/{tributeId} — swagger
+} from '@/services/letters';
 
 interface TributeContextType {
   tributedIds: Set<string>;
-  fetchTributes: (userId: number) => Promise<void>;
+  fetchTributes: (currentUserId?: number) => Promise<void>;
   toggleTribute: (letterId: string, userId: number, messageKey?: string) => Promise<void>;
 }
 
@@ -12,55 +16,46 @@ const TributeContext = createContext<TributeContextType | undefined>(undefined);
 export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tributedIds, setTributedIds] = useState<Set<string>>(new Set());
 
-  const fetchTributes = useCallback(async (userId: number) => {
-    try {
-      const res = await axios.get('http://10.0.2.2:3001/letter_tributes');
-      const myTributes = res.data.filter((t: any) => t.fromUserId === userId);
-      setTributedIds(new Set(myTributes.map((t: any) => String(t.letterId))));
-    } catch (e) {
-      setTributedIds(new Set());
-    }
+  const fetchTributes = useCallback(async (_currentUserId?: number) => {
+    // Backend removed /tributes/messages; no server-side list available.
+    // Keep existing state; components can update via toggleTribute after server success.
+    return;
   }, []);
 
   const toggleTribute = useCallback(
-    async (letterId: string, userId: number, messageKey?: string) => {
-      const has = tributedIds.has(letterId);
+    async (letterId: string, userId: number, _messageKey?: string) => {
       try {
-        if (has) {
-          // find existing tribute record to delete
-          const tributesRes = await axios.get('http://10.0.2.2:3001/letter_tributes', {
-            params: { letterId: String(letterId), fromUserId: userId },
-          });
-          const targetTribute = tributesRes.data[0];
-          if (targetTribute) {
-            await axios.delete(`http://10.0.2.2:3001/letter_tributes/${targetTribute.id}`);
-          }
+        // Query server for existing tributes on this letter
+        const list = await apiFetchTributes(String(letterId));
+        const arr = (list as any)?.data ?? list ?? [];
+        const mine = Array.isArray(arr)
+          ? arr.find((t: any) => String(t?.fromUserId ?? t?.userId) === String(userId))
+          : undefined;
+
+        if (mine?.id != null) {
+          // If server already has my tribute, delete it
+          await deleteTributeById(mine.id);
         } else {
-          // include messageKey when creating a tribute
-          const payload: any = {
-            letterId: String(letterId),
-            fromUserId: userId,
-            createdAt: new Date().toISOString(),
-          };
-          if (messageKey) payload.messageKey = messageKey;
-          await axios.post('http://10.0.2.2:3001/letter_tributes', payload);
+          // Otherwise create tribute (no body)
+          await createTribute(String(letterId));
         }
 
-        // 현재 tribute_count를 가져와서 증감
-        const letterRes = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-        let currentCount = letterRes.data.tributeCount ?? 0;
-        // defensive: treat negative currentCount as 0
-        if (currentCount < 0) currentCount = 0;
-        const nextCount = currentCount + (has ? -1 : 1);
-        const safeCount = Math.max(0, nextCount);
-        await axios.patch(`http://10.0.2.2:3001/letters/${letterId}`, { tributeCount: safeCount });
-
-        await fetchTributes(userId);
-      } catch (e) {
-        console.error('Error in toggleTribute:', e);
+        // Update local state after confirmed server success
+        setTributedIds((prev) => {
+          const next = new Set(prev);
+          if (mine?.id != null) {
+            next.delete(String(letterId));
+          } else {
+            next.add(String(letterId));
+          }
+          return next;
+        });
+      } catch (e: any) {
+    // On failure, keep existing state; surface errors upstream if needed
+    return;
       }
     },
-    [tributedIds, fetchTributes]
+  []
   );
 
   return (
