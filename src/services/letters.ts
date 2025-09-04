@@ -48,13 +48,13 @@ export const uploadLetterImage = async (file: { uri: string; name?: string; type
 };
 
 // 헌화(tributes) 관련 API 헬퍼들
-export const fetchTributes = async (params?: Record<string, any>) => {
-  const { data } = await api.get('/tributes', { params });
+export const fetchTributes = async (letterId: string | number, params?: Record<string, any>) => {
+  const { data } = await api.get(`/letters/${letterId}/tributes`, { params });
   return data;
 };
 
 export const createTribute = async (payload: { letterId: string | number; fromUserId: number; messageKey?: string; createdAt?: string }) => {
-  const { data } = await api.post('/tributes', payload);
+  const { data } = await api.post(`/letters/${payload.letterId}/tributes`, payload);
   return data;
 };
 
