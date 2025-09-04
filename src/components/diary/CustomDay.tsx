@@ -5,10 +5,11 @@ type CustomDayProps = {
   date?: DateData;
   isToday?: boolean;
   moodColor?: string;
+  disabled?: boolean;
   onPress?: (isoDate: string) => void;
 };
 
-const CustomDay = ({ date, isToday, moodColor, onPress }: CustomDayProps) => {
+const CustomDay = ({ date, isToday, moodColor, disabled, onPress }: CustomDayProps) => {
   if (!date) return <View style={{ width: 24, height: 24 }} />;
 
   const dow = new Date(date.dateString).getDay();
@@ -16,7 +17,7 @@ const CustomDay = ({ date, isToday, moodColor, onPress }: CustomDayProps) => {
   const textColor = isToday ? 'white' : dow === 0 ? '#B13E3E' : dow === 6 ? '#4492B9' : '#131313';
 
   const handlePress = () => {
-    if (onPress) onPress(date.dateString);
+    if (!disabled && onPress) onPress(date.dateString);
   };
 
   return (
@@ -30,6 +31,7 @@ const CustomDay = ({ date, isToday, moodColor, onPress }: CustomDayProps) => {
         justifyContent: 'center',
         borderRadius: 12,
         backgroundColor: bg,
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       <Text
