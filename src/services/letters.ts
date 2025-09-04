@@ -1,7 +1,7 @@
 import { api } from './axiosInstance';
 
 export type Letter = {
-  id: number;
+  letterId: number;
   title: string;
   content: string;
   authorId?: number;
@@ -11,12 +11,12 @@ export type Letter = {
 };
 
 export const fetchLetters = async (page = 0, size = 20) => {
-  const { data } = await api.get('/letters', { params: { page, size } });
+  const { data } = await api.get('/letters/public', { params: { page, size } });
   return data;
 };
 
-export const fetchLetterById = async (id: number | string) => {
-  const { data } = await api.get(`/letters/${id}`);
+export const fetchLetterById = async (letterId: number | string) => {
+  const { data } = await api.get(`/letters/${letterId}`);
   return data;
 };
 
@@ -25,13 +25,13 @@ export const createLetter = async (payload: { title: string; content: string; im
   return data;
 };
 
-export const updateLetter = async (id: number | string, payload: Partial<{ title: string; content: string; images?: string[] }>) => {
-  const { data } = await api.put(`/letters/${id}`, payload);
+export const updateLetter = async (letterId: number | string, payload: Partial<{ title: string; content: string; images?: string[] }>) => {
+  const { data } = await api.put(`/letters/${letterId}`, payload);
   return data;
 };
 
-export const deleteLetter = async (id: number | string) => {
-  const { data } = await api.delete(`/letters/${id}`);
+export const deleteLetter = async (letterId: number | string) => {
+  const { data } = await api.delete(`/letters/${letterId}`);
   return data;
 };
 
