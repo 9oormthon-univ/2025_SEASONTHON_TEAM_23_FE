@@ -47,10 +47,10 @@ const ProfileScreen = () => {
               <Text className="title2B text-gray-900 mt-1">{data?.letterCount ?? 0}</Text>
             </Pressable>
             <View className="w-px h-10 bg-gray-200" />
-            <View className="flex-1 items-center">
+            <Pressable className="flex-1 items-center" onPress={() => navigation.navigate('MyTributedLetters')}>
               <Text className="captionB text-gray-500">헌화</Text>
               <Text className="title2B text-gray-900 mt-1">{data?.tributeCount ?? 0}</Text>
-            </View>
+            </Pressable>
           </View>
         )}
       </View>
