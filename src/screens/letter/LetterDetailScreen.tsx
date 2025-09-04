@@ -5,7 +5,7 @@ import type { RootStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
 import { useAuth } from '@/provider/AuthProvider';
 import { formatKoreanDate } from '@/utils/formatDate';
-import { fetchLetterById } from '@/services/letters';
+import { fetchLetterById, deleteLetter } from '@/services/letters';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
 
@@ -55,7 +55,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { user } = useAuth();
 
   // user id 정규화: 여러 후보 필드에서 찾아 숫자로 변환
-  const rawUserId = user?.id ?? user?.userId ?? user?.user_id ?? null;
+  const rawUserId = (user as any)?.id ?? (user as any)?.userId ?? (user as any)?.user_id ?? null;
   const parsedUserId = rawUserId != null ? Number(rawUserId) : NaN;
   const currentUserId = !isNaN(parsedUserId) ? parsedUserId : null;
 
@@ -193,8 +193,14 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         style: 'destructive',
         onPress: async () => {
           try {
-            // after delete, go back to list
-            navigation.goBack();
+            // call API to delete the letter, support multiple id fields from original
+            const rawId = letter.id ?? letter._raw?.id ?? letter._raw?.letterId ?? letter._raw?.letter_id ?? null;
+            if (!rawId) throw new Error('invalid_letter_id');
+            await deleteLetter(rawId);
+
+            Alert.alert('삭제 완료', '편지가 삭제되었습니다.', [
+              { text: '확인', onPress: () => navigation.goBack() }
+            ]);
           } catch (e) {
             Alert.alert('삭제 실패', '편지를 삭제하는 중 오류가 발생했습니다.');
           }
