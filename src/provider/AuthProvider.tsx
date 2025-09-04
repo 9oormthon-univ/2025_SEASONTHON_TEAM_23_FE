@@ -2,11 +2,11 @@ import React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { api } from '@/services/axiosInstance';
 import { tokenStore } from '@/services/auth/tokenStore';
-import type { User } from '@/types/auth';
+import type { AuthMeResponse } from '@/types/auth';
 import { signInWithKakao, signOutAll, unlinkAccount } from '@/services/auth/kakao';
 
 type AuthContextValue = {
-  user: User | null;
+  user: AuthMeResponse | null;
   loading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
@@ -17,12 +17,12 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthMeResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshUser = async () => {
     try {
-      const { data } = await api.get('/api/auth/me');
+      const { data } = await api.get('/auth/me');
       setUser(data ?? null);
     } catch {
       setUser(null);
