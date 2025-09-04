@@ -115,11 +115,11 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
     Alert.alert('헌화 메시지 선택', '전달할 메시지를 선택하세요', [
       {
-        text: '많이 힘드시죠? 기운 내세요.',
+        text: 'THANKS.',
         onPress: async () => {
           setIsTributing(true);
           try {
-            await toggleTribute(letterId, currentUserId, 'CONSOLATION');
+            await toggleTribute(letterId, currentUserId, 'THANKS');
             try {
               const res = await fetchLetterById(letterId);
               const raw = (res as any)?.data ?? res;

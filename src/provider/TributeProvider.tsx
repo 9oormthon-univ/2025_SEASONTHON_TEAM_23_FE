@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 // axios 직접 사용 제거, services로 위임
 import {
-  fetchTributes as apiFetchTributes,
-  createTribute,
-  deleteTributeById,
-  fetchLetterById,
-  patchLetter,
+  fetchTributes as apiFetchTributes, // GET /letters/{letterId}/tributes — swagger
+  createTribute,                    // POST /letters/{letterId}/tributes — swagger
+  deleteTributeById,                // DELETE /tributes/{tributeId} — swagger
+  fetchLetterById,                  // GET /letters/{letterId} — swagger
+  fetchTributeMessages,             // GET /tributes/messages — swagger
 } from '@/services/letters';
 
 interface TributeContextType {
@@ -21,11 +21,19 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const fetchTributes = useCallback(async (userId: number) => {
     try {
-      const res = await apiFetchTributes({ fromUserId: userId });
+      // Swagger에 전역 GET /tributes 는 없음. 사용자별로는 /tributes/messages 로 우회.
+      const res = await fetchTributeMessages();
       const list = (res as any)?.data ?? res ?? [];
-      setTributedIds(new Set(list.map((t: any) => String(t.letterId))));
+      const ids = new Set<string>();
+      if (Array.isArray(list)) {
+        for (const t of list) {
+          // 서버가 message 항목에 letterId를 내려준다는 가정. 없으면 스킵.
+          const lid = t?.letterId ?? t?.letter?.id;
+          if (lid != null) ids.add(String(lid));
+        }
+      }
+      setTributedIds(ids);
     } catch (e: any) {
-      // 403이면 토큰/권한 문제 가능성 -> 로컬 상태 초기화, 로그 남김
       if (e?.response?.status === 403) {
         console.warn('[TributeProvider] fetchTributes 403 - authorization required or token expired');
       } else {
@@ -40,30 +48,25 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const has = tributedIds.has(letterId);
       try {
         if (has) {
-          // 기존 헌화 레코드 조회 후 삭제
-          const found = await apiFetchTributes({ letterId: String(letterId), fromUserId: userId });
-          const target = (found as any)?.data ?? found;
-          const targetRecord = Array.isArray(target) ? target[0] : target;
-          if (targetRecord && targetRecord.id) {
-            await deleteTributeById(targetRecord.id);
+          // 기존 헌화 레코드 조회 후 삭제 (swagger 경로: GET /letters/{letterId}/tributes)
+          const list = await apiFetchTributes(String(letterId));
+          const arr = (list as any)?.data ?? list ?? [];
+          const mine = Array.isArray(arr)
+            ? arr.find((t: any) => String(t?.fromUserId ?? t?.userId) === String(userId))
+            : undefined;
+          if (mine?.id != null) {
+            await deleteTributeById(mine.id); // DELETE /tributes/{tributeId}
           }
         } else {
           // 헌화 생성 (messageKey 포함 가능)
           // call letter-specific endpoint to satisfy backend which expects POST /letters/:id/tributes
           // createTribute signature: (letterId, messageKey?) -> body should be { messageKey }
-          await createTribute(String(letterId), messageKey);
+          const msgKey = messageKey ?? 'THANKS';
+          await createTribute(String(letterId), msgKey);
         }
 
-        // 현재 tribute_count를 가져와서 증감
-        const letterRes = await fetchLetterById(letterId);
-        const letterData = (letterRes as any)?.data ?? letterRes ?? {};
-        let currentCount = Number(letterData.tributeCount ?? 0);
-        // defensive: treat negative currentCount as 0
-        if (currentCount < 0) currentCount = 0;
-        const nextCount = currentCount + (has ? -1 : 1);
-        const safeCount = Math.max(0, nextCount);
-        await patchLetter(letterId, { tributeCount: safeCount });
-
+        // 단건 새로고침으로 화면 동기화, 그리고 내 헌화 목록도 갱신
+        await fetchLetterById(letterId);
         await fetchTributes(userId);
       } catch (e: any) {
         // 403이면 토큰/권한 문제 가능성 -> 상태 초기화 및 로그
