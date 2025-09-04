@@ -36,13 +36,13 @@ export default function HomeScreen({
     : (data?.topic ?? '오늘의 주제가 없습니다.');
 
   return (
-    <SafeAreaView className="flex-1 bg-[#0E1621] px-6">
+    <SafeAreaView className="flex-1 bg-[#121826] px-6">
       <StatusBar barStyle="light-content" />
       <View className="mt-6">
-        <Text className="text-[#C8D1DB] text-[28px] font-extrabold mb-1" numberOfLines={1}>
+        <Text className="text-[#FFFFFF] text-[28px] font-extrabold mb-1" numberOfLines={1}>
           {nickname} 님,
         </Text>
-        <Text className="text-[#C8D1DB] text-[16px] font-medium">오늘도 편안한 하루 보내세요.</Text>
+        <Text className="text-[#FFFFFF] text-[16px] font-medium">오늘도 편안한 하루 보내세요.</Text>
       </View>
 
       <View className="gap-7 pb-6 pt-8 bg-transparent">
@@ -76,7 +76,7 @@ export default function HomeScreen({
                 params: { topic: topicText },
               })
             }
-            className="flex-row items-center gap-1 rounded-xl bg-primary px-9 py-2"
+            className="flex-row items-center gap-1 rounded-xl bg-[#1F2A3C] px-9 py-2"
           >
             <Icon name="IcEdit" size={24} fill="white" />
             <Text className="body1 leading-[1.6] text-white">{`일기 쓰러가기`}</Text>
