@@ -11,9 +11,26 @@ export const moodColorFromNumber = (mood?: number): string | undefined => {
     case 3:
       return '#CECECE'; // sad
     case 4:
-      return '#F5F5F5'; // bad(연한 회색)
+      return '#808080'; // bad
     default:
       return undefined;
+  }
+};
+
+export const emojiKeyFromNumber = (mood?: number): EmojiKey => {
+  switch (mood) {
+    case 0:
+      return 'best';
+    case 1:
+      return 'good';
+    case 2:
+      return 'soso';
+    case 3:
+      return 'sad';
+    case 4:
+      return 'bad';
+    default:
+      return 'soso';
   }
 };
 
