@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import axios from 'axios';
+// axios 직접 사용 제거, services로 위임
+import {
+  fetchTributes as apiFetchTributes,
+  createTribute,
+  deleteTributeById,
+  fetchLetterById,
+  patchLetter,
+} from '@/services/letters';
 
 interface TributeContextType {
   tributedIds: Set<string>;
@@ -14,9 +21,9 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const fetchTributes = useCallback(async (userId: number) => {
     try {
-      const res = await axios.get('http://10.0.2.2:3001/letter_tributes');
-      const myTributes = res.data.filter((t: any) => t.fromUserId === userId);
-      setTributedIds(new Set(myTributes.map((t: any) => String(t.letterId))));
+      const res = await apiFetchTributes({ fromUserId: userId });
+      const list = (res as any)?.data ?? res ?? [];
+      setTributedIds(new Set(list.map((t: any) => String(t.letterId))));
     } catch (e) {
       setTributedIds(new Set());
     }
@@ -27,33 +34,33 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const has = tributedIds.has(letterId);
       try {
         if (has) {
-          // find existing tribute record to delete
-          const tributesRes = await axios.get('http://10.0.2.2:3001/letter_tributes', {
-            params: { letterId: String(letterId), fromUserId: userId },
-          });
-          const targetTribute = tributesRes.data[0];
-          if (targetTribute) {
-            await axios.delete(`http://10.0.2.2:3001/letter_tributes/${targetTribute.id}`);
+          // 기존 헌화 레코드 조회 후 삭제
+          const found = await apiFetchTributes({ letterId: String(letterId), fromUserId: userId });
+          const target = (found as any)?.data ?? found;
+          const targetRecord = Array.isArray(target) ? target[0] : target;
+          if (targetRecord && targetRecord.id) {
+            await deleteTributeById(targetRecord.id);
           }
         } else {
-          // include messageKey when creating a tribute
+          // 헌화 생성 (messageKey 포함 가능)
           const payload: any = {
             letterId: String(letterId),
             fromUserId: userId,
             createdAt: new Date().toISOString(),
           };
           if (messageKey) payload.messageKey = messageKey;
-          await axios.post('http://10.0.2.2:3001/letter_tributes', payload);
+          await createTribute(payload);
         }
 
         // 현재 tribute_count를 가져와서 증감
-        const letterRes = await axios.get(`http://10.0.2.2:3001/letters/${letterId}`);
-        let currentCount = letterRes.data.tributeCount ?? 0;
+        const letterRes = await fetchLetterById(letterId);
+        const letterData = (letterRes as any)?.data ?? letterRes ?? {};
+        let currentCount = Number(letterData.tributeCount ?? 0);
         // defensive: treat negative currentCount as 0
         if (currentCount < 0) currentCount = 0;
         const nextCount = currentCount + (has ? -1 : 1);
         const safeCount = Math.max(0, nextCount);
-        await axios.patch(`http://10.0.2.2:3001/letters/${letterId}`, { tributeCount: safeCount });
+        await patchLetter(letterId, { tributeCount: safeCount });
 
         await fetchTributes(userId);
       } catch (e) {
