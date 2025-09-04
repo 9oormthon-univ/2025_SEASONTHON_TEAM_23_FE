@@ -9,8 +9,43 @@ import { fetchLetterById } from '@/services/letters';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
 
+const normalizeLetter = (raw: any) => {
+	// 다양한 API 응답 형태를 하나의 표준형으로 변환
+	if (!raw) return null;
+	const id = raw.id ?? raw.letterId ?? raw._id ?? raw.letter_id ?? null;
+	const content = raw.content ?? raw.body ?? raw.text ?? '';
+	const createdAt = raw.createdAt ?? raw.created_at ?? raw.date ?? null;
+	const photoUrl = raw.photoUrl ?? raw.photo_url ?? raw.imageUrl ?? raw.image_url ?? null;
+	const tributeCount = Number(raw.tributeCount ?? raw.tribute_count ?? raw.tributes ?? 0) || 0;
+
+	// author 정보: 객체 또는 id 필드 후보들을 합쳐서 간단히 표현
+	const authorObj = raw.author ?? raw.user ?? null;
+	const authorId = raw.authorId ?? raw.author_id ?? raw.userId ?? raw.user_id ?? authorObj?.id ?? authorObj?.userId ?? null;
+	const author = authorObj
+		? {
+				id: authorObj.id ?? authorObj.userId ?? authorObj.user_id ?? null,
+				nickname: authorObj.nickname ?? authorObj.name ?? authorObj.displayName ?? null,
+		  }
+		: authorId
+		? { id: authorId, nickname: null }
+		: null;
+
+	return {
+		// 화면 전체에서 사용하기 쉬운 형태
+		id,
+		content,
+		createdAt,
+		photoUrl,
+		tributeCount,
+		author,
+		_raw: raw,
+		// 보존: 원본의 가능성 있는 식별자들
+		authorId,
+	};
+};
+
 const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
-   const id = route?.params?.id;
+  const id = route?.params?.id;
   const [letter, setLetter] = useState<any | null>(null);
   const [author, setAuthor] = useState<any | null>(null);
   const { tributedIds, toggleTribute } = useTribute();
@@ -19,7 +54,10 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [isTributing, setIsTributing] = useState(false);
   const { user } = useAuth();
 
-  const currentUserId = user?.userId
+  // user id 정규화: 여러 후보 필드에서 찾아 숫자로 변환
+  const rawUserId = user?.id ?? user?.userId ?? user?.user_id ?? null;
+  const parsedUserId = rawUserId != null ? Number(rawUserId) : NaN;
+  const currentUserId = !isNaN(parsedUserId) ? parsedUserId : null;
 
   useEffect(() => {
     navigation.setOptions({ title: '편지 내용' });
@@ -32,14 +70,10 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       setError(null);
       try {
         const res = await fetchLetterById(id);
-        const letterData = (res as any)?.data ?? res;
-        setLetter(letterData);
-
-        if (letterData?.author) {
-          setAuthor(letterData.author);
-        } else {
-          setAuthor(null);
-        }
+        const raw = (res as any)?.data ?? res;
+        const normalized = normalizeLetter(raw);
+        setLetter(normalized);
+        setAuthor(normalized?.author ?? null);
       } catch (e) {
         setError('편지를 불러오지 못했습니다.');
       } finally {
@@ -57,7 +91,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     }
     if (isTributing) return;
 
-    const letterId = String(letter.id);
+    // normalized letter.id 사용 (normalizeLetter로 보장)
+    const letterId = String(letter.id ?? letter._raw?.id ?? '');
     const has = tributedIds.has(letterId);
 
     if (has) {
@@ -66,8 +101,10 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         await toggleTribute(letterId, currentUserId);
         try {
           const res = await fetchLetterById(letterId);
-          const updated = (res as any)?.data ?? res;
-          setLetter(updated);
+          const raw = (res as any)?.data ?? res;
+          const normalized = normalizeLetter(raw);
+          setLetter(normalized);
+          setAuthor(normalized?.author ?? null);
         } catch (e) {}
         Alert.alert('헌화가 취소되었습니다');
       } finally {
@@ -85,8 +122,10 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             await toggleTribute(letterId, currentUserId, 'CONSOLATION');
             try {
               const res = await fetchLetterById(letterId);
-              const updated = (res as any)?.data ?? res;
-              setLetter(updated);
+              const raw = (res as any)?.data ?? res;
+              const normalized = normalizeLetter(raw);
+              setLetter(normalized);
+              setAuthor(normalized?.author ?? null);
             } catch (e) {}
             Alert.alert('헌화가 완료되었습니다');
           } finally {
@@ -102,8 +141,10 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             await toggleTribute(letterId, currentUserId, 'SADNESS');
             try {
               const res = await fetchLetterById(letterId);
-              const updated = (res as any)?.data ?? res;
-              setLetter(updated);
+              const raw = (res as any)?.data ?? res;
+              const normalized = normalizeLetter(raw);
+              setLetter(normalized);
+              setAuthor(normalized?.author ?? null);
             } catch (e) {}
             Alert.alert('헌화가 완료되었습니다');
           } finally {
@@ -119,8 +160,10 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             await toggleTribute(letterId, currentUserId, 'EMPATHY');
             try {
               const res = await fetchLetterById(letterId);
-              const updated = (res as any)?.data ?? res;
-              setLetter(updated);
+              const raw = (res as any)?.data ?? res;
+              const normalized = normalizeLetter(raw);
+              setLetter(normalized);
+              setAuthor(normalized?.author ?? null);
             } catch (e) {}
             Alert.alert('헌화가 완료되었습니다');
           } finally {
@@ -132,7 +175,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     ]);
   };
 
-  const ownerId = letter ? (letter.userId ?? letter.user_id ?? null) : null;
+  const ownerId = letter ? (letter.author?.id ?? letter.authorId ?? letter.author_id ?? letter._raw?.userId ?? letter._raw?.user_id ?? null) : null;
   const isOwner = Boolean(currentUserId && ownerId && String(ownerId) === String(currentUserId));
 
   const handleEdit = () => {

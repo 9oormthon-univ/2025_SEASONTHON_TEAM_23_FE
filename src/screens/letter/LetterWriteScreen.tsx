@@ -5,7 +5,7 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from 'src/types/navigation';
 // AsyncStorage removed: not used in this screen
 import * as ImagePicker from 'expo-image-picker';
-import { fetchLetterById, createLetter, updateLetter, uploadLetterImage } from '@/services/letters';
+import { fetchLetterById, createLetter, updateLetter } from '@/services/letters';
 import { useAuth } from '@/provider/AuthProvider';
 
 // local user id will be fetched from local mock server (/users)
@@ -48,9 +48,10 @@ const LetterWriteScreen = () => {
       const normalizedImageUri = imageUri && imageUri !== '' ? imageUri : null;
 
       // build payload for json-server (POST용)
+      const userId = (user as any)?.id ?? (user as any)?.userId;
       const payload: any = {
-        // user id 필드명 환경에 따라 다를 수 있으므로 user?.id 또는 user?.userId 사용
-        userId: user?.id ?? user?.userId,
+        // user id 필드명 환경에 따라 다를 수 있으므로 runtime에서 추출
+        userId,
         content: letter,
         isPublic: isPublic,
         createdAt: new Date().toISOString(),
@@ -64,7 +65,8 @@ const LetterWriteScreen = () => {
         payload.photoUrl = normalizedImageUri;
       }
 
-      if (!user?.id) {
+  // ensure we have a userId (either id or userId from server/mock)
+  if (!userId) {
         Alert.alert('사용자 정보를 불러오지 못했습니다. 편지를 저장할 수 없습니다.');
         return;
       }
