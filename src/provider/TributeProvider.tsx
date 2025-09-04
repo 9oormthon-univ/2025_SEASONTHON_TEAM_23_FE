@@ -49,13 +49,9 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
           }
         } else {
           // 헌화 생성 (messageKey 포함 가능)
-          const payload: any = {
-            letterId: String(letterId),
-            fromUserId: userId,
-            createdAt: new Date().toISOString(),
-          };
-          if (messageKey) payload.messageKey = messageKey;
-          await createTribute(payload);
+          // call letter-specific endpoint to satisfy backend which expects POST /letters/:id/tributes
+          // createTribute signature: (letterId, messageKey?) -> body should be { messageKey }
+          await createTribute(String(letterId), messageKey);
         }
 
         // 현재 tribute_count를 가져와서 증감
