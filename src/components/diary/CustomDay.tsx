@@ -11,8 +11,9 @@ type CustomDayProps = {
 const CustomDay = ({ date, isToday, moodColor, onPress }: CustomDayProps) => {
   if (!date) return <View style={{ width: 24, height: 24 }} />;
 
+  const dow = new Date(date.dateString).getDay();
   const bg = isToday ? '#131313' : (moodColor ?? 'transparent');
-  const textColor = isToday ? 'white' : '#131313';
+  const textColor = isToday ? 'white' : dow === 0 ? '#B13E3E' : dow === 6 ? '#4492B9' : '#131313';
 
   const handlePress = () => {
     if (onPress) onPress(date.dateString);
