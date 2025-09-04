@@ -36,9 +36,9 @@ export default function HomeScreen({
     : (data?.topic ?? '오늘의 주제가 없습니다.');
 
   return (
-    <SafeAreaView className="flex-1 bg-[#121826] px-6">
+    <SafeAreaView className="flex-1 bg-[#121826]">
       <StatusBar barStyle="light-content" />
-      <View className="mt-6">
+      <View className="mt-6 px-10">
         <Text className="text-[#FFFFFF] text-[28px] font-extrabold mb-1" numberOfLines={1}>
           {nickname} 님,
         </Text>
