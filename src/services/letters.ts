@@ -1,4 +1,5 @@
 import { api } from './axiosInstance';
+import { tokenStore } from './auth/tokenStore';
 
 export type Letter = {
   id: number;
@@ -48,22 +49,51 @@ export const uploadLetterImage = async (file: { uri: string; name?: string; type
 };
 
 // 헌화(tributes) 관련 API 헬퍼들
-export const fetchTributes = async (letterId: string | number, params?: Record<string, any>) => {
+// fetchTributes can be called in two ways:
+// - fetchTributes(letterId, params?) -> GET /letters/:letterId/tributes
+// - fetchTributes(paramsObject) -> GET /tributes?{...params}
+export const fetchTributes = async (
+  letterIdOrParams?: string | number | Record<string, any>,
+  maybeParams?: Record<string, any>
+) => {
+  if (letterIdOrParams && typeof letterIdOrParams === 'object') {
+    const params = letterIdOrParams as Record<string, any>;
+    const { data } = await api.get('/tributes', { params });
+    return data;
+  }
+
+  const letterId = letterIdOrParams as string | number | undefined;
+  const params = maybeParams ?? undefined;
   const { data } = await api.get(`/letters/${letterId}/tributes`, { params });
   return data;
 };
 
+// createTribute supports either:
+// - createTribute({ letterId, fromUserId, messageKey?, createdAt? }) -> POST /tributes
+// - createTribute(letterId, fromUserId, messageKey?, createdAt?) -> POST /letters/:letterId/tributes
 export const createTribute = async (
-  letterId: string | number,
-  fromUserId: number,
+  payloadOrLetterId: any,
   messageKey?: string,
-  createdAt?: string,
 ) => {
-  const { data } = await api.post(`/letters/${letterId}/tributes`, {
-    fromUserId,
-    messageKey,
-    createdAt,
-  });
+  if (payloadOrLetterId && typeof payloadOrLetterId === 'object') {
+    const payload = payloadOrLetterId as Record<string, any>;
+    // debug: log token and payload
+    try {
+      // eslint-disable-next-line no-console
+      console.debug('[createTribute] tokenPresent=', Boolean(tokenStore.getAccess()), 'payload=', payload);
+    } catch (e) {}
+    const { data } = await api.post('/tributes', payload);
+    return data;
+  }
+
+  const letterId = payloadOrLetterId as string | number;
+  // send only messageKey in the body for letter-specific endpoint, per Swagger
+  const payload = { messageKey };
+  try {
+    // eslint-disable-next-line no-console
+    console.debug('[createTribute] tokenPresent=', Boolean(tokenStore.getAccess()), 'payload=', payload);
+  } catch (e) {}
+  const { data } = await api.post(`/letters/${letterId}/tributes`, payload);
   return data;
 };
 
