@@ -3,10 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { linking } from './linking';
 import { type RootStackParamList } from '@/types/navigation';
 import TabNavigator from './TabNavigator';
-import {useAuth} from "@/provider/AuthProvider";
-import OnboardingScreen from "@/screens/onboarding/OnboardingScreen";
-import LetterWriteScreen from '../screens/letter/LetterWriteScreen';
-import LetterDetailScreen from '@/screens/letter/LetterDetailScreen';
+import { useAuth } from '@/provider/AuthProvider';
+import OnboardingScreen from '@/screens/onboarding/OnboardingScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -17,14 +15,15 @@ const RootNavigator = () => {
       <Stack.Navigator screenOptions={{ headerTitleAlign: 'center' }}>
         {user ? (
           <>
-            <Stack.Screen name="Tabs" component={TabNavigator} options={{headerShown: false}}/>
-            <Stack.Screen name="LetterDetail" component={LetterDetailScreen} />
+            <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
           </>
         ) : (
-            <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{headerShown: false}} />
+          <Stack.Screen
+            name="Onboarding"
+            component={OnboardingScreen}
+            options={{ headerShown: false }}
+          />
         )}
-  <Stack.Screen name="LetterWriteScreen" component={LetterWriteScreen} />
-    <Stack.Screen name="LetterScreen" component={require('../screens/letter/LetterScreen').default} />
       </Stack.Navigator>
     </NavigationContainer>
   );
