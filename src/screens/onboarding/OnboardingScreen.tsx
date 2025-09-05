@@ -1,5 +1,4 @@
-import { Pressable, View, Image, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Pressable, View, Image, Text, ScrollView } from 'react-native';
 import IcKakaoLogo from '@icons/ic-kakao-logo.svg';
 import { useKakaoLogin } from '@/hooks/useKakaoLogin';
 
@@ -7,9 +6,9 @@ const OnboardingScreen = () => {
   const { loading, onKakaoPress } = useKakaoLogin();
 
   return (
-    <SafeAreaView edges={['top']} className="bg-bg">
-      <View className="items-center gap-10 px-7 pb-8 pt-2">
-        <View className="gap-[60px]">
+    <ScrollView className="bg-bg">
+      <View className="items-center gap-10 px-7 pb-[50px] pt-9">
+        <View className="gap-[80px]">
           <Image source={require('@images/img-onboarding.png')} />
           <View className="flex-row gap-3 overflow-hidden">
             <Pressable
@@ -25,7 +24,7 @@ const OnboardingScreen = () => {
         </View>
         <Text className="captionB color-gray-500">{`Developed By Team Petfarewell`}</Text>
       </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
