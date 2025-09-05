@@ -9,6 +9,7 @@ import {
   Text,
   Switch,
 } from 'react-native';
+import { Dimensions, PixelRatio } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from 'src/types/navigation';
@@ -23,6 +24,7 @@ import { useAuth } from '@/provider/AuthProvider';
 const LetterWriteScreen = () => {
   const [letter, setLetter] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
   const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const { user } = useAuth();
@@ -48,6 +50,19 @@ const LetterWriteScreen = () => {
       }
     })();
   }, [editingId]);
+
+  // 측정: 이미지 원본 크기(px) → dp 변환을 위한 상태 저장
+  useEffect(() => {
+    if (!imageUri) {
+      setNaturalSize(null);
+      return;
+    }
+    Image.getSize(
+      imageUri,
+      (w, h) => setNaturalSize({ w, h }),
+      () => setNaturalSize(null)
+    );
+  }, [imageUri]);
 
   // user is provided by AuthProvider (may be null in dev/mock mode)
 
@@ -127,7 +142,22 @@ const LetterWriteScreen = () => {
       <Button title="사진 첨부" onPress={pickImage} />
       {imageUri && (
         <View className="relative mb-4 self-center">
-          <Image source={{ uri: imageUri }} className="h-48 w-48 rounded-lg" />
+          {(() => {
+            const windowWidth = Dimensions.get('window').width;
+            const horizontalPadding = 32; // screen padding p-4 => 16 * 2
+            const maxWidth = Math.max(0, windowWidth - horizontalPadding);
+            const ratio = PixelRatio.get();
+            const wDp = naturalSize ? naturalSize.w / ratio : maxWidth;
+            const renderWidth = Math.min(wDp, maxWidth);
+            const renderHeight = naturalSize && naturalSize.w > 0 ? (naturalSize.h / naturalSize.w) * renderWidth : 200;
+            return (
+              <Image
+                source={{ uri: imageUri }}
+                style={{ width: renderWidth, height: renderHeight, borderRadius: 8 }}
+                resizeMode="contain"
+              />
+            );
+          })()}
           <TouchableOpacity
             className="absolute right-2 top-2"
             onPress={() => setImageUri(null)}

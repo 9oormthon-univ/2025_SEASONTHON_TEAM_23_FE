@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Button, Alert, Image } from 'react-native';
+import { View, Text, ScrollView, Button, Alert, Image, Dimensions, PixelRatio } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
@@ -54,6 +54,21 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [isTributing, setIsTributing] = useState(false);
   const [hasMyTribute, setHasMyTribute] = useState(false);
   const { user } = useAuth();
+
+  // 원본 이미지 사이즈로 표시를 위한 상태 (모든 렌더에서 동일한 훅 순서 보장 위해 상단에 둠)
+  const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
+  useEffect(() => {
+    const uri = (letter && letter.photoUrl) ? String(letter.photoUrl) : null;
+    if (!uri) {
+      setImgSize(null);
+      return;
+    }
+    Image.getSize(
+      uri,
+      (w, h) => setImgSize({ w, h }),
+      () => setImgSize(null)
+    );
+  }, [letter?.photoUrl]);
 
   // user id 정규화: 여러 후보 필드에서 찾아 숫자로 변환
   const rawUserId = (user as any)?.id ?? (user as any)?.userId ?? (user as any)?.user_id ?? null;
@@ -214,18 +229,35 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       </View>
     );
 
+  // 원본 이미지 사이즈로 표시: 화면 폭을 넘지 않게 축소, 업스케일 금지
+
   return (
     <ScrollView style={{ flex: 1, padding: 16 }}>
       <Text style={{ color: '#666', marginBottom: 12 }}>{formatKoreanDate(letter.createdAt)}</Text>
       <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${author?.nickname ?? '작성자 정보 없음'}님의 추억이에요.`}</Text>
       <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{letter.content}</Text>
-      {letter.photoUrl ? (
-        <Image
-          source={{ uri: String(letter.photoUrl) }}
-          style={{ width: '100%', height: 220, borderRadius: 8, marginBottom: 12 }}
-          resizeMode="cover"
-        />
-      ) : null}
+      {letter.photoUrl ? (() => {
+        const uri = String(letter.photoUrl);
+        const windowWidth = Dimensions.get('window').width;
+        const horizontalPadding = 32; // screen padding p-4 => 16 * 2
+        const maxWidth = Math.max(0, windowWidth - horizontalPadding);
+        const ratio = PixelRatio.get();
+        const natW = imgSize?.w ?? 0;
+        const natH = imgSize?.h ?? 0;
+
+        // dp 계산: px / ratio
+        const natWDp = natW > 0 ? natW / ratio : maxWidth;
+        const renderWidth = Math.min(natWDp, maxWidth);
+        const renderHeight = natW > 0 ? (natH / natW) * renderWidth : 220;
+
+        return (
+          <Image
+            source={{ uri }}
+            style={{ width: renderWidth, height: renderHeight, borderRadius: 8, marginBottom: 12, alignSelf: 'center' }}
+            resizeMode="contain"
+          />
+        );
+      })() : null}
       <Text style={{ fontSize: 14, color: '#555', marginBottom: 12 }}>
         {letter.tributeCount === 0
           ? '첫 번째로 헌화해 주세요.'
