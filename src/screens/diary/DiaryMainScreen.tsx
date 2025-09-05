@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '@/provider/AuthProvider';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
@@ -9,13 +9,22 @@ import EmotionCalendar from '@diary/EmotionCalendar';
 import Loader from '@common/Loader';
 import { useDailyTopic } from '@/hooks/queries/useDailyTopic';
 import { keepAllKorean } from '@/utils/keepAll';
-import { useLayoutEffect } from 'react';
+import { useCallback, useLayoutEffect } from 'react';
 import { setHeaderExtras } from '@/types/Header';
+import { useQueryClient } from '@tanstack/react-query';
 
 const DiaryMainScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
   const { user } = useAuth();
   const userId = user!.userId;
+
+  const qc = useQueryClient();
+  useFocusEffect(
+    useCallback(() => {
+      qc.invalidateQueries({ queryKey: ['daily-logs', userId] });
+      qc.refetchQueries({ queryKey: ['daily-logs', userId] });
+    }, [qc, userId])
+  );
 
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
