@@ -292,7 +292,14 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                   <Icon name="IcFlower" size={28} color="#FFD86F" />
                   <Text className="body2 text-gray-500">{formatKoreanDate(letter.createdAt)}</Text>
                 </View>
-                <Text className="subHeading3 text-gray-300">{`${author?.nickname ?? '작성자 정보 없음'}님의 추억이에요.`}</Text>
+                {(() => {
+          const meName = user?.nickname ?? null;
+          const isMine = ownerId != null && (ownerId === user?.userId || ownerId === (user as any)?.id);
+          const displayName = author?.nickname ?? (isMine ? meName : null) ?? '작성자 정보 없음';
+          return (
+            <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${displayName}님의 추억이에요.`}</Text>
+          );
+        })()}
               </View>
               <View className="w-full rounded-[20px] bg-white py-5">
                 <View className="p-5 pb-0">
