@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Pressable } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/types/navigation';
+import type { LetterStackParamList } from '@/types/navigation';
 import { useAuth } from '@/provider/AuthProvider';
 import { useTribute } from '@/provider/TributeProvider';
 import { formatRelativeTime } from '@/utils/relativeTime';
 import { fetchLetters } from '@/services/letters';
+import Loader from '../common/Loader';
+import Icon from '@common/Icon';
 
-type NavProp = NativeStackNavigationProp<RootStackParamList>;
+type NavProp = NativeStackNavigationProp<LetterStackParamList>;
 
 const LetterFeed: React.FC = () => {
   const navigation = useNavigation<NavProp>();
@@ -75,23 +77,25 @@ const LetterFeed: React.FC = () => {
   // tribute toggle is handled inside detail screen; no direct button here
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
+    <View className="flex-1 gap-1">
       {loading ? (
-        <Text>로딩 중...</Text>
+        <Loader />
       ) : error ? (
-        <Text>{error}</Text>
+        <View className="flex-1 items-center justify-center p-7">
+          <Text className="body1 pb-4 text-error">{error}</Text>
+        </View>
       ) : (
         <FlatList
           data={letters}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={({ item }) => (
-            <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
-                  style={{ flex: 1, marginRight: 12 }}
-                >
-                  <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
+            <View className="gap-3 rounded-[20px] bg-bg-light px-6 py-4">
+              <Pressable
+                onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
+              >
+                <Text className="body1 !leading-6 text-body-100">{item.content}</Text>
+                <View className="flex-row items-center justify-between">
+                  <Text className="body3 text-body-200">
                     {(() => {
                       const authorObj = item.author ?? item.user ?? null;
                       const authorId = item.authorId ?? item.author_id ?? item.userId ?? item.user_id ?? authorObj?.id ?? authorObj?.userId ?? null;
@@ -105,16 +109,17 @@ const LetterFeed: React.FC = () => {
                         </Text>
                       );
                     })()}
-                  </View>
-                </TouchableOpacity>
-                <View style={{ width: 96, alignItems: 'flex-end' }}>
-                  <Text
-                    style={{ color: tributedIds.has(String(item.id)) ? '#888' : undefined
-                    }} //이미 헌화한 편지면 회색
-                  >
-                    {`🌸 ${item.tributeCount ?? 0}`}
                   </Text>
+                  <View
+                    className={`flex-row rounded-lg border border-gray-600 p-1 ${tributedIds.has(String(item.id)) ? 'bg-white/20' : 'bg-white/40'}`}
+                  >
+                    <View className="p-1">
+                      <Icon name="IcFlower" size={16} color="#FFD86F" />
+                    </View>
+                    <Text className="body2 text-body-200">{`${item.tributeCount ?? 0}`}</Text>
+                  </View>
                 </View>
+              </Pressable>
             </View>
           )}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
