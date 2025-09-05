@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, Image, Pressable } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/types/navigation';
+import type { LetterStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
 import { useAuth } from '@/provider/AuthProvider';
 import { formatKoreanDate } from '@/utils/formatDate';
@@ -17,7 +17,7 @@ import { setHeaderExtras } from '@/types/Header';
 import DropDownMenu from '@/components/common/DropDownMenu';
 import ConfirmDeleteModal from '@/components/common/ConfirmDeleteModal';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'LetterDetail'>;
+type Props = NativeStackScreenProps<LetterStackParamList, 'LetterDetail'>;
 
 const normalizeLetter = (raw: any) => {
   // 다양한 API 응답 형태를 하나의 표준형으로 변환
@@ -266,7 +266,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <>
       <ScrollView>
-        <View className="bg-bg gap-[170px] px-7 pb-[42px] pt-10">
+        <View className="gap-[170px] bg-bg px-7 pb-[42px] pt-10">
           <View className="items-center gap-7">
             <View className="w-full items-center gap-4">
               <View className="items-center gap-6">
@@ -295,7 +295,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 />
               </View>
             </View>
-            <View className="bg-bg-light flex-row items-center justify-center rounded-lg p-1">
+            <View className="flex-row items-center justify-center rounded-lg bg-bg-light p-1">
               <View className="p-1">
                 <Icon name="IcFlower" size={16} color="#FFD86F" />
               </View>
