@@ -56,49 +56,34 @@ const LetterWriteScreen = () => {
       // normalize imageUri: '' 를 null로 처리
       const normalizedImageUri = imageUri && imageUri !== '' ? imageUri : null;
 
-      // build payload for json-server (POST용)
+      // 생성 시(form-data 요구)에는 사용자 id를 본문에 포함하지 않음
       const userId = (user as any)?.id ?? (user as any)?.userId;
-      const payload: any = {
-        // user id 필드명 환경에 따라 다를 수 있으므로 runtime에서 추출
-        userId,
-        content: letter,
-        isPublic: isPublic,
-        createdAt: new Date().toISOString(),
-        tributeCount: 0,
-      };
-      // 신규 생성시에만 photoUrl을 포함 (값이 있을 때)
-      if (normalizedImageUri !== null) {
-        // 선택: 서비스에서 파일 업로드 엔드포인트가 있고 uploadLetterImage를 사용한다면
-        // const uploaded = await uploadLetterImage({ uri: normalizedImageUri });
-        // payload.photoUrl = uploaded?.url ?? normalizedImageUri;
-        payload.photoUrl = normalizedImageUri;
-      }
-
-  // ensure we have a userId (either id or userId from server/mock)
-  if (!userId) {
+      // ensure we have a userId (either id or userId from server/mock)
+      if (!userId) {
         Alert.alert('사용자 정보를 불러오지 못했습니다. 편지를 저장할 수 없습니다.');
         return;
       }
 
       if (editingId) {
-        // PATCH existing
-        // construct update object:
-        const normalizedImage = normalizedImageUri;
-        const updateData: any = { content: letter };
-        // always include updated isPublic
-        updateData.isPublic = isPublic;
-        if (normalizedImage !== null) {
-          // 사용자가 새 이미지를 추가한 경우
-          updateData.photoUrl = normalizedImage;
-        } else {
-          // 사용자가 이미지를 제거했을 때(original had photo), null로 설정
-          if (originalHasPhoto) updateData.photoUrl = null;
-          // originalHasPhoto가 false면 photoUrl 필드 자체를 생략해서 기존 값 유지
-        }
-        await updateLetter(editingId, updateData);
+        // PUT existing — multipart/form-data
+        const willRemoveImage = originalHasPhoto && normalizedImageUri === null;
+        await updateLetter(editingId, {
+          content: letter,
+          isPublic,
+          image: normalizedImageUri
+            ? { uri: normalizedImageUri, name: 'photo.jpg', type: 'image/jpeg' }
+            : undefined,
+          removeImage: !!willRemoveImage,
+        });
       } else {
-        // POST new
-        await createLetter(payload);
+        // POST new — multipart/form-data
+        await createLetter({
+          content: letter,
+          isPublic,
+          image: normalizedImageUri
+            ? { uri: normalizedImageUri, name: 'photo.jpg', type: 'image/jpeg' }
+            : undefined,
+        });
       }
 
       Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
