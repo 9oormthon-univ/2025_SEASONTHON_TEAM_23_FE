@@ -266,7 +266,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <>
       <ScrollView>
-        <View className="gap-[170px] bg-bg px-7 pb-[42px] pt-10">
+        <View className="bg-bg gap-[170px] px-7 pb-[42px] pt-10">
           <View className="items-center gap-7">
             <View className="w-full items-center gap-4">
               <View className="items-center gap-6">
@@ -295,7 +295,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 />
               </View>
             </View>
-            <View className="flex-row items-center justify-center rounded-lg bg-bg-light p-1">
+            <View className="bg-bg-light flex-row items-center justify-center rounded-lg p-1">
               <View className="p-1">
                 <Icon name="IcFlower" size={16} color="#FFD86F" />
               </View>
@@ -335,7 +335,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           />
           <ConfirmDeleteModal
             visible={confirmVisible}
-            helperText={`글을 삭제하면 되돌릴 수 없어요.\n지난 날짜의 일기는 다시 작성할 수 없으니 신중히 생각해주세요.`}
+            helperText={`글을 삭제하면 되돌릴 수 없어요.\n비공개 설정하는 것은 어떨까요?`}
             onCancel={() => setConfirmVisible(false)}
             onConfirm={handleDelete}
           />
