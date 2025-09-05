@@ -252,14 +252,14 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   if (error)
     return (
       <View className="flex-1 items-center justify-center bg-gray-50 p-7">
-        <Text className="body1 pb-4 text-error">{`⚠️ 편지 정보를 불러오지 못했어요.`}</Text>
-        <Text className="subHeading3 px-9 py-2 text-center text-error">{error}</Text>
+        <Text className="subHeading3 px-9 py-2 text-center text-error">{`⚠️ 편지 정보를 불러오지 못했어요.`}</Text>
+        <Text className="body1 pb-4 text-error">{error}</Text>
       </View>
     );
   if (!letter)
     return (
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text>{`편지를 찾을 수 없어요.`}</Text>
+      <View className="flex-1 items-center justify-center bg-gray-50 p-7">
+        <Text className="body1 pb-4 text-error">{`편지를 찾을 수 없어요.`}</Text>
       </View>
     );
 
