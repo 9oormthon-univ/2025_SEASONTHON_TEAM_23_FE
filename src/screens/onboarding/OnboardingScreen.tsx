@@ -7,25 +7,23 @@ const OnboardingScreen = () => {
   const { loading, onKakaoPress } = useKakaoLogin();
 
   return (
-    <SafeAreaView edges={['top']} className="bg-gray-50">
-      <View className="flex items-center gap-[95px]">
-        <View className="flex-col gap-[52px] px-7 pt-9">
+    <SafeAreaView edges={['top']} className="bg-bg">
+      <View className="items-center gap-10 px-7 pb-8 pt-2">
+        <View className="gap-[60px]">
           <Image source={require('@images/img-onboarding.png')} />
-          <View className="flex items-center gap-3">
-            <View className="flex w-full gap-5">
-              <Pressable
-                onPress={onKakaoPress}
-                disabled={loading}
-                android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
-                className="flex-row items-center justify-center gap-4 rounded-[20px] bg-[#FAE301] py-4 color-[#391B1B]"
-              >
-                <IcKakaoLogo />
-                <Text className="subHeading3">카카오 로그인</Text>
-              </Pressable>
-            </View>
+          <View className="flex-row gap-3 overflow-hidden">
+            <Pressable
+              onPress={onKakaoPress}
+              disabled={loading}
+              android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
+              className="w-full flex-row items-center justify-center gap-4 rounded-[20px] bg-[#FAE301] py-4 color-[#391B1B]"
+            >
+              <IcKakaoLogo />
+              <Text className="subHeading3 text-center">카카오 로그인</Text>
+            </Pressable>
           </View>
         </View>
-        <Text className="captionB color-gray-300">{`Developed By Team Petfarewell`}</Text>
+        <Text className="captionB color-gray-500">{`Developed By Team Petfarewell`}</Text>
       </View>
     </SafeAreaView>
   );
