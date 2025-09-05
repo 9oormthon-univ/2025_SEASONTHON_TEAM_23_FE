@@ -89,7 +89,7 @@ const ProfileScreen = () => {
                 </View>
               )}
               contentContainerStyle={{ paddingVertical: 12 }}
-              ListEmptyComponent={<Text style={{ textAlign: 'center', color: '#6b7280', marginTop: 40 }}>작성한 일기가 없습니다.</Text>}
+              ListEmptyComponent={<Text style={{ textAlign: 'center', color: '#6b7280', marginTop: 40 }}>오늘의 이야기를 나누어 주세요.</Text>}
             />
           )
         ) : (
@@ -112,7 +112,7 @@ const ProfileScreen = () => {
                 </View>
               )}
               contentContainerStyle={{ paddingVertical: 12 }}
-              ListEmptyComponent={<Text style={{ textAlign: 'center', color: '#6b7280', marginTop: 40 }}>작성한 편지가 없습니다.</Text>}
+              ListEmptyComponent={<Text style={{ textAlign: 'center', color: '#6b7280', marginTop: 40 }}>편지로 추억을 나누어 봐요.</Text>}
             />
           )
         )}
