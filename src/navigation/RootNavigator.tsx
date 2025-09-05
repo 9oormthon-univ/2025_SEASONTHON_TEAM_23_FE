@@ -9,7 +9,6 @@ import LetterWriteScreen from '../screens/letter/LetterWriteScreen';
 import LetterDetailScreen from '@/screens/letter/LetterDetailScreen';
 import MyDailyLogsScreen from '@/screens/profile/MyDailyLogsScreen';
 import MyLettersScreen from '@/screens/profile/MyLettersScreen';
-import MyTributedLettersScreen from '@/screens/profile/MyTributedLettersScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -24,7 +23,6 @@ const RootNavigator = () => {
             <Stack.Screen name="LetterDetail" component={LetterDetailScreen} />
             <Stack.Screen name="MyDailyLogs" component={MyDailyLogsScreen} options={{ title: '내가 쓴 일기' }} />
             <Stack.Screen name="MyLetters" component={MyLettersScreen} options={{ title: '내가 쓴 편지' }} />
-            <Stack.Screen name="MyTributedLetters" component={MyTributedLettersScreen} options={{ title: '받은 헌화' }} />
           </>
         ) : (
             <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{headerShown: false}} />

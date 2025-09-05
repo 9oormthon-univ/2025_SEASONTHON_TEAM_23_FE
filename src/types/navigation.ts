@@ -10,7 +10,6 @@ export type RootStackParamList = {
   LetterDetail: { id: string };
   MyDailyLogs: undefined;
   MyLetters: undefined;
-  MyTributedLetters: undefined;
 };
 
 export type TabsParamList = {
