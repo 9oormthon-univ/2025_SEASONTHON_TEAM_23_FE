@@ -4,6 +4,12 @@ import * as Icons from '@icons';
 export type RootStackParamList = {
   Onboarding: undefined;
   Tabs: NavigatorScreenParams<TabsParamList>;
+  DiaryWritePage: undefined;
+  LetterWriteScreen: undefined;
+  LetterScreen: undefined;
+  LetterDetail: { id: string };
+  MyDailyLogs: undefined;
+  MyLetters: undefined;
 };
 
 export type TabsParamList = {
