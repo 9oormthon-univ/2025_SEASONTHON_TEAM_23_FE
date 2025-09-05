@@ -20,7 +20,7 @@ export type TabsParamList = {
 
 export type DiaryStackParamList = {
   DiaryMain: undefined;
-  DiaryWrite: { topic: string; date?: string };
+  DiaryWrite: { topic: string };
   DiaryByDate: { logId: number };
   DiaryEdit: { logId: number };
 };
