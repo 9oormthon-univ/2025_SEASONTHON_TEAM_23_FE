@@ -3,11 +3,11 @@ import { Text } from 'react-native';
 import type { IconMap, TabsParamList } from '@/types/navigation';
 import HomeScreen from '@/screens/home/HomeScreen';
 import DiaryStackNavigator from '@/navigation/diary/DiaryStackNavigator';
-import LetterScreen from '@/screens/letter/LetterScreen';
 import CounselingScreen from '@/screens/counseling/CounselingScreen';
 import ProfileScreen from '@/screens/profile/ProfileScreen';
 import TabIcon from '@navigation/TabIcon';
 import CustomHeader from '@navigation/CustomHeader';
+import LetterStackNavigator from '@/navigation/letter/LetterStackNavigator';
 
 const Tab = createBottomTabNavigator<TabsParamList>();
 
@@ -64,7 +64,7 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen name="Diary" component={DiaryStackNavigator} options={{ headerShown: false }} />
-      <Tab.Screen name="Letter" component={LetterScreen} />
+      <Tab.Screen name="Letter" component={LetterStackNavigator} options={{ headerShown: false }} />
       <Tab.Screen name="Counseling" component={CounselingScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

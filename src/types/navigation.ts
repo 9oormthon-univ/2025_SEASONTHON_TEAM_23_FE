@@ -15,16 +15,22 @@ export type RootStackParamList = {
 export type TabsParamList = {
   Home: undefined;
   Diary: NavigatorScreenParams<DiaryStackParamList>;
-  Letter: undefined;
+  Letter: NavigatorScreenParams<LetterStackParamList>;
   Counseling: undefined;
   Profile: undefined;
 };
 
 export type DiaryStackParamList = {
   DiaryMain: undefined;
-  DiaryWrite: { topic: string; date?: string };
+  DiaryWrite: { topic: string };
   DiaryByDate: { logId: number };
   DiaryEdit: { logId: number };
+};
+
+export type LetterStackParamList = {
+  LetterWriteScreen: undefined;
+  LetterScreen: undefined;
+  LetterDetail: { id: string };
 };
 
 export type IconMap = Record<

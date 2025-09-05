@@ -13,6 +13,7 @@ export { default as IcBack } from './ic-back.svg';
 export { default as IcNext } from './ic-next.svg';
 export { default as IcPaw } from './ic-paw.svg';
 export { default as IcFlower } from './ic-flower.svg';
+export { default as IcWarning } from './ic-warning.svg';
 export { default as IcSmiley } from './ic-smiley.svg';
 export { default as IcSad } from './ic-sad.svg';
 export { default as IcBad } from './ic-bad.svg';
