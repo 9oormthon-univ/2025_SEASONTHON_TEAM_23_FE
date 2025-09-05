@@ -10,6 +10,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { DiaryStackParamList } from '@/types/navigation';
 import { setHeaderExtras } from '@/types/Header';
 import Loader from '@common/Loader';
+import { todayISO, withKoreanDOW } from '@/utils/calendar/date';
 
 const MAX = 500;
 
@@ -43,13 +44,15 @@ const DiaryWriteScreen = () => {
   }, [navigation, submit]);
   const inputRef = useRef<TextInput>(null);
 
+  const today = withKoreanDOW(todayISO());
+
   return (
     <ScrollView>
       {isSubmitting && <Loader />}
       <View className="gap-7 bg-gray-50 px-7 pb-[72px] pt-10">
         <View className="items-center gap-4">
           <View className="items-center gap-6">
-            <Text className="body2 text-[#343434]">{`2025-09-01-월`}</Text>
+            <Text className="body2 text-[#343434]">{today}</Text>
             <Text className="subHeading3 text-center text-gray-900">{topic}</Text>
           </View>
           <TextArea ref={inputRef} value={value} onChangeText={setValue} maxLength={MAX} />
@@ -82,7 +85,7 @@ const DiaryWriteScreen = () => {
         <View className="flex-row justify-between rounded-[20px] bg-white px-8 py-5">
           <View>
             <Text className="captionSB text-gray-900">{`이 글에 대한`}</Text>
-            <Text className="body1 leading-6 text-gray-900">{`공감문을 받을 수 있어요.`}</Text>
+            <Text className="body1 !leading-6 text-gray-900">{`공감문을 받을 수 있어요.`}</Text>
           </View>
           <Switch
             value={needAiReflection}
