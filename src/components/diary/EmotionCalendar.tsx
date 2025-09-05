@@ -11,13 +11,25 @@ type EmotionCalendarProps = {
 };
 
 const EmotionCalendar = ({ userId, onSelectDate, initialMonthISO }: EmotionCalendarProps) => {
-  const { current, monthLabel, today, moodColorByDate, goPrev, goNext, onMonthChange, onDayPress } =
-    useEmotionCalendar({ userId, onSelectDate, initialMonthISO });
+  const {
+    current,
+    monthLabel,
+    today,
+    moodColorByDate,
+    byDate,
+    goPrev,
+    goNext,
+    onMonthChange,
+    onDayPress,
+  } = useEmotionCalendar({ userId, onSelectDate, initialMonthISO });
+
+  const calKey = `cal-${current.slice(0, 7)}`;
 
   return (
     <View className="bg-white p-7">
       <CustomCalendarHeader month={monthLabel} onPrev={goPrev} onNext={goNext} />
       <Calendar
+        key={calKey}
         current={current}
         onMonthChange={onMonthChange}
         hideArrows
@@ -27,13 +39,18 @@ const EmotionCalendar = ({ userId, onSelectDate, initialMonthISO }: EmotionCalen
         onDayPress={onDayPress}
         dayComponent={({ date }) => {
           const iso = date?.dateString ?? '';
+          const isToday = iso === today;
+          const hasLog = !!byDate[iso];
+          const disabled = !hasLog && !isToday;
+
           return (
             <CustomDay
               date={date}
-              isToday={iso === today}
+              isToday={isToday}
               moodColor={moodColorByDate[iso]}
+              disabled={disabled}
               onPress={(selectedISO) => {
-                onSelectDate(selectedISO);
+                if (!disabled) onSelectDate(selectedISO);
               }}
             />
           );
