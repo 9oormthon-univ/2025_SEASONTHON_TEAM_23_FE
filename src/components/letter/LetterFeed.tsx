@@ -92,10 +92,19 @@ const LetterFeed: React.FC = () => {
                 >
                   <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
-                    <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
-                      {item.author?.nickname ? `${item.author.nickname}` : '작성자 정보 없음'}
-                      {item.createdAt ? ` · ${formatRelativeTime(item.createdAt)}` : ''}
-                    </Text>
+                    {(() => {
+                      const authorObj = item.author ?? item.user ?? null;
+                      const authorId = item.authorId ?? item.author_id ?? item.userId ?? item.user_id ?? authorObj?.id ?? authorObj?.userId ?? null;
+                      const authorName = authorObj?.nickname ?? authorObj?.name ?? authorObj?.displayName ?? null;
+                      const mine = user && (authorId === user.userId || authorId === (user as any).id);
+                      const display = authorName ?? (mine ? user?.nickname ?? null : null);
+                      return (
+                        <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
+                          {display ?? '작성자 정보 없음'}
+                          {item.createdAt ? ` · ${formatRelativeTime(item.createdAt)}` : ''}
+                        </Text>
+                      );
+                    })()}
                   </View>
                 </TouchableOpacity>
                 <View style={{ width: 96, alignItems: 'flex-end' }}>

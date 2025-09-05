@@ -234,7 +234,14 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <ScrollView style={{ flex: 1, padding: 16 }}>
       <Text style={{ color: '#666', marginBottom: 12 }}>{formatKoreanDate(letter.createdAt)}</Text>
-      <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${author?.nickname ?? '작성자 정보 없음'}님의 추억이에요.`}</Text>
+        {(() => {
+          const meName = user?.nickname ?? null;
+          const isMine = ownerId != null && (ownerId === user?.userId || ownerId === (user as any)?.id);
+          const displayName = author?.nickname ?? (isMine ? meName : null) ?? '작성자 정보 없음';
+          return (
+            <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${displayName}님의 추억이에요.`}</Text>
+          );
+        })()}
       <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{letter.content}</Text>
       {letter.photoUrl ? (() => {
         const uri = String(letter.photoUrl);
