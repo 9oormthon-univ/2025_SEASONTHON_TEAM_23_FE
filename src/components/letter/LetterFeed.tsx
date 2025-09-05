@@ -2,13 +2,13 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/types/navigation';
+import type { LetterStackParamList } from '@/types/navigation';
 import { useAuth } from '@/provider/AuthProvider';
 import { useTribute } from '@/provider/TributeProvider';
 import { formatRelativeTime } from '@/utils/relativeTime';
 import { fetchLetters } from '@/services/letters';
 
-type NavProp = NativeStackNavigationProp<RootStackParamList>;
+type NavProp = NativeStackNavigationProp<LetterStackParamList>;
 
 const LetterFeed: React.FC = () => {
   const navigation = useNavigation<NavProp>();
@@ -85,27 +85,35 @@ const LetterFeed: React.FC = () => {
           data={letters}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={({ item }) => (
-            <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
-                  style={{ flex: 1, marginRight: 12 }}
-                >
-                  <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
-                    <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
-                      {item.author?.nickname ? `${item.author.nickname}` : '작성자 정보 없음'}
-                      {item.createdAt ? ` · ${formatRelativeTime(item.createdAt)}` : ''}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <View style={{ width: 96, alignItems: 'flex-end' }}>
-                  <Text
-                    style={{ color: tributedIds.has(String(item.id)) ? '#888' : undefined
-                    }} //이미 헌화한 편지면 회색
-                  >
-                    {`🌸 ${item.tributeCount ?? 0}`}
+            <View
+              style={{
+                padding: 12,
+                borderBottomWidth: 1,
+                borderColor: '#eee',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
+                style={{ flex: 1, marginRight: 12 }}
+              >
+                <Text style={{ fontWeight: 'bold' }}>{item.content}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 6 }}>
+                  <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
+                    {item.author?.nickname ? `${item.author.nickname}` : '작성자 정보 없음'}
+                    {item.createdAt ? ` · ${formatRelativeTime(item.createdAt)}` : ''}
                   </Text>
                 </View>
+              </TouchableOpacity>
+              <View style={{ width: 96, alignItems: 'flex-end' }}>
+                <Text
+                  style={{ color: tributedIds.has(String(item.id)) ? '#888' : undefined }} //이미 헌화한 편지면 회색
+                >
+                  {`🌸 ${item.tributeCount ?? 0}`}
+                </Text>
+              </View>
             </View>
           )}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}

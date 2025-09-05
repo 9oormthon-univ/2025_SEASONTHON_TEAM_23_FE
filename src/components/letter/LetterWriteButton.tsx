@@ -1,10 +1,10 @@
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RootStackParamList } from 'src/types/navigation';
+import type { LetterStackParamList } from 'src/types/navigation';
 
 const LetterWriteButton = () => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<StackNavigationProp<LetterStackParamList>>();
 
   const handlePress = () => {
     navigation.navigate('LetterWriteScreen');
