@@ -50,9 +50,8 @@ const TextArea = forwardRef<TextInput, TextAreaProps>(
         onPress={() => {
           if (!disabled) focusInput();
         }}
-        android_ripple={{ color: 'rgba(0,0,0,0.06)', borderless: false }}
-        className={`w-full rounded-[20px] bg-white p-5
-        ${focused ? 'border border-gray-800' : 'border border-transparent'}
+        className={`w-full rounded-[20px] bg-transparent p-5
+        ${focused ? 'border border-gray-600' : 'border border-[#2D3342]'}
         ${containerClassName}`}
       >
         <TextInput
@@ -62,7 +61,7 @@ const TextArea = forwardRef<TextInput, TextAreaProps>(
           editable={!disabled}
           selectTextOnFocus={!disabled}
           placeholder={placeholder}
-          placeholderTextColor="#BABABA"
+          placeholderTextColor="#9D9D9D"
           multiline
           textAlignVertical="top"
           maxLength={maxLength}
@@ -82,7 +81,7 @@ const TextArea = forwardRef<TextInput, TextAreaProps>(
 
         {showCounter && (
           <View className="items-end">
-            <Text className={`captionSB text-gray-400 ${counterClassName}`}>
+            <Text className={`captionSB text-gray-500 ${counterClassName}`}>
               {value.length} / 최대 {maxLength}자
             </Text>
           </View>
