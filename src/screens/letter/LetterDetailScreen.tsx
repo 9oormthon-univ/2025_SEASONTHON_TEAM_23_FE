@@ -300,7 +300,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 <Icon name="IcFlower" size={16} color="#FFD86F" />
               </View>
               {letter.tributeCount === 0 ? (
-                <Text className="body2 text-[#343434]">{`처음으로 헌화를 해주세요.`}</Text>
+                <Text className="body2 text-body-200">{`처음으로 헌화를 해주세요.`}</Text>
               ) : (
                 <View className="flex-row gap-1 px-1">
                   <Text className="body2 text-body-100">{letter.tributeCount}</Text>
