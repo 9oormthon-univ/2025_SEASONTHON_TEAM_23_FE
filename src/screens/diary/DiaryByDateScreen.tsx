@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
 import { ACTIVE_UI, EMOJIS } from '@/constants/diary/emoji';
 import Icon from '@common/Icon';
 import TextArea from '@common/TextArea';
@@ -13,6 +13,8 @@ import { useCallback, useLayoutEffect, useState } from 'react';
 import { setHeaderExtras } from '@/types/Header';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DropDownMenu from '@common/DropDownMenu';
+import ConfirmDeleteModal from '@common/ConfirmDeleteModal';
+import { useDeleteDailyLog } from '@/hooks/mutations/useDeleteDailyLog';
 
 type DiaryByDateRoute = RouteProp<DiaryStackParamList, 'DiaryByDate'>;
 
@@ -22,9 +24,12 @@ const DiaryByDateScreen = () => {
   const logId = params.logId;
 
   const [menuVisible, setMenuVisible] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+
   const openMenu = useCallback(() => setMenuVisible(true), []);
   const closeMenu = useCallback(() => setMenuVisible(false), []);
 
+  const { mutateAsync: deleteLog, isPending: deleting } = useDeleteDailyLog(logId);
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
       title: '오늘의 일기',
@@ -41,9 +46,20 @@ const DiaryByDateScreen = () => {
   const handleEdit = useCallback(() => {
     navigation.navigate('DiaryEdit', { logId });
   }, []);
-  const handleDelete = useCallback(() => {}, []);
+  const handleDelete = async () => {
+    try {
+      await deleteLog(logId);
+      setConfirmVisible(false);
+      Alert.alert('삭제 완료', '일기가 삭제되었습니다.');
+      navigation.goBack();
+    } catch (e: any) {
+      const msg =
+        e?.response?.data?.message ?? e?.message ?? '삭제에 실패했어요. 잠시 후 다시 시도해주세요.';
+      Alert.alert('오류', msg);
+    }
+  };
 
-  if (isLoading) return <Loader />;
+  if (isLoading || deleting) return <Loader />;
   if (isError || !data)
     return (
       <View className="flex-1 items-center justify-center bg-gray-50 p-7">
@@ -98,7 +114,16 @@ const DiaryByDateScreen = () => {
         visible={menuVisible}
         onDismiss={closeMenu}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={() => {
+          setMenuVisible(false);
+          setConfirmVisible(true);
+        }}
+      />
+      <ConfirmDeleteModal
+        visible={confirmVisible}
+        helperText={`글을 삭제하면 되돌릴 수 없어요.\n지난 날짜의 일기는 다시 작성할 수 없으니 신중히 생각해주세요.`}
+        onCancel={() => setConfirmVisible(false)}
+        onConfirm={handleDelete}
       />
     </>
   );

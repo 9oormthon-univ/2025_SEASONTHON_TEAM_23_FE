@@ -25,3 +25,7 @@ export const fetchDailyLogDetail = async (logId: number): Promise<DailyLogDetail
 export const updateDailyLog = async (logId: number, body: UpdateDailyLogBody): Promise<void> => {
   await api.put(`/daily-log/update/${logId}`, body);
 };
+
+export const deleteDailyLog = async (logId: number): Promise<void> => {
+  await api.delete(`/daily-log/delete/${logId}`);
+};

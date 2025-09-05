@@ -25,10 +25,12 @@ const RootNavigator = () => {
             <Stack.Screen name="MyLetters" component={MyLettersScreen} options={{ title: '내가 쓴 편지' }} />
           </>
         ) : (
-            <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{headerShown: false}} />
+          <Stack.Screen
+            name="Onboarding"
+            component={OnboardingScreen}
+            options={{ headerShown: false }}
+          />
         )}
-  <Stack.Screen name="LetterWriteScreen" component={LetterWriteScreen} />
-    <Stack.Screen name="LetterScreen" component={require('../screens/letter/LetterScreen').default} />
       </Stack.Navigator>
     </NavigationContainer>
   );
