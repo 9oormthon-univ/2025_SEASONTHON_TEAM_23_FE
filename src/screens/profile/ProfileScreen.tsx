@@ -1,16 +1,46 @@
-import { Image, Text, View, Pressable } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/types/navigation';
+import { Image, Text, View, Pressable, TouchableOpacity, FlatList } from 'react-native';
 import { useAuth } from '@/provider/AuthProvider';
-import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useDailyLogs } from '@/hooks/queries/useDailyLog';
+import { fetchMyLetters } from '@/services/letters';
+import { formatRelativeTime } from '@/utils/relativeTime';
 
 const ProfileScreen = () => {
   const { user } = useAuth();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { data, isLoading, isError, refetch } = useMyPageSummary(!!user);
 
   const profileImage = user?.profileImageUrl;
+
+  // 탭 상태: 'diary' | 'letter'
+  const [tab, setTab] = useState<'diary' | 'letter'>('diary');
+
+  // 일기 데이터
+  const userId = user?.userId;
+  const { data: dailyLogs, isLoading: isDailyLogsLoading, isError: isDailyLogsError, refetch: refetchDailyLogs } = useDailyLogs(userId);
+  const logs = useMemo(() => dailyLogs ?? [], [dailyLogs]);
+
+  // 편지 데이터
+  const [letters, setLetters] = useState<any[]>([]);
+  const [lettersLoading, setLettersLoading] = useState(false);
+  const [lettersError, setLettersError] = useState<string | null>(null);
+  const loadLetters = useCallback(async () => {
+    setLettersLoading(true);
+    setLettersError(null);
+    try {
+      const res = await fetchMyLetters(0, 100);
+      const arr = (res as any)?.data ?? res;
+      const list = Array.isArray(arr) ? arr : (arr?.content ?? []);
+      setLetters(list);
+    } catch {
+      setLettersError('편지를 불러오지 못했어요.');
+    } finally {
+      setLettersLoading(false);
+    }
+  }, []);
+  useEffect(() => {
+    if (tab === 'letter') {
+      loadLetters();
+    }
+  }, [tab, loadLetters]);
 
   return (
     <View className="flex-1 bg-white">
@@ -28,24 +58,63 @@ const ProfileScreen = () => {
         <Text className="subHeading1B mt-4 text-gray-900">{user?.nickname ?? '익명'}</Text>
       </View>
 
-      <View className="mx-6 rounded-2xl border border-gray-200 p-5">
-        {isLoading ? (
-          <Text className="bodyB text-gray-600">불러오는 중...</Text>
-        ) : isError ? (
-          <Text className="bodyB text-red-500" onPress={() => refetch()}>
-            정보를 불러오지 못했어요. 다시 시도하려면 눌러주세요.
-          </Text>
+      {/* 탭 버튼 */}
+      <View style={{ flexDirection: 'row', marginHorizontal: 24, marginBottom: 8 }}>
+        <TouchableOpacity style={{ flex: 1 }} onPress={() => setTab('diary')}>
+          <Text style={{ textAlign: 'center', fontWeight: tab === 'diary' ? 'bold' : 'normal' }}>나의 일기</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{ flex: 1 }} onPress={() => setTab('letter')}>
+          <Text style={{ textAlign: 'center', fontWeight: tab === 'letter' ? 'bold' : 'normal' }}>보낸 편지</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 탭 컨텐츠 */}
+      <View style={{ flex: 1 }}>
+        {tab === 'diary' ? (
+          isDailyLogsLoading ? (
+            <Text style={{ textAlign: 'center', marginTop: 24 }}>불러오는 중...</Text>
+          ) : isDailyLogsError ? (
+            <Text style={{ textAlign: 'center', marginTop: 24 }} onPress={() => refetchDailyLogs()}>
+              일기를 불러오지 못했어요. 다시 시도하려면 눌러주세요.
+            </Text>
+          ) : (
+            <FlatList
+              data={logs}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={({ item }) => (
+                <View style={{ marginHorizontal: 16, marginVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', padding: 12 }}>
+                  <Text style={{ color: '#6b7280', fontSize: 12 }}>{item.logDate}</Text>
+                  <Text style={{ fontWeight: 'bold', marginTop: 4 }}>{item.topic}</Text>
+                  <Text style={{ color: '#374151', marginTop: 8 }} numberOfLines={2}>{item.preview}</Text>
+                </View>
+              )}
+              contentContainerStyle={{ paddingVertical: 12 }}
+              ListEmptyComponent={<Text style={{ textAlign: 'center', color: '#6b7280', marginTop: 40 }}>작성한 일기가 없습니다.</Text>}
+            />
+          )
         ) : (
-          <View className="flex-row items-center justify-between">
-              <Text className="captionB text-gray-500">일기</Text>
-              <Text className="title2B text-gray-900 mt-1">{data?.dailyLogCount ?? 0}</Text>
-            <View className="w-px h-10 bg-gray-200" />
-              <Text className="captionB text-gray-500">편지</Text>
-              <Text className="title2B text-gray-900 mt-1">{data?.letterCount ?? 0}</Text>
-            <View className="w-px h-10 bg-gray-200" />
-              <Text className="captionB text-gray-500">헌화</Text>
-              <Text className="title2B text-gray-900 mt-1">{data?.tributeCount ?? 0}</Text>
-          </View>
+          lettersLoading ? (
+            <Text style={{ textAlign: 'center', marginTop: 24 }}>불러오는 중...</Text>
+          ) : lettersError ? (
+            <Text style={{ textAlign: 'center', marginTop: 24 }} onPress={loadLetters}>
+              {lettersError} 다시 시도하려면 눌러주세요.
+            </Text>
+          ) : (
+            <FlatList
+              data={letters}
+              keyExtractor={(item, idx) => `${item.id}-${idx}`}
+              renderItem={({ item }) => (
+                <View style={{ marginHorizontal: 16, marginVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', padding: 12 }}>
+                  <Text style={{ color: '#111827' }}>{item.content}</Text>
+                  <Text style={{ color: '#6b7280', fontSize: 12, marginTop: 8 }}>
+                    {item.createdAt ? formatRelativeTime(item.createdAt) : ''} · 헌화 {item.tributeCount ?? 0}
+                  </Text>
+                </View>
+              )}
+              contentContainerStyle={{ paddingVertical: 12 }}
+              ListEmptyComponent={<Text style={{ textAlign: 'center', color: '#6b7280', marginTop: 40 }}>작성한 편지가 없습니다.</Text>}
+            />
+          )
         )}
       </View>
     </View>
