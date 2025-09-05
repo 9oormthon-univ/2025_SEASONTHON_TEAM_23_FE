@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, Image, Pressable } from 'react-native';
+
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { LetterStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
@@ -75,6 +76,21 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const openMenu = useCallback(() => setMenuVisible(true), []);
   const closeMenu = useCallback(() => setMenuVisible(false), []);
   const { user } = useAuth();
+
+  // 원본 이미지 사이즈로 표시를 위한 상태 (모든 렌더에서 동일한 훅 순서 보장 위해 상단에 둠)
+  const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
+  useEffect(() => {
+    const uri = (letter && letter.photoUrl) ? String(letter.photoUrl) : null;
+    if (!uri) {
+      setImgSize(null);
+      return;
+    }
+    Image.getSize(
+      uri,
+      (w, h) => setImgSize({ w, h }),
+      () => setImgSize(null)
+    );
+  }, [letter?.photoUrl]);
 
   // user id 정규화: 여러 후보 필드에서 찾아 숫자로 변환
   const rawUserId = (user as any)?.id ?? (user as any)?.userId ?? (user as any)?.user_id ?? null;
@@ -262,6 +278,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <Text className="body1 pb-4 text-error">{`편지를 찾을 수 없어요.`}</Text>
       </View>
     );
+
+  // 원본 이미지 사이즈로 표시: 화면 폭을 넘지 않게 축소, 업스케일 금지
 
   return (
     <>

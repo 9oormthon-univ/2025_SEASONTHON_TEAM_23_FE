@@ -25,14 +25,72 @@ export const fetchLetterById = async (letterId: number | string) => {
 };
 
 // POST /letters — swagger spec
-export const createLetter = async (payload: { title: string; content: string; images?: string[] }) => {
-  const { data } = await api.post('/letters', payload);
+// POST /letters — now requires multipart/form-data with fields: content, isPublic, image (optional)
+export const createLetter = async (params: {
+  content: string;
+  isPublic: boolean;
+  image?: { uri: string; name?: string; type?: string } | null;
+}) => {
+  const form = new FormData();
+  form.append('content', params.content);
+  // boolean -> string 처리 (백엔드에서 문자열/불리언 모두 허용되더라도 안전하게 문자열화)
+  form.append('isPublic', String(params.isPublic));
+
+  if (params.image && params.image.uri) {
+    const { uri, name, type } = params.image;
+    // RN 환경에서는 FormData에 파일 객체를 as any로 캐스팅 필요
+    form.append(
+      'image',
+      {
+        uri,
+        name: name ?? 'image.jpg',
+        type: type ?? 'image/jpeg',
+      } as any
+    );
+  }
+
+  const { data } = await api.post('/letters', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return data;
 };
 
 // PUT /letters/{letterId} — swagger spec
-export const updateLetter = async (letterId: number | string, payload: Partial<{ title: string; content: string; images?: string[] }>) => {
-  const { data } = await api.put(`/letters/${letterId}`, payload);
+export const updateLetter = async (
+  letterId: number | string,
+  params: Partial<{
+    content: string;
+    isPublic: boolean;
+    image: { uri: string; name?: string; type?: string } | null;
+    removeImage: boolean;
+  }>
+) => {
+  const form = new FormData();
+
+  if (params.content !== undefined) form.append('content', params.content);
+  if (params.isPublic !== undefined) form.append('isPublic', String(params.isPublic));
+
+  // 이미지 교체
+  if (params.image && (params.image as any).uri) {
+    const { uri, name, type } = params.image;
+    form.append(
+      'image',
+      {
+        uri,
+        name: name ?? 'image.jpg',
+        type: type ?? 'image/jpeg',
+      } as any
+    );
+  }
+
+  // 기존 이미지 제거 요청 (백엔드가 해당 필드를 인식한다고 가정)
+  if (params.removeImage) {
+    form.append('removeImage', 'true');
+  }
+
+  const { data } = await api.put(`/letters/${letterId}`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return data;
 };
 
