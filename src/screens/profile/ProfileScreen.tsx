@@ -4,6 +4,8 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
 import { fetchMyLetters } from '@/services/letters';
 import { formatRelativeTime } from '@/utils/relativeTime';
+import { EMOJIS } from '@/constants/diary/emoji';
+import { emojiKeyFromNumber } from '@/utils/calendar/mood';
 
 const ProfileScreen = () => {
   const { user } = useAuth();
@@ -84,7 +86,12 @@ const ProfileScreen = () => {
               renderItem={({ item }) => (
                 <View style={{ marginHorizontal: 16, marginVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', padding: 12 }}>
                   <Text style={{ color: '#6b7280', fontSize: 12 }}>{item.logDate}</Text>
-                  <Text style={{ fontWeight: 'bold', marginTop: 4 }}>{item.topic}</Text>
+                  <Text style={{ fontWeight: 'bold', marginTop: 4 }}>
+                    {(() => {
+                      const key = emojiKeyFromNumber(item.mood);
+                      return EMOJIS[key]?.emotion || '';
+                    })()}
+                  </Text>
                   <Text style={{ color: '#374151', marginTop: 8 }} numberOfLines={2}>{item.preview}</Text>
                 </View>
               )}
