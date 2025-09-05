@@ -6,6 +6,8 @@ import { fetchMyLetters } from '@/services/letters';
 import { formatRelativeTime } from '@/utils/relativeTime';
 import { EMOJIS } from '@/constants/diary/emoji';
 import { emojiKeyFromNumber } from '@/utils/calendar/mood';
+import { fetchMyPageSummary } from '@/services/mypage';
+import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
 
 const ProfileScreen = () => {
   const { user } = useAuth();
@@ -44,6 +46,8 @@ const ProfileScreen = () => {
     }
   }, [tab, loadLetters]);
 
+  const { data: summary } = useMyPageSummary(!!user);
+
   return (
     <View className="flex-1 bg-white">
       <View className="items-center pt-10 pb-6">
@@ -59,6 +63,9 @@ const ProfileScreen = () => {
         )}
         <Text className="subHeading1B mt-4 text-gray-900">{user?.nickname ?? '익명'}</Text>
       </View>
+        <Text className=" text-gray-500">{summary?.dailyLogCount} 일기 </Text>
+        <Text className=" text-gray-500">{summary?.letterCount} 편지</Text>
+        <Text className=" text-gray-500">{summary?.tributeCount} 헌화</Text>
 
       {/* 탭 버튼 */}
       <View style={{ flexDirection: 'row', marginHorizontal: 24, marginBottom: 8 }}>
