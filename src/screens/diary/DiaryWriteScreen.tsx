@@ -37,7 +37,7 @@ const DiaryWriteScreen = () => {
   });
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
-      title: '오늘의 일기',
+      title: '감정기록',
       hasBack: true,
       hasButton: true,
       onPress: submit,

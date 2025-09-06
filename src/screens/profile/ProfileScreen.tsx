@@ -161,7 +161,7 @@ const ProfileScreen = () => {
             <View className="flex-row items-center gap-1">
               <Icon name="IcStar" size={20}/>
               <Text className="captionB text-[#F3DE77]">{summary?.tributeCount ?? 0}</Text>
-              <Text className="captionSB text-gray-300 ml-0.5">헌화</Text>
+              <Text className="captionSB text-gray-300 ml-0.5">위로의 별</Text>
             </View>
           </View>
         </View>

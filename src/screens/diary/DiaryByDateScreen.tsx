@@ -32,7 +32,7 @@ const DiaryByDateScreen = () => {
   const { mutateAsync: deleteLog, isPending: deleting } = useDeleteDailyLog(logId);
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
-      title: '오늘의 일기',
+      title: '감정기록',
       hasBack: true,
       hasButton: true,
       icon: 'IcVerticalDots',

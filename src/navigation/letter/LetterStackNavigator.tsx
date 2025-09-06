@@ -36,17 +36,17 @@ const LetterStackNavigator = () => {
       <Stack.Screen
         name="LetterScreen"
         component={LetterScreen}
-        options={{ title: '한 마디 편지' }}
+        options={{ title: '기억의 별자리' }}
       />
       <Stack.Screen
         name="LetterWriteScreen"
         component={LetterWriteScreen}
-        options={{ title: '한 마디 편지' }}
+        options={{ title: '기억의 별자리' }}
       />
       <Stack.Screen
         name="LetterDetail"
         component={LetterDetailScreen}
-        options={{ title: '한 마디 편지' }}
+        options={{ title: '기억의 별자리' }}
       />
     </Stack.Navigator>
   );
