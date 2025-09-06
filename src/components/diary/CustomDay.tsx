@@ -14,14 +14,14 @@ const CustomDay = ({ date, isToday, moodColor, disabled, onPress }: CustomDayPro
 
   const dow = new Date(date.dateString).getDay();
   const bg = isToday ? 'white' : (moodColor ?? 'transparent');
-  const textColor = isToday
+  const textColor = moodColor
     ? 'black'
-    : dow === 0
-      ? '#D63D3D'
-      : dow === 6
-        ? '#64BEEB'
-        : moodColor
-          ? 'black'
+    : isToday
+      ? 'black'
+      : dow === 0
+        ? '#D63D3D'
+        : dow === 6
+          ? '#64BEEB'
           : 'white';
 
   const handlePress = () => {
