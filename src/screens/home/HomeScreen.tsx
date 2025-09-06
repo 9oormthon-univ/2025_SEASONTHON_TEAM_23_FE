@@ -68,7 +68,7 @@ export default function HomeScreen() {
           <Text className="text-[#FFD86F]">{nickname}</Text>
           <Text className="text-white"> 님,</Text>
         </Text>
-        <Text className="text-white text-[16px] font-medium">오늘도 편안한 하루보내세요.</Text>
+        <Text className="text-white text-[16px] font-medium">오늘도 편안한 하루 보내세요.</Text>
         <Image
           source={require('../../../assets/images/main-dog.png')}
         />
