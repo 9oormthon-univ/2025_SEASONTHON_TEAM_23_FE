@@ -280,7 +280,7 @@ const LetterWriteScreen = () => {
             textAlign: 'center',
           }}
         >
-          글을 함께 보며 헌화를 주고받아보세요
+          글을 함께 보며 위로의 별을 주고받아보세요
         </Text>
 
         {/* 공개 토글 카드 */}
@@ -301,7 +301,7 @@ const LetterWriteScreen = () => {
               이 글 전체공개 하면
             </Text>
             <Text style={{ color: '#F2F2F2', fontSize: 13, marginTop: 4 }}>
-              헌화를 받을 수 있어요.
+              위로의 별을 받을 수 있어요.
             </Text>
           </View>
           <Switch value={isPublic} onValueChange={setIsPublic} />
