@@ -18,3 +18,5 @@ export { default as IcSmiley } from './ic-smiley.svg';
 export { default as IcSad } from './ic-sad.svg';
 export { default as IcBad } from './ic-bad.svg';
 export { default as IcDefaultImg } from './ic-defaultImg.svg';
+export { default as IcBigflower } from './ic-bigflower.svg';
+export { default as IcPic } from './ic-pic.svg';
