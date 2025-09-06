@@ -50,7 +50,7 @@ const DiaryWriteScreen = () => {
 
   return (
     <ScrollView className="bg-bg pt-10">
-      {isSubmitting && <Loader />}
+      {isSubmitting && <Loader isPageLoader />}
       <View className="gap-7 px-7 pb-[72px]">
         <View className="items-center gap-4">
           <View className="items-center gap-6">
