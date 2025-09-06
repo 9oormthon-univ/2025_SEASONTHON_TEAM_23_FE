@@ -99,14 +99,6 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView className="flex-1 bg-[#121826]">
       <StatusBar barStyle="light-content" />
-      {/* Header (간단한 타이틀) - 네비게이션 헤더를 쓰고 있다면 제거 가능 */}
-      <View className="px-6 pt-2 pb-4 flex-row items-center justify-between">
-        <Text className="subHeading1B text-white">프로필</Text>
-        {/* 설정 아이콘 자리 (향후 설정 화면 라우팅) */}
-        <TouchableOpacity className="p-2" hitSlop={8}>
-          <Icon name="IcVerticalDots" size={20} fill="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
 
       {/* 프로필 카드 */}
       <View className="mx-6 rounded-2xl bg-[#1F2A3C] px-6 py-6 flex-row items-center gap-5">
