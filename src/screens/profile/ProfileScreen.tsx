@@ -3,7 +3,6 @@ import { useAuth } from '@/provider/AuthProvider';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
 import { fetchMyLetters } from '@/services/letters';
-import { formatRelativeTime } from '@/utils/relativeTime';
 import { EMOJIS } from '@/constants/diary/emoji';
 import { emojiKeyFromNumber } from '@/utils/calendar/mood';
 import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
@@ -78,18 +77,18 @@ const ProfileScreen = () => {
           </View>
           <View className="flex-row mt-4 gap-5">
             <View className="flex-row items-center gap-1">
-              <Icon name="IcCalendar" size={16} fill="#F3DE77" />
+              <Icon name="IcCalendar" size={16} />
               <Text className="captionB text-[#F3DE77]">{summary?.dailyLogCount ?? 0}</Text>
               <Text className="captionSB text-gray-300 ml-0.5">일기</Text>
             </View>
             <View className="flex-row items-center gap-1">
-              <Icon name="IcLetter" size={16} fill="#8FC3F6" />
-              <Text className="captionB text-[#8FC3F6]">{summary?.letterCount ?? 0}</Text>
+              <Icon name="IcLetter" size={16} />
+              <Text className="captionB text-[#F3DE77]">{summary?.letterCount ?? 0}</Text>
               <Text className="captionSB text-gray-300 ml-0.5">편지</Text>
             </View>
             <View className="flex-row items-center gap-1">
-              <Icon name="IcFlower" size={16} fill="#A6EB7C" />
-              <Text className="captionB text-[#A6EB7C]">{summary?.tributeCount ?? 0}</Text>
+              <Icon name="IcFlower" size={16}/>
+              <Text className="captionB text-[#F3DE77]">{summary?.tributeCount ?? 0}</Text>
               <Text className="captionSB text-gray-300 ml-0.5">헌화</Text>
             </View>
           </View>
@@ -97,15 +96,15 @@ const ProfileScreen = () => {
       </View>
 
       {/* 탭 */}
-      <View className="mt-8 px-6">
+  <View className="mt-8 px-6">
         <View className="flex-row">
           <TouchableOpacity className="flex-1 pb-2" onPress={() => setTab('diary')} activeOpacity={0.8}>
-            <Text className={`text-center subHeading3 ${tab === 'diary' ? 'text-white' : 'text-gray-500'}`}>나의 일기</Text>
-            {tab === 'diary' && <View className="h-1 rounded-full bg-white mt-2 mx-12" />}
+    <Text className={`text-center subHeading3 ${tab === 'diary' ? 'text-white' : 'text-gray-500'}`}>나의 일기</Text>
+    {tab === 'diary' && <View className="h-1 rounded-full mt-2 mx-12" style={{ backgroundColor: '#D6B654' }} />}
           </TouchableOpacity>
           <TouchableOpacity className="flex-1 pb-2" onPress={() => setTab('letter')} activeOpacity={0.8}>
-            <Text className={`text-center subHeading3 ${tab === 'letter' ? 'text-white' : 'text-gray-500'}`}>보낸 편지</Text>
-            {tab === 'letter' && <View className="h-1 rounded-full bg-white mt-2 mx-12" />}
+    <Text className={`text-center subHeading3 ${tab === 'letter' ? 'text-white' : 'text-gray-500'}`}>보낸 편지</Text>
+    {tab === 'letter' && <View className="h-1 rounded-full mt-2 mx-12" style={{ backgroundColor: '#D6B654' }} />}
           </TouchableOpacity>
         </View>
       </View>
@@ -157,13 +156,19 @@ const ProfileScreen = () => {
             <FlatList
               data={letters}
               keyExtractor={(item, idx) => `${item.id}-${idx}`}
-              renderItem={({ item }) => (
-                <View className="mx-6 mb-4 rounded-2xl bg-[#1F2A3C] px-5 py-4">
-                  <Text className="body1 text-white" numberOfLines={4}>{item.content}</Text>
-                  <Text className="captionSB text-gray-400 mt-3">{item.createdAt ? formatRelativeTime(item.createdAt) : ''} · 헌화 {item.tributeCount ?? 0}</Text>
+              renderItem={({ item, index }) => (
+                <View className={`bg-[#1F2A3C] px-6 py-4 ${index === 0 ? 'border-t' : ''} border-b`} style={{ borderColor: '#313846' }}>
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center gap-2">
+                      <Icon name="IcFlower" size={18} fill="#D6B654" />
+                      <Text className="captionB text-white">{item.tributeCount ?? 0}</Text>
+                    </View>
+                    <Text className="captionSB text-gray-400 ml-2">{item.createdAt?.slice(0,10) ?? ''}</Text>
+                  </View>
+                  <Text className="body1 text-white mt-4" numberOfLines={2}>{item.content}</Text>
                 </View>
               )}
-              contentContainerStyle={{ paddingTop: 4, paddingBottom: 40 }}
+              contentContainerStyle={{ paddingBottom: 40 }}
               ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">편지로 추억을 나누어 봐요.</Text>}
             />
           )
