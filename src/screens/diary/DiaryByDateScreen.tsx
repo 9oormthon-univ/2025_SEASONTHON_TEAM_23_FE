@@ -102,7 +102,7 @@ const DiaryByDateScreen = () => {
           </View>
           {data?.aiReflection ? (
             <View className="items-center gap-2.5 rounded-[20px] bg-bg-light p-5">
-              <Icon name="IcFlowerMini" width={40} height={28} />
+              <Icon name="IcStar" width={40} height={28} />
               <Text className="body1 text-center !leading-6 text-white">
                 {keepAllKorean(data.aiReflection)}
               </Text>

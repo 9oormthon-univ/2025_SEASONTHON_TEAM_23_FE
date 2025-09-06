@@ -148,7 +148,7 @@ const LetterWriteScreen = () => {
         keyboardShouldPersistTaps="handled"
       >
         <View style={{ alignItems: 'center' }}>
-          <Icon name="IcBigflower" size={56} color="#F2F2F2" />
+          <Icon name="IcStarSky" size={56} color="#F2F2F2" />
           <Text style={{ marginTop: 16, color: '#AAAAAA', fontSize: 12 }}>
             {formatKoreanDate(new Date().toISOString())}
           </Text>

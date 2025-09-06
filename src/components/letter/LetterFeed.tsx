@@ -134,7 +134,7 @@ const LetterFeed: React.FC = () => {
                     {timeText ? ` · ${timeText}` : ''}
                   </Text>
                   <View className="flex-row items-center gap-1">
-                    <Icon name="IcFlower" size={20} color="#F2F2F2" />
+                    <Icon name="IcStar" size={20} color="#F2F2F2" />
                     <Text style={{ color: '#F2F2F2', fontSize: 14, fontWeight: '300' }}>{item.tributeCount ?? 0}</Text>
                   </View>
                 </View>
