@@ -58,7 +58,13 @@ const TabNavigator = () => {
       />
       <Tab.Screen name="Diary" component={DiaryStackNavigator} options={{ headerShown: false }} />
       <Tab.Screen name="Letter" component={LetterStackNavigator} options={{ headerShown: false }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          header: () => <CustomHeader hasBack title="프로필" />, // 뒤로가기 버튼 추가
+        }}
+      />
     </Tab.Navigator>
   );
 };

@@ -18,7 +18,7 @@ const CustomHeader = ({
 }: HeaderProps) => {
   const navigation = useNavigation();
   return (
-    <SafeAreaView edges={['top']} className="bg-[#2D3342]">
+  <SafeAreaView edges={['top']} className="bg-[#121826]">
       <View className="h-[60px] flex-row items-center justify-between px-7 py-4">
         <View className="flex-row gap-5">
           {hasBack && (
