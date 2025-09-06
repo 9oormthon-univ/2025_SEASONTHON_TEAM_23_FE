@@ -1,4 +1,4 @@
-import { SafeAreaView, View, Text, Pressable, StatusBar } from "react-native";
+import { SafeAreaView, View, Text, Pressable, StatusBar, Image } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { TabsParamList } from '@/types/navigation';
@@ -32,35 +32,19 @@ export default function HomeScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#121826]">
       <StatusBar barStyle="light-content" />
-      <View className="mt-6 px-10">
-        <Text className="text-[#FFFFFF] text-[28px] font-extrabold mb-1" numberOfLines={1}>
-          {nickname} 님,
-        </Text>
-        <Text className="text-[#FFFFFF] text-[16px] font-medium">오늘도 편안한 하루 보내세요.</Text>
-      </View>
-
-      <View className="gap-7 pb-6 pt-8 bg-transparent">
-        <View className="relative mx-7 items-center gap-5 overflow-hidden rounded-[20px] bg-white px-6 py-5">
+      {/* 오늘의 질문 카드 */}
+      <View className="pt-8 px-6">
+        <View className="rounded-2xl bg-[#1F2A3C] px-7 py-6 items-center gap-6">
           {topicIsLoading && <Loader />}
-          <View className="gap-4">
-            <View className="items-center">
-              <Icon name="IcPaw" size={24} fill="#343434" />
-              <Text className="body2 text-[#343434]">{`오늘의 질문`}</Text>
-            </View>
+          <View className="items-center gap-3">
+            <Icon name="IcPaw" size={24} fill="#FFFFFF" />
+            <Text className="body2 text-white">오늘의 질문</Text>
             {topicIsLoading ? null : isError ? (
-              <View className="overflow-hidden rounded-xl">
-                <Pressable
-                  onPress={() => refetch()}
-                  android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
-                  className="items-center"
-                >
-                  <Text className="subHeading3 px-9 py-2 text-center text-error">⚠️ 다시 시도</Text>
-                </Pressable>
-              </View>
+              <Pressable onPress={() => refetch()} className="rounded-xl bg-[#2A3649] px-5 py-2">
+                <Text className="subHeading3 text-error">다시 시도</Text>
+              </Pressable>
             ) : (
-              <Text className="subHeading3 text-center text-gray-900">
-                {keepAllKorean(topicText)}
-              </Text>
+              <Text className="subHeading3 text-center text-white leading-5">{keepAllKorean(topicText)}</Text>
             )}
           </View>
           <Pressable
@@ -70,12 +54,24 @@ export default function HomeScreen() {
                 params: { topic: topicText },
               })
             }
-            className="flex-row items-center gap-1 rounded-xl bg-[#1F2A3C] px-9 py-2"
+            className="flex-row items-center gap-2 rounded-xl bg-[#FFD86F] px-10 py-3"
           >
-            <Icon name="IcEdit" size={24} fill="white" />
-            <Text className="body1 leading-[1.6] text-white">{`일기 쓰러가기`}</Text>
+            <Icon name="IcEdit" size={20} fill="#1F2A3C" />
+            <Text className="body1 text-[#1F2A3C]">일기 쓰러가기</Text>
           </Pressable>
         </View>
+      </View>
+
+      {/* 닉네임 & 강아지 이미지 */}
+      <View className="flex-1 items-center mt-14 px-6">
+        <Text className="text-[24px] font-extrabold mb-2" numberOfLines={1}>
+          <Text className="text-[#FFD86F]">{nickname}</Text>
+          <Text className="text-white"> 님,</Text>
+        </Text>
+        <Text className="text-white text-[16px] font-medium mb-10">오늘도 편안한 하루보내세요.</Text>
+        <Image
+          source={require('../../../assets/images/main-dog.png')}
+        />
       </View>
     </SafeAreaView>
   );
