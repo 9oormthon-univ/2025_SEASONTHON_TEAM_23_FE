@@ -14,6 +14,7 @@ const CustomHeader = ({
   hasButton,
   title,
   onPress,
+  disabled,
 }: HeaderProps) => {
   const navigation = useNavigation();
   return (
@@ -34,7 +35,7 @@ const CustomHeader = ({
               <Icon name={icon} size={iconSize} color={iconColor} />
             </Pressable>
           ) : (
-            <SaveButton onPress={onPress} />
+            <SaveButton onPress={onPress} disabled={disabled} />
           ))}
       </View>
     </SafeAreaView>
