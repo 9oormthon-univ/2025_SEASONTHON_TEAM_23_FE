@@ -31,7 +31,7 @@ module.exports = {
           soso: '#F3DE77',
           sad: '#9D9D9D',
           bad: '#585858',
-          off: '#F5F5F5',
+          off: '#2F394E',
         },
         error: {
           DEFAULT: '#FF2E45',
