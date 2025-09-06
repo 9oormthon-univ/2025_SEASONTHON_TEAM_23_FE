@@ -75,7 +75,7 @@ const TextArea = forwardRef<TextInput, TextAreaProps>(
           }}
           underlineColorAndroid="transparent"
           style={{ minHeight }}
-          className={`body1 !leading-6 text-gray-900 ${inputClassName}`}
+          className={`body1 !leading-6 text-white ${inputClassName}`}
           {...rest}
         />
 
