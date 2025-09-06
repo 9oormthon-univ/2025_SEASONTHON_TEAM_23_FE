@@ -5,6 +5,7 @@ import type {
   DailyLog,
   DailyLogDetail,
   UpdateDailyLogBody,
+  DailyLogMoodAnalyze,
 } from '@/types/diary';
 
 export const fetchDailyLogs = async (userId: number) => {
@@ -28,4 +29,10 @@ export const updateDailyLog = async (logId: number, body: UpdateDailyLogBody): P
 
 export const deleteDailyLog = async (logId: number): Promise<void> => {
   await api.delete(`/daily-log/delete/${logId}`);
+};
+
+// 지난 달 mood 분석 데이터 가져오기
+export const fetchDailyLogMoodAnalyze = async (): Promise<DailyLogMoodAnalyze> => {
+  const { data } = await api.get<DailyLogMoodAnalyze>('/daily-log/analyzeMood');
+  return data;
 };

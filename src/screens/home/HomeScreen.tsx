@@ -1,69 +1,29 @@
-import { SafeAreaView, View, Text, Pressable, StatusBar, Image } from "react-native";
-import { useNavigation } from '@react-navigation/native';
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import type { TabsParamList } from '@/types/navigation';
-import Icon from '@common/Icon';
-import { useDailyTopic } from "@/hooks/queries/useDailyTopic";
-import { useLayoutEffect } from 'react';
-import { setHeaderExtras } from '@/types/Header';
-import Loader from '@common/Loader';
-import { keepAllKorean } from '@/utils/keepAll';
+import { SafeAreaView, View, Text, Image } from "react-native";
+// import { useNavigation } from '@react-navigation/native';
+// import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+// import type { TabsParamList } from '@/types/navigation';
 import { useAuth } from '@/provider/AuthProvider';
+import { useDailyLogMoodAnalyze } from '@/hooks/queries/useDailyLogMoodAnalyze';
 
 export default function HomeScreen() {
-  const navigation = useNavigation<BottomTabNavigationProp<TabsParamList>>();
+  // const navigation = useNavigation<BottomTabNavigationProp<TabsParamList>>();
   const { user } = useAuth();
   const nickname = user?.nickname ?? '사용자';
-
-  useLayoutEffect(() => {
-    setHeaderExtras(navigation, {
-      title: '오늘의 일기',
-      hasBack: true,
-      hasButton: true,
-      icon: 'IcNotification',
-    });
-  }, [navigation]);
   
-  const { data, isLoading: topicIsLoading, isError, refetch } = useDailyTopic();
-  const topicText = isError
-    ? '오늘의 주제를 불러오지 못했어요.'
-    : (data?.topic ?? '오늘의 주제가 없습니다.');
+  const { data: moodAnalyze } = useDailyLogMoodAnalyze();
 
   return (
-    <SafeAreaView className="flex-1 bg-[#121826]">
-      <StatusBar barStyle="light-content" />
-      {/* 오늘의 질문 카드 */}
-      <View className="pt-8 px-6">
-        <View className="rounded-2xl bg-[#1F2A3C] px-7 py-6 items-center gap-6">
-          {topicIsLoading && <Loader />}
-          <View className="items-center gap-3">
-            <Icon name="IcPaw" size={24} fill="#FFFFFF" />
-            <Text className="body2 text-white">오늘의 질문</Text>
-            {topicIsLoading ? null : isError ? (
-              <Pressable onPress={() => refetch()} className="rounded-xl bg-[#2A3649] px-5 py-2">
-                <Text className="subHeading3 text-error">다시 시도</Text>
-              </Pressable>
-            ) : (
-              <Text className="subHeading3 text-center text-white leading-5">{keepAllKorean(topicText)}</Text>
-            )}
+  <SafeAreaView className="flex-1 bg-[#121826]">
+    {/* 지난 달 통계 박스 (스타일: '오늘의 질문' 박스와 통일) */}
+        {moodAnalyze && (
+          <View className="relative items-center overflow-hidden rounded-[20px] bg-bg-light px-6 py-5 mt-10 mb-8 self-center" style={{ width: '88%' }}>
+            <Text className="subHeading3 text-center text-white">
+              {`지난 달에 작성한 ${moodAnalyze.dailyCount}개의 일기 중,\n좋았던 날은 ${moodAnalyze.bestMoodCount}일이에요.`}
+            </Text>
           </View>
-          <Pressable
-            onPress={() =>
-              navigation.navigate('Diary', {
-                screen: 'DiaryWrite',
-                params: { topic: topicText },
-              })
-            }
-            className="flex-row items-center gap-2 rounded-xl bg-[#FFD86F] px-10 py-3"
-          >
-            <Icon name="IcEdit" size={20} fill="#1F2A3C" />
-            <Text className="body1 text-[#1F2A3C]">일기 쓰러가기</Text>
-          </Pressable>
-        </View>
-      </View>
-
+        )}
       {/* 닉네임 & 강아지 이미지 */}
-      <View className="flex-1 items-center mt-8 px-6">
+      <View className="flex-1 items-center mt-20 px-6">
         <Text className="text-[24px] font-extrabold mb-2" numberOfLines={1}>
           <Text className="text-[#FFD86F]">{nickname}</Text>
           <Text className="text-white"> 님,</Text>
