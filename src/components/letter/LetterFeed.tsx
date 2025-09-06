@@ -15,7 +15,7 @@ type NavProp = NativeStackNavigationProp<LetterStackParamList>;
 const LetterFeed: React.FC = () => {
   const navigation = useNavigation<NavProp>();
   const [letters, setLetters] = useState<any[]>([]);
-  const { tributedIds, fetchTributes } = useTribute();
+  const { fetchTributes } = useTribute();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
@@ -88,40 +88,32 @@ const LetterFeed: React.FC = () => {
   <FlatList
           data={letters}
           keyExtractor={(item, index) => `${item.id}-${index}`}
-          renderItem={({ item }) => (
-            <View className="gap-3 rounded-[20px] bg-bg-light px-6 py-4">
+          renderItem={({ item }) => {
+            const authorObj = item.author ?? item.user ?? null;
+            const authorId = item.authorId ?? item.author_id ?? item.userId ?? item.user_id ?? authorObj?.id ?? authorObj?.userId ?? null;
+            const authorName = authorObj?.nickname ?? authorObj?.name ?? authorObj?.displayName ?? null;
+            const mine = user && (authorId === user?.userId || authorId === (user as any)?.id);
+            const display = authorName ?? (mine ? user?.nickname ?? null : null) ?? '작성자 정보 없음';
+            const timeText = item.createdAt ? formatRelativeTime(item.createdAt) : '';
+            return (
               <Pressable
+                className="rounded-[20px] bg-bg-light px-6 py-4"
                 onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
               >
-                <Text className="body1 !leading-6 text-body-100 color-[#F2F2F2]">{item.content}</Text>
-                <View className="flex-row items-center justify-between">
-                  <Text className="color-[#F2F2F2] body3 text-body-200">
-                    {(() => {
-                      const authorObj = item.author ?? item.user ?? null;
-                      const authorId = item.authorId ?? item.author_id ?? item.userId ?? item.user_id ?? authorObj?.id ?? authorObj?.userId ?? null;
-                      const authorName = authorObj?.nickname ?? authorObj?.name ?? authorObj?.displayName ?? null;
-                      const mine = user && (authorId === user.userId || authorId === (user as any).id);
-                      const display = authorName ?? (mine ? user?.nickname ?? null : null);
-                      return (
-                        <Text style={{ color: 'F2F2F2', fontSize: 13, marginBottom: 2 }}>
-                          {display ?? '작성자 정보 없음'}
-                          {item.createdAt ? ` · ${formatRelativeTime(item.createdAt)}` : ''}
-                        </Text>
-                      );
-                    })()}
+                <Text className="body1 !leading-6" style={{ color: '#F2F2F2' }}>{item.content}</Text>
+                <View className="mt-3 flex-row items-center justify-between">
+                  <Text style={{ color: '#F2F2F2', fontSize: 12 }}>
+                    {display}
+                    {timeText ? ` · ${timeText}` : ''}
                   </Text>
-                  <View
-                    className={`flex-row rounded-lg border border-gray-600 p-1 ${tributedIds.has(String(item.id)) ? 'bg-white/20' : 'bg-white/40'}`}
-                  >
-                    <View className="p-1">
-                      <Icon name="IcFlower" size={16} color="#FFD86F" />
-                    </View>
-                    <Text className="body2 text-body-200">{`${item.tributeCount ?? 0}`}</Text>
+                  <View className="flex-row items-center gap-1">
+                    <Icon name="IcFlower" size={20} color="#F2F2F2" />
+                    <Text style={{ color: '#F2F2F2', fontSize: 14, fontWeight: '300' }}>{item.tributeCount ?? 0}</Text>
                   </View>
                 </View>
               </Pressable>
-            </View>
-          )}
+            );
+          }}
           ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
           contentContainerStyle={{ paddingTop: 12, paddingBottom: 32 }}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
