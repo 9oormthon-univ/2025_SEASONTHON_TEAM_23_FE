@@ -8,6 +8,7 @@ import { emojiKeyFromNumber } from '@/utils/calendar/mood';
 import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
 import Icon from '@common/Icon';
 import DefaultProfile from '@images/default-profile.png';
+import ProfileDog from '@images/profile-dog.png';
 
 const ProfileScreen = () => {
   const { user } = useAuth();
@@ -45,6 +46,13 @@ const ProfileScreen = () => {
   }, [tab, loadLetters]);
 
   const { data: summary } = useMyPageSummary(!!user);
+
+  const EmptyState = ({ message }: { message: string }) => (
+    <View className="flex-1 items-center justify-start mt-16 px-10">
+      <Text className="subHeading2B text-white text-center mb-8">{message}</Text>
+      <Image source={ProfileDog}/>
+    </View>
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-[#121826]">
@@ -139,7 +147,7 @@ const ProfileScreen = () => {
                 );
               }}
               contentContainerStyle={{ paddingTop: 4, paddingBottom: 40 }}
-              ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">오늘의 이야기를 나누어 주세요.</Text>}
+              ListEmptyComponent={<EmptyState message="오늘의 이야기를 들려주세요." />}
             />
           )
         ) : (
@@ -164,7 +172,7 @@ const ProfileScreen = () => {
                 </View>
               )}
               contentContainerStyle={{ paddingBottom: 40 }}
-              ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">편지로 추억을 나누어 봐요.</Text>}
+              ListEmptyComponent={<EmptyState message="편지로 추억을 나누어 봐요." />}
             />
           )
         )}
