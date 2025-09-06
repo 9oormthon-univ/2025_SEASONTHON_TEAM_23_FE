@@ -14,7 +14,10 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -35,8 +38,21 @@
               "pathPrefix": "/"
             }
           ]
+        },
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": ["BROWSABLE", "DEFAULT"],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "petfarewell.site",
+              "pathPrefix": "/"
+            }
+          ]
         }
-      ]
+      ],
+      "runtimeVersion": "1.0.0"
     },
     "plugins": [
       [
