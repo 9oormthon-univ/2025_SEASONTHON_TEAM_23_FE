@@ -10,7 +10,7 @@ import {
   Pressable,
   ScrollView,
 } from 'react-native';
-import { Dimensions, PixelRatio } from 'react-native';
+// (이전 로직 잔여) import { Dimensions, PixelRatio } from 'react-native'; // 전체폭 이미지 렌더링 제거로 미사용
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { LetterStackParamList } from 'src/types/navigation';
@@ -28,7 +28,8 @@ import { setHeaderExtras } from '@/types/Header';
 const LetterWriteScreen = () => {
   const [letter, setLetter] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
-  const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
+  // (이전) 원본 비율 기반 전체폭 프리뷰용 naturalSize 상태는 작은 썸네일 방식으로 변경되며 더 이상 필요하지 않아 제거.
+  // const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null); // 현재 미사용
   const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const { user } = useAuth();
@@ -56,17 +57,14 @@ const LetterWriteScreen = () => {
   }, [editingId]);
 
   // 측정: 이미지 원본 크기(px) → dp 변환을 위한 상태 저장
-  useEffect(() => {
-    if (!imageUri) {
-      setNaturalSize(null);
-      return;
-    }
-    Image.getSize(
-      imageUri,
-      (w, h) => setNaturalSize({ w, h }),
-      () => setNaturalSize(null)
-    );
-  }, [imageUri]);
+  // 작은 썸네일만 사용할 때는 실제 렌더링에 필요 없지만, 나중 재확대 기능 대비 크기 정보는 유지 가능.
+  // useEffect(() => {
+  //   if (!imageUri) {
+  //     setNaturalSize(null);
+  //     return;
+  //   }
+  //   Image.getSize(imageUri, (w, h) => setNaturalSize({ w, h }), () => setNaturalSize(null));
+  // }, [imageUri]);
 
   // user is provided by AuthProvider (may be null in dev/mock mode)
 
@@ -220,44 +218,55 @@ const LetterWriteScreen = () => {
           </Pressable>
         </View>
         {imageUri && (
-          <View style={{ marginTop: 16, alignSelf: 'center', position: 'relative' }}>
-            {(() => {
-              const windowWidth = Dimensions.get('window').width;
-              const horizontalPadding = 56; // screen padding + alignment
-              const maxWidth = Math.max(0, windowWidth - horizontalPadding);
-              const ratio = PixelRatio.get();
-              const wDp = naturalSize ? naturalSize.w / ratio : maxWidth;
-              const renderWidth = Math.min(wDp, maxWidth);
-              const renderHeight =
-                naturalSize && naturalSize.w > 0
-                  ? (naturalSize.h / naturalSize.w) * renderWidth
-                  : 200;
-              return (
-                <Image
-                  source={{ uri: imageUri }}
-                  style={{ width: renderWidth, height: renderHeight, borderRadius: 12 }}
-                  resizeMode="cover"
-                />
-              );
-            })()}
-            <TouchableOpacity
-              onPress={() => setImageUri(null)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              style={{ position: 'absolute', top: 6, right: 6 }}
-            >
-              <View
-                style={{
-                  height: 28,
-                  width: 28,
-                  borderRadius: 14,
-                  backgroundColor: 'rgba(0,0,0,0.55)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+          <View
+            style={{
+              marginTop: 12,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              alignSelf: 'flex-start',
+            }}
+          >
+            <View style={{ position: 'relative' }}>
+              <Image
+                source={{ uri: imageUri }}
+                style={{ width: 84, height: 84, borderRadius: 12, backgroundColor: '#1F2A3C' }}
+                resizeMode="cover"
+              />
+              <TouchableOpacity
+                onPress={() => setImageUri(null)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={{ position: 'absolute', top: -6, right: -6 }}
               >
-                <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>×</Text>
-              </View>
-            </TouchableOpacity>
+                <View
+                  style={{
+                    height: 22,
+                    width: 22,
+                    borderRadius: 11,
+                    backgroundColor: 'rgba(0,0,0,0.65)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.6)',
+                  }}
+                >
+                  <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>×</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            <Pressable
+              onPress={pickImage}
+              style={{
+                paddingHorizontal: 14,
+                paddingVertical: 10,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: '#394356',
+                backgroundColor: '#1F2A3C',
+              }}
+            >
+              <Text style={{ color: '#F2F2F2', fontSize: 12 }}>다른 사진 선택</Text>
+            </Pressable>
           </View>
         )}
 
