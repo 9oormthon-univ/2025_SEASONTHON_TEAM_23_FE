@@ -12,7 +12,7 @@ const LetterScreen = () => {
   const navigation = useNavigation<StackNavigationProp<LetterStackParamList>>();
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
-      title: '한 마디 편지',
+      title: '기억의 별자리',
       hasBack: true,
       hasButton: true,
       icon: 'IcNotification',
