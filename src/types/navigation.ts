@@ -16,7 +16,6 @@ export type TabsParamList = {
   Home: undefined;
   Diary: NavigatorScreenParams<DiaryStackParamList>;
   Letter: NavigatorScreenParams<LetterStackParamList>;
-  Counseling: undefined;
   Profile: undefined;
 };
 

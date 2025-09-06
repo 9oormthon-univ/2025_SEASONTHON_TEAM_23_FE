@@ -1,4 +1,3 @@
-export { default as IcCounseling } from './ic-counseling.svg';
 export { default as IcCalendar } from './ic-calendar.svg';
 export { default as IcHome } from './ic-home.svg';
 export { default as IcLetter } from './ic-letter.svg';

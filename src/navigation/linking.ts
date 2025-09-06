@@ -13,7 +13,6 @@ export const linking: LinkingOptions<RootStackParamList> = {
           Home: '',
           Diary: 'diary',
           Letter: 'letter',
-          Counseling: 'counseling',
         },
       },
     },
