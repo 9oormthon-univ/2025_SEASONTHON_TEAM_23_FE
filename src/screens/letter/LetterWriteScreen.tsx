@@ -70,8 +70,12 @@ const LetterWriteScreen = () => {
 
   // user is provided by AuthProvider (may be null in dev/mock mode)
 
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const handleSave = useCallback(async () => {
+    if (isSaving || hasSubmitted) return; // 중복 제출 방지
     try {
+      setIsSaving(true);
       // normalize imageUri: '' 를 null로 처리
       const normalizedImageUri = imageUri && imageUri !== '' ? imageUri : null;
 
@@ -105,26 +109,29 @@ const LetterWriteScreen = () => {
         });
       }
 
-      Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
+    Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
         { text: '확인', onPress: () => navigation.navigate('LetterScreen') },
       ]);
       setLetter('');
       setImageUri(null);
+    setHasSubmitted(true); // 첫 성공 후 영구 비활성
     } catch (error) {
       Alert.alert('저장 실패', '서버에 저장하는 중 오류가 발생했습니다.');
+    } finally {
+    setIsSaving(false);
     }
-  }, [imageUri, letter, isPublic, editingId, user, navigation, originalHasPhoto]);
+  }, [imageUri, letter, isPublic, editingId, user, navigation, originalHasPhoto, isSaving, hasSubmitted]);
 
   // 헤더 구성 (완료 버튼)
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
       title: editingId ? '한 마디 편지 수정' : '한 마디 편지 쓰기',
-      disabled: !letter.trim(),
+  disabled: !letter.trim() || isSaving || hasSubmitted,
       hasBack: true,
       hasButton: true,
       onPress: handleSave,
     });
-  }, [navigation, handleSave]);
+  }, [navigation, handleSave, letter, isSaving, hasSubmitted, editingId]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
