@@ -275,7 +275,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       >
         <View className="items-center">
           {/* 상단 꽃 아이콘 */}
-          <Icon name="IcBigflower" size={64} />
+          <Icon name="IcStarSky" size={64} />
           {/* 날짜 */}
           <Text className="body2 mt-6" style={{ color: '#AAAAAA' }}>
             {formatKoreanDate(letter.createdAt)}
@@ -311,7 +311,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           {/* 헌화 카운트 */}
           <View className="mt-14 items-center">
             <View className="flex-row items-center gap-2">
-              <Icon name="IcFlower" size={20} color="#F2F2F2" />
+              <Icon name="IcStar" size={20} color="#F2F2F2" />
               {letter.tributeCount === 0 ? (
                 <Text className="body2" style={{ color: '#F2F2F2' }}>
                   처음으로 헌화를 해주세요.

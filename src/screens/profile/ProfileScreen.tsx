@@ -159,7 +159,7 @@ const ProfileScreen = () => {
               <Text className="captionSB text-gray-300 ml-0.5">편지</Text>
             </View>
             <View className="flex-row items-center gap-1">
-              <Icon name="IcFlower" size={20}/>
+              <Icon name="IcStar" size={20}/>
               <Text className="captionB text-[#F3DE77]">{summary?.tributeCount ?? 0}</Text>
               <Text className="captionSB text-gray-300 ml-0.5">헌화</Text>
             </View>
@@ -233,7 +233,7 @@ const ProfileScreen = () => {
                 <View className={`bg-[#1F2A3C] px-6 py-4 ${index === 0 ? 'border-t' : ''} border-b`} style={{ borderColor: '#313846' }}>
                   <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center gap-2">
-                      <Icon name="IcFlower" size={18} fill="#D6B654" />
+                      <Icon name="IcStar" size={18} fill="#D6B654" />
                       <Text className="captionB text-white">{item.tributeCount ?? 0}</Text>
                     </View>
                     <Text className="captionSB text-gray-400 ml-2">{item.createdAt?.slice(0,10) ?? ''}</Text>
