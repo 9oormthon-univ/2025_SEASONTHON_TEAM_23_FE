@@ -65,7 +65,7 @@ const DiaryEditScreen = () => {
     });
   }, [navigation, submit]);
 
-  if (isLoading) return <Loader />;
+  if (isLoading) return <Loader isPageLoader />;
   if (isError || !data)
     return (
       <View className="flex-1 items-center justify-center bg-bg p-7">
@@ -86,7 +86,7 @@ const DiaryEditScreen = () => {
 
   return (
     <ScrollView className="bg-bg pt-10">
-      {isSubmitting && <Loader />}
+      {isSubmitting && <Loader isPageLoader />}
       <View className="gap-7 px-7 pb-[72px]">
         <View className="items-center gap-4">
           <View className="items-center gap-6">
