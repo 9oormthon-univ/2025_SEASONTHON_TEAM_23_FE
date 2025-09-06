@@ -84,7 +84,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const currentUserId = !isNaN(parsedUserId) ? parsedUserId : null;
 
   useEffect(() => {
-    navigation.setOptions({ title: '편지 내용' });
+    navigation.setOptions({ title: '기억의 별자리' });
   }, [navigation]);
 
   useEffect(() => {
@@ -135,7 +135,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleTribute = async () => {
     if (!letter) return;
     if (!currentUserId) {
-      Alert.alert('로그인이 필요합니다.', '헌화하려면 로그인 후 다시 시도해 주세요.');
+      Alert.alert('로그인이 필요합니다.', '별을 전달하려면 로그인 후 다시 시도해 주세요.');
       return;
     }
     if (isTributing) return;
@@ -182,7 +182,6 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         await refreshTributes(currentUserId);
       } catch {}
       setHasMyTribute(true);
-      Alert.alert('헌화가 완료되었습니다');
     } finally {
       setIsTributing(false);
     }
@@ -200,7 +199,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
-      title: '한 마디 편지',
+      title: '기억의 별자리',
       hasBack: true,
       ...(isOwner
         ? {
@@ -271,11 +270,11 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     <View style={{ flex: 1, backgroundColor: '#121826' }}>
       <ScrollView
         style={{ backgroundColor: '#121826' }}
-        contentContainerStyle={{ paddingHorizontal: 28, paddingTop: 56, paddingBottom: 100 }}
+        contentContainerStyle={{ paddingHorizontal: 28, paddingBottom: 100 }}
       >
         <View className="items-center">
-          {/* 상단 꽃 아이콘 */}
-          <Icon name="IcStarSky" size={64} />
+          {/* 상단 별 아이콘 */}
+          <Icon name="IcStarSky" size={128} />
           {/* 날짜 */}
           <Text className="body2 mt-6" style={{ color: '#AAAAAA' }}>
             {formatKoreanDate(letter.createdAt)}
@@ -308,18 +307,18 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               {letter.content}
             </Text>
           </View>
-          {/* 헌화 카운트 */}
+          {/* 별 카운트 */}
           <View className="mt-14 items-center">
             <View className="flex-row items-center gap-2">
               <Icon name="IcStar" size={20} color="#F2F2F2" />
               {letter.tributeCount === 0 ? (
                 <Text className="body2" style={{ color: '#F2F2F2' }}>
-                  처음으로 헌화를 해주세요.
+                  첫 위로의 별을 전달해 보세요.
                 </Text>
               ) : (
                 <Text className="body2" style={{ color: '#F2F2F2' }}>
                   <Text style={{ color: '#F2F2F2', fontWeight: '600' }}>{letter.tributeCount}</Text>
-                  {` 개의 헌화를 받았어요.`}
+                  {` 개의 위로의 별을 받았어요.`}
                 </Text>
               )}
             </View>
@@ -336,7 +335,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               }}
             >
               <Text className="subHeading2B text-center text-black">
-                {hasMyTribute ? '취소하기' : '헌화하기'}
+                {hasMyTribute ? '취소하기' : '위로의 별 전달'}
               </Text>
             </Pressable>
           )}
