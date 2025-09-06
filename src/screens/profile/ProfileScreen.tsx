@@ -192,7 +192,7 @@ const ProfileScreen = () => {
             <FlatList
               data={logs}
               keyExtractor={(item) => String(item.id)}
-              renderItem={({ item }) => {
+              renderItem={({ item, index }) => {
                 const key = emojiKeyFromNumber(item.mood);
                 const emotion = EMOJIS[key]?.emotion || '';
                 const colorMap: Record<string, string> = {
@@ -203,15 +203,36 @@ const ProfileScreen = () => {
                   bad: '#808080',
                 };
                 return (
-                  <View className="mx-6 mb-4 rounded-2xl bg-[#1F2A3C] px-5 py-4">
-                    <View className="flex-row items-start justify-between">
-                      <View className="flex-row items-center gap-2 flex-1 pr-2">
-                        <Icon name={EMOJIS[key].icon as any} size={18} fill={colorMap[key] || '#FFFFFF'} />
-                        <Text className="body2" style={{ color: colorMap[key] || '#FFFFFF' }}>{emotion}</Text>
+                  <View
+                    className={`bg-[#1F2A3C] px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
+                    style={{ borderColor: '#313846' }}
+                  >
+                    <View className="flex-row justify-between" style={{ alignItems: 'flex-start' }}>
+                      <View
+                        className="flex-row gap-2"
+                        style={{ flexShrink: 1, flexWrap: 'wrap', alignItems: 'center' }}
+                      >
+                        <Icon
+                          name={EMOJIS[key].icon as any}
+                          size={18}
+                          fill={colorMap[key] || '#FFFFFF'}
+                        />
+                        <Text
+                          className="captionB text-white"
+                          style={{
+                            color: colorMap[key] || '#FFFFFF',
+                            flexShrink: 1,
+                            lineHeight: 16,
+                          }}
+                        >
+                          {emotion}
+                        </Text>
                       </View>
                       <Text className="captionSB text-gray-400 ml-2">{item.logDate}</Text>
                     </View>
-                    <Text className="body1 text-white mt-3" numberOfLines={2}>{item.preview}</Text>
+                    <Text className="body1 text-white mt-4" style={{ lineHeight: 20 }}>
+                      {item.preview}
+                    </Text>
                   </View>
                 );
               }}
@@ -230,7 +251,7 @@ const ProfileScreen = () => {
               data={letters}
               keyExtractor={(item, idx) => `${item.id}-${idx}`}
               renderItem={({ item, index }) => (
-                <View className={`bg-[#1F2A3C] px-6 py-4 ${index === 0 ? 'border-t' : ''} border-b`} style={{ borderColor: '#313846' }}>
+                <View className={`bg-[#1F2A3C] px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`} style={{ borderColor: '#313846' }}>
                   <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center gap-2">
                       <Icon name="IcStar" size={18} fill="#D6B654" />
@@ -238,7 +259,7 @@ const ProfileScreen = () => {
                     </View>
                     <Text className="captionSB text-gray-400 ml-2">{item.createdAt?.slice(0,10) ?? ''}</Text>
                   </View>
-                  <Text className="body1 text-white mt-4" numberOfLines={2}>{item.content}</Text>
+                  <Text className="body1 text-white mt-4" style={{ lineHeight: 20 }}>{item.content}</Text>
                 </View>
               )}
               contentContainerStyle={{  paddingTop: 4, paddingBottom: 40 }}
