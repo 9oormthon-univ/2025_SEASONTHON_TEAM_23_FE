@@ -12,7 +12,7 @@ const LetterScreen = () => {
   const navigation = useNavigation<StackNavigationProp<LetterStackParamList>>();
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
-      title: '오늘의 일기',
+      title: '한 마디 편지',
       hasBack: true,
       hasButton: true,
       icon: 'IcNotification',
