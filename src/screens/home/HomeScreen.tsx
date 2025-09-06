@@ -63,12 +63,12 @@ export default function HomeScreen() {
       </View>
 
       {/* 닉네임 & 강아지 이미지 */}
-      <View className="flex-1 items-center mt-14 px-6">
+      <View className="flex-1 items-center mt-8 px-6">
         <Text className="text-[24px] font-extrabold mb-2" numberOfLines={1}>
           <Text className="text-[#FFD86F]">{nickname}</Text>
           <Text className="text-white"> 님,</Text>
         </Text>
-        <Text className="text-white text-[16px] font-medium mb-10">오늘도 편안한 하루보내세요.</Text>
+        <Text className="text-white text-[16px] font-medium">오늘도 편안한 하루보내세요.</Text>
         <Image
           source={require('../../../assets/images/main-dog.png')}
         />
