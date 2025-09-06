@@ -1,4 +1,4 @@
-import { Image, Text, View, TouchableOpacity, FlatList, SafeAreaView, StatusBar, RefreshControl, Alert } from 'react-native';
+import { Image, Text, View, TouchableOpacity, FlatList, SafeAreaView, StatusBar, RefreshControl, Alert, Modal, TextInput, ActivityIndicator } from 'react-native';
 import { useAuth } from '@/provider/AuthProvider';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import { fetchMyLetters } from '@/services/letters';
 import { EMOJIS } from '@/constants/diary/emoji';
 import { emojiKeyFromNumber } from '@/utils/calendar/mood';
 import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
+import { useUpsertNickname } from '@/hooks/mutations/useUpsertNickname';
 import Icon from '@common/Icon';
 import DefaultProfile from '@images/default-profile.png';
 import ProfileDog from '@images/profile-dog.png';
@@ -49,6 +50,35 @@ const ProfileScreen = () => {
   const { data: summary, refetch: refetchSummary, isFetching: isFetchingSummary } = useMyPageSummary(!!user);
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [nicknameModalVisible, setNicknameModalVisible] = useState(false);
+  const [nicknameInput, setNicknameInput] = useState(user?.nickname ?? '');
+  const { mutate: saveNickname, isPending: isSavingNickname } = useUpsertNickname();
+
+  useEffect(() => {
+    // 유저 정보 갱신 시 입력값 초기화
+    setNicknameInput(user?.nickname ?? '');
+  }, [user?.nickname]);
+
+  const openNicknameModal = useCallback(() => {
+    setNicknameInput(user?.nickname ?? '');
+    setNicknameModalVisible(true);
+  }, [user?.nickname]);
+
+  const onConfirmNickname = useCallback(() => {
+    const trimmed = nicknameInput.trim();
+    if (!trimmed) {
+      Alert.alert('닉네임', '닉네임을 입력해주세요.');
+      return;
+    }
+    saveNickname(trimmed, {
+      onSuccess: () => {
+        setNicknameModalVisible(false);
+      },
+      onError: () => {
+        Alert.alert('닉네임', '닉네임을 저장하지 못했어요. 다시 시도해주세요.');
+      },
+    });
+  }, [nicknameInput, saveNickname]);
   const handleLogout = useCallback(async () => {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
@@ -108,9 +138,14 @@ const ProfileScreen = () => {
         <View className="flex-1">
           <View className="flex-row items-center justify-between">
             <Text className="subHeading1B text-white" numberOfLines={1}>{user?.nickname ?? '익명'}</Text>
-            <TouchableOpacity hitSlop={8} className="ml-2" onPress={confirmLogout} disabled={isLoggingOut}>
-              <Text className="captionSB underline text-gray-300">{isLoggingOut ? '처리중...' : '로그아웃'}</Text>
-            </TouchableOpacity>
+            <View className="flex-row items-center">
+              <TouchableOpacity hitSlop={8} className="ml-2" onPress={openNicknameModal} disabled={isSavingNickname}>
+                <Text className="captionSB underline text-gray-300">닉네임 수정</Text>
+              </TouchableOpacity>
+              <TouchableOpacity hitSlop={8} className="ml-3" onPress={confirmLogout} disabled={isLoggingOut}>
+                <Text className="captionSB underline text-gray-300">{isLoggingOut ? '처리중...' : '로그아웃'}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           <View className="flex-row mt-4 gap-5">
             <View className="flex-row items-center gap-1">
@@ -213,6 +248,44 @@ const ProfileScreen = () => {
           )
         )}
       </View>
+      {/* 닉네임 수정 모달 */}
+      <Modal
+        visible={nicknameModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => !isSavingNickname && setNicknameModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/60 items-center justify-center px-8">
+          <View className="w-full rounded-2xl bg-[#1F2A3C] p-6">
+            <Text className="subHeading2B text-white mb-4">닉네임 {user?.nickname ? '수정' : '설정'}</Text>
+            <TextInput
+              value={nicknameInput}
+              onChangeText={setNicknameInput}
+              placeholder="닉네임을 입력하세요"
+              placeholderTextColor="#7A8699"
+              maxLength={20}
+              autoFocus
+              className="text-white body1 bg-[#273246] rounded-lg px-4 py-3"
+            />
+            <Text className="caption text-gray-400 mt-2">최대 20자 • 공백 양끝 자동 제거</Text>
+            <View className="flex-row justify-end mt-6 gap-4">
+              <TouchableOpacity disabled={isSavingNickname} onPress={() => setNicknameModalVisible(false)}>
+                <Text className="captionSB underline text-gray-300">취소</Text>
+              </TouchableOpacity>
+              <TouchableOpacity disabled={isSavingNickname} onPress={onConfirmNickname}>
+                {isSavingNickname ? (
+                  <View className="flex-row items-center gap-2">
+                    <ActivityIndicator size="small" color="#F3DE77" />
+                    <Text className="captionSB underline text-gray-300">저장중...</Text>
+                  </View>
+                ) : (
+                  <Text className="captionSB underline text-[#F3DE77]">확인</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
