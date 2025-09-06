@@ -13,13 +13,14 @@ import {
 import { Dimensions, PixelRatio } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RootStackParamList } from 'src/types/navigation';
+import type { LetterStackParamList } from 'src/types/navigation';
 // AsyncStorage removed: not used in this screen
 import * as ImagePicker from 'expo-image-picker';
 import { fetchLetterById, createLetter, updateLetter } from '@/services/letters';
 import { formatKoreanDate } from '@/utils/formatDate';
 import Icon from '@common/Icon';
 import { useAuth } from '@/provider/AuthProvider';
+import { setHeaderExtras } from '@/types/Header';
 
 // local user id will be fetched from local mock server (/users)
 // do not hardcode — fetch at runtime so tests/dev can change db.json
@@ -31,7 +32,7 @@ const LetterWriteScreen = () => {
   const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const { user } = useAuth();
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<StackNavigationProp<LetterStackParamList>>();
   const route = useRoute<any>();
   const editingId = route?.params?.id ?? null;
 
@@ -105,7 +106,7 @@ const LetterWriteScreen = () => {
       }
 
       Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
-        { text: '확인', onPress: () => navigation.navigate('Tabs', { screen: 'Letter' } as any) },
+        { text: '확인', onPress: () => navigation.navigate('LetterScreen') },
       ]);
       setLetter('');
       setImageUri(null);
@@ -116,26 +117,14 @@ const LetterWriteScreen = () => {
 
   // 헤더 구성 (완료 버튼)
   useLayoutEffect(() => {
-    navigation.setOptions({
+    setHeaderExtras(navigation, {
       title: editingId ? '한 마디 편지 수정' : '한 마디 편지 쓰기',
-      headerStyle: { backgroundColor: '#121826' },
-      headerTintColor: '#FFFFFF',
-      headerRight: () => (
-        <Pressable
-          onPress={handleSave}
-          disabled={!letter.trim()}
-          style={{
-            backgroundColor: !letter.trim() ? '#E6D08F' : '#FFD86F',
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            borderRadius: 12,
-          }}
-        >
-          <Text style={{ fontWeight: '600', color: '#121826', fontSize: 14 }}>완료</Text>
-        </Pressable>
-      ),
+      disabled: !letter.trim(),
+      hasBack: true,
+      hasButton: true,
+      onPress: handleSave,
     });
-  }, [navigation, handleSave, letter, editingId]);
+  }, [navigation, handleSave]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -155,7 +144,9 @@ const LetterWriteScreen = () => {
       >
         <View style={{ alignItems: 'center' }}>
           <Icon name="IcBigflower" size={56} color="#F2F2F2" />
-          <Text style={{ marginTop: 16, color: '#AAAAAA', fontSize: 12 }}>{formatKoreanDate(new Date().toISOString())}</Text>
+          <Text style={{ marginTop: 16, color: '#AAAAAA', fontSize: 12 }}>
+            {formatKoreanDate(new Date().toISOString())}
+          </Text>
           <Text
             style={{
               marginTop: 24,
@@ -196,7 +187,9 @@ const LetterWriteScreen = () => {
             onChangeText={setLetter}
             textAlignVertical="top"
           />
-          <Text style={{ position: 'absolute', right: 20, bottom: 20, fontSize: 12, color: '#AAAAAA' }}>{`${letter.length} / 최대 100자`}</Text>
+          <Text
+            style={{ position: 'absolute', right: 20, bottom: 20, fontSize: 12, color: '#AAAAAA' }}
+          >{`${letter.length} / 최대 100자`}</Text>
         </View>
 
         {/* 사진 첨부 버튼 & 프리뷰 */}
@@ -228,7 +221,10 @@ const LetterWriteScreen = () => {
               const ratio = PixelRatio.get();
               const wDp = naturalSize ? naturalSize.w / ratio : maxWidth;
               const renderWidth = Math.min(wDp, maxWidth);
-              const renderHeight = naturalSize && naturalSize.w > 0 ? (naturalSize.h / naturalSize.w) * renderWidth : 200;
+              const renderHeight =
+                naturalSize && naturalSize.w > 0
+                  ? (naturalSize.h / naturalSize.w) * renderWidth
+                  : 200;
               return (
                 <Image
                   source={{ uri: imageUri }}
@@ -242,7 +238,16 @@ const LetterWriteScreen = () => {
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               style={{ position: 'absolute', top: 6, right: 6 }}
             >
-              <View style={{ height: 28, width: 28, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' }}>
+              <View
+                style={{
+                  height: 28,
+                  width: 28,
+                  borderRadius: 14,
+                  backgroundColor: 'rgba(0,0,0,0.55)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
                 <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>×</Text>
               </View>
             </TouchableOpacity>
@@ -276,8 +281,12 @@ const LetterWriteScreen = () => {
           }}
         >
           <View style={{ flexShrink: 1 }}>
-            <Text style={{ color: '#F2F2F2', fontSize: 13, fontWeight: '600' }}>이 글 전체공개 하면</Text>
-            <Text style={{ color: '#F2F2F2', fontSize: 13, marginTop: 4 }}>헌화를 받을 수 있어요.</Text>
+            <Text style={{ color: '#F2F2F2', fontSize: 13, fontWeight: '600' }}>
+              이 글 전체공개 하면
+            </Text>
+            <Text style={{ color: '#F2F2F2', fontSize: 13, marginTop: 4 }}>
+              헌화를 받을 수 있어요.
+            </Text>
           </View>
           <Switch value={isPublic} onValueChange={setIsPublic} />
         </View>
