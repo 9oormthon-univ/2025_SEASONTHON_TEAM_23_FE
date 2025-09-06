@@ -7,11 +7,10 @@ import { EMOJIS } from '@/constants/diary/emoji';
 import { emojiKeyFromNumber } from '@/utils/calendar/mood';
 import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
 import Icon from '@common/Icon';
+import DefaultProfile from '@images/default-profile.png';
 
 const ProfileScreen = () => {
   const { user } = useAuth();
-
-  const profileImage = user?.profileImageUrl;
 
   // 탭 상태: 'diary' | 'letter'
   const [tab, setTab] = useState<'diary' | 'letter'>('diary');
@@ -61,13 +60,9 @@ const ProfileScreen = () => {
 
       {/* 프로필 카드 */}
       <View className="mx-6 rounded-2xl bg-[#1F2A3C] px-6 py-6 flex-row items-center gap-5">
-        {profileImage ? (
-          <Image source={{ uri: profileImage }} className="w-20 h-20 rounded-full bg-gray-300" />
-        ) : (
-          <View className="w-20 h-20 rounded-full bg-gray-500/30 items-center justify-center">
-            <Icon name="IcProfile" size={36} fill="#FFFFFF" />
+          <View>
+            <Image source={DefaultProfile} className="w-20 h-20" />
           </View>
-        )}
         <View className="flex-1">
           <View className="flex-row items-center justify-between">
             <Text className="subHeading1B text-white" numberOfLines={1}>{user?.nickname ?? '익명'}</Text>
@@ -77,17 +72,17 @@ const ProfileScreen = () => {
           </View>
           <View className="flex-row mt-4 gap-5">
             <View className="flex-row items-center gap-1">
-              <Icon name="IcCalendar" size={16} />
+              <Icon name="IcCalendar" size={20} />
               <Text className="captionB text-[#F3DE77]">{summary?.dailyLogCount ?? 0}</Text>
               <Text className="captionSB text-gray-300 ml-0.5">일기</Text>
             </View>
             <View className="flex-row items-center gap-1">
-              <Icon name="IcLetter" size={16} />
+              <Icon name="IcLetter" size={20} />
               <Text className="captionB text-[#F3DE77]">{summary?.letterCount ?? 0}</Text>
               <Text className="captionSB text-gray-300 ml-0.5">편지</Text>
             </View>
             <View className="flex-row items-center gap-1">
-              <Icon name="IcFlower" size={16}/>
+              <Icon name="IcFlower" size={20}/>
               <Text className="captionB text-[#F3DE77]">{summary?.tributeCount ?? 0}</Text>
               <Text className="captionSB text-gray-300 ml-0.5">헌화</Text>
             </View>
