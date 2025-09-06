@@ -61,6 +61,7 @@ const DiaryEditScreen = () => {
       hasBack: true,
       hasButton: true,
       onPress: submit,
+      disabled: !value.trim(),
     });
   }, [navigation, submit]);
 

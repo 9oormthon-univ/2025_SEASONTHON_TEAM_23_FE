@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchDailyTopic } from '@/services/dailyTopic';
-import { todayISO } from '@/utils/calendar/date';
+import { localISODate, todayISO } from '@/utils/calendar/date';
 
 export const useDailyTopic = () => {
-  const today = todayISO();
+  const today = localISODate(todayISO());
 
   return useQuery({
     queryKey: ['daily-topic', today],

@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useCreateDailyLog } from '@/hooks/mutations/useCreateDailyLog';
 import { emojiKeyToMood } from '@/utils/calendar/mood';
 import type { EmojiKey } from '@/constants/diary/emoji';
-import { todayISO } from '@/utils/calendar/date';
+import { localISODate, todayISO } from '@/utils/calendar/date';
 
 type UseDiarySubmitOptions = {
   userId?: number;
@@ -39,7 +39,7 @@ export const useDiarySubmit = ({
       }
 
       const res = await mutateAsync({
-        logDate: todayISO(),
+        logDate: localISODate(todayISO()),
         mood: emojiKeyToMood(selectedEmoji),
         content: trimmed,
         needAiReflection,

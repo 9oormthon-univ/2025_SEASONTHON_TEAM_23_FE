@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { DateData } from 'react-native-calendars';
-import { addMonthsISO, monthStartISO, todayISO } from '@/utils/calendar/date';
+import { addMonthsISO, localISODate, monthStartISO, todayISO } from '@/utils/calendar/date';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
 
 type Params = {
@@ -20,7 +20,7 @@ export const useEmotionCalendar = ({ userId, onSelectDate, initialMonthISO }: Pa
   const monthLabel = useMemo(() => current, [current]);
 
   // 오늘 ISO
-  const today = todayISO();
+  const today = localISODate(todayISO());
 
   // 달 이동
   const goPrev = useCallback(() => {

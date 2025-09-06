@@ -10,6 +10,7 @@ export type HeaderProps = {
   title?: string;
   onBack?: () => void;
   onPress?: () => void;
+  disabled?: boolean;
 };
 
 export const setHeaderExtras = (navigation: any, extras: HeaderProps) => {
