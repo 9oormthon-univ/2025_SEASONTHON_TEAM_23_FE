@@ -59,10 +59,10 @@ const DiaryByDateScreen = () => {
     }
   };
 
-  if (isLoading || deleting) return <Loader />;
+  if (isLoading || deleting) return <Loader isPageLoader />;
   if (isError || !data)
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50 p-7">
+      <View className="flex-1 items-center justify-center bg-bg p-7">
         <Text className="body1 pb-4 text-error">{`일기 정보를 불러오지 못했어요.`}</Text>
         <View className="overflow-hidden rounded-[20px]">
           <Pressable
