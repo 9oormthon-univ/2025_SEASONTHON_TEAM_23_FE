@@ -297,12 +297,12 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           const isMine = ownerId != null && (ownerId === user?.userId || ownerId === (user as any)?.id);
           const displayName = author?.nickname ?? (isMine ? meName : null) ?? '작성자 정보 없음';
           return (
-            <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${displayName}님의 추억이에요.`}</Text>
+            <Text style={{ fontSize: 12, color: '#AAAAAA', marginBottom: 6 }}>{`${displayName}님의 추억이에요.`}</Text>
           );
         })()}
               </View>
               <View className="w-full rounded-[20px] bg-white py-5">
-                <View className="p-5 pb-0">
+                <View className="p-5 pb-0 color-[#F2F2F2]">
                   {letter.photoUrl ? (
                     <Image
                       source={{ uri: String(letter.photoUrl) }}
