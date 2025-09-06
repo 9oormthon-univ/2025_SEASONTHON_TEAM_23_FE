@@ -171,7 +171,7 @@ const ProfileScreen = () => {
                   <Text className="body1 text-white mt-4" numberOfLines={2}>{item.content}</Text>
                 </View>
               )}
-              contentContainerStyle={{ paddingBottom: 40 }}
+              contentContainerStyle={{  paddingTop: 4, paddingBottom: 40 }}
               ListEmptyComponent={<EmptyState message="편지로 추억을 나누어 봐요." />}
             />
           )
