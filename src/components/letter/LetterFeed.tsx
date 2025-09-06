@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, Pressable } from 'react-native';
+import { View, Text, FlatList, Pressable, Image } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { LetterStackParamList } from '@/types/navigation';
@@ -95,19 +95,46 @@ const LetterFeed: React.FC = () => {
             const mine = user && (authorId === user?.userId || authorId === (user as any)?.id);
             const display = authorName ?? (mine ? user?.nickname ?? null : null) ?? '작성자 정보 없음';
             const timeText = item.createdAt ? formatRelativeTime(item.createdAt) : '';
+            // 사진 후보 필드 추출 (다양한 API 형태 대응)
+            const photoUri =
+              item.photoUrl ||
+              item.photo_url ||
+              item.imageUrl ||
+              item.image_url ||
+              item.photo ||
+              null;
             return (
               <Pressable
                 className="rounded-[20px] bg-bg-light px-6 py-4"
                 onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
               >
-                <Text className="body1 !leading-6" style={{ color: '#F2F2F2' }}>{item.content}</Text>
+                {photoUri ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
+                    <Image
+                      source={{ uri: String(photoUri) }}
+                      style={{ width: 84, height: 84, borderRadius: 12, backgroundColor: '#1F2A3C' }}
+                      resizeMode="cover"
+                    />
+                    <Text
+                      className="body1 !leading-6"
+                      style={{ color: '#F2F2F2', flex: 1 }}
+                      numberOfLines={6}
+                    >
+                      {item.content}
+                    </Text>
+                  </View>
+                ) : (
+                  <Text className="body1 !leading-6" style={{ color: '#F2F2F2' }}>
+                    {item.content}
+                  </Text>
+                )}
                 <View className="mt-3 flex-row items-center justify-between">
                   <Text style={{ color: '#F2F2F2', fontSize: 12 }}>
                     {display}
                     {timeText ? ` · ${timeText}` : ''}
                   </Text>
                   <View className="flex-row items-center gap-1">
-                    <Icon name="IcFlower" size={20} color="#F2F2F2" />
+                    <Icon name="IcStar" size={20} color="#F2F2F2" />
                     <Text style={{ color: '#F2F2F2', fontSize: 14, fontWeight: '300' }}>{item.tributeCount ?? 0}</Text>
                   </View>
                 </View>
