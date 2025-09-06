@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Pressable, ScrollView, Switch } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { useLayoutEffect, useRef, useState } from 'react';
 import Icon from '@common/Icon';
 import { ACTIVE_UI, type EmojiKey, EMOJIS } from '@/constants/diary/emoji';
@@ -10,7 +10,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { DiaryStackParamList } from '@/types/navigation';
 import { setHeaderExtras } from '@/types/Header';
 import Loader from '@common/Loader';
-import { todayISO, withKoreanDOW } from '@/utils/calendar/date';
+import { localISODate, todayISO, withKoreanDOW } from '@/utils/calendar/date';
+import CustomSwitch from '@common/CustomSwitch';
 
 const MAX = 500;
 
@@ -44,22 +45,22 @@ const DiaryWriteScreen = () => {
   }, [navigation, submit]);
   const inputRef = useRef<TextInput>(null);
 
-  const today = withKoreanDOW(todayISO());
+  const today = withKoreanDOW(localISODate(todayISO()));
 
   return (
-    <ScrollView>
+    <ScrollView className="bg-bg pt-10">
       {isSubmitting && <Loader />}
-      <View className="gap-7 bg-gray-50 px-7 pb-[72px] pt-10">
+      <View className="gap-7 px-7 pb-[72px]">
         <View className="items-center gap-4">
           <View className="items-center gap-6">
-            <Text className="body2 text-[#343434]">{today}</Text>
-            <Text className="subHeading3 text-center text-gray-900">{topic}</Text>
+            <Text className="body2 text-gray-600">{today}</Text>
+            <Text className="subHeading3 text-center text-white">{topic}</Text>
           </View>
           <TextArea ref={inputRef} value={value} onChangeText={setValue} maxLength={MAX} />
         </View>
         <View className="items-center gap-4">
-          <Text className="subHeading3 text-gray-900">{`오늘 어떤 하루를 보내셨나요?`}</Text>
-          <View className="w-full flex-row justify-center gap-3 rounded-[20px] bg-white px-3 py-5">
+          <Text className="subHeading3 text-white">{`오늘 어떤 하루를 보내셨나요?`}</Text>
+          <View className="w-full flex-row justify-center gap-3 rounded-[20px] border-2 border-bg-light px-3 py-5">
             {(Object.keys(EMOJIS) as EmojiKey[]).map((key) => {
               const { icon, labelKo } = EMOJIS[key];
               const selected = selectedEmoji === key;
@@ -76,23 +77,18 @@ const DiaryWriteScreen = () => {
                     `}
                 >
                   <Icon name={icon as any} size={27} color={ui.icon} />
-                  <Text className="captionSB mt-2 text-center text-gray-900">{labelKo}</Text>
+                  <Text className="captionSB mt-2 text-center text-white">{labelKo}</Text>
                 </Pressable>
               );
             })}
           </View>
         </View>
-        <View className="flex-row justify-between rounded-[20px] bg-white px-8 py-5">
+        <View className="flex-row justify-between rounded-[20px] bg-bg-light px-8 py-5">
           <View>
-            <Text className="captionSB text-gray-900">{`이 글에 대한`}</Text>
-            <Text className="body1 !leading-6 text-gray-900">{`공감문을 받을 수 있어요.`}</Text>
+            <Text className="captionSB text-white">{`이 글에 대한`}</Text>
+            <Text className="body1 !leading-6 text-white">{`공감문을 받을 수 있어요.`}</Text>
           </View>
-          <Switch
-            value={needAiReflection}
-            onValueChange={setNeedAiReflection}
-            trackColor={{ false: '#CECECE', true: '#7EB658' }}
-            thumbColor="#FFFFFF"
-          />
+          <CustomSwitch value={needAiReflection} onValueChange={setNeedAiReflection} />
         </View>
       </View>
     </ScrollView>
