@@ -85,7 +85,7 @@ const LetterFeed: React.FC = () => {
           <Text className="body1 pb-4 text-error">{error}</Text>
         </View>
       ) : (
-        <FlatList
+  <FlatList
           data={letters}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={({ item }) => (
@@ -122,8 +122,10 @@ const LetterFeed: React.FC = () => {
               </Pressable>
             </View>
           )}
+          ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+          contentContainerStyle={{ paddingTop: 12, paddingBottom: 32 }}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
-          style={{ marginTop: 16 }}
+          // style 제거: 간격은 contentContainerStyle로 처리
         />
       )}
     </View>
