@@ -26,7 +26,7 @@ const EmotionCalendar = ({ userId, onSelectDate, initialMonthISO }: EmotionCalen
   const calKey = `cal-${current.slice(0, 7)}`;
 
   return (
-    <View className="bg-white p-7">
+    <View className="rounded-[20px] border-2 border-[#2D3342] bg-transparent px-4 py-[14px]">
       <CustomCalendarHeader month={monthLabel} onPrev={goPrev} onNext={goNext} />
       <Calendar
         key={calKey}
@@ -36,6 +36,9 @@ const EmotionCalendar = ({ userId, onSelectDate, initialMonthISO }: EmotionCalen
         hideDayNames
         hideExtraDays
         renderHeader={() => null}
+        theme={{
+          calendarBackground: 'transparent',
+        }}
         onDayPress={onDayPress}
         dayComponent={({ date }) => {
           const iso = date?.dateString ?? '';

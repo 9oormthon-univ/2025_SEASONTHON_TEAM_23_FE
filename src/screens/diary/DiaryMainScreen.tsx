@@ -12,6 +12,7 @@ import { keepAllKorean } from '@/utils/keepAll';
 import { useCallback, useLayoutEffect } from 'react';
 import { setHeaderExtras } from '@/types/Header';
 import { useQueryClient } from '@tanstack/react-query';
+import { localISODate, todayISO } from '@/utils/calendar/date';
 
 const DiaryMainScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
@@ -49,15 +50,17 @@ const DiaryMainScreen = () => {
     }
   };
 
+  const todayLog = byDate[localISODate(todayISO())];
+
   return (
-    <ScrollView>
-      <View className="gap-7 bg-gray-50 pb-6 pt-8">
-        <View className="relative mx-7 items-center gap-5 overflow-hidden rounded-[20px] bg-white px-6 py-5">
+    <ScrollView className="bg-bg">
+      <View className="gap-7 px-7 pb-11 pt-8">
+        <View className="relative items-center gap-5 overflow-hidden rounded-[20px] bg-bg-light px-6 py-5">
           {topicIsLoading && <Loader />}
           <View className="gap-4">
-            <View className="items-center">
-              <Icon name="IcPaw" size={24} fill="#343434" />
-              <Text className="body2 text-[#343434]">{`오늘의 질문`}</Text>
+            <View className="items-center gap-[2px]">
+              <Icon name="IcPaw" size={24} fill="white" />
+              <Text className="body2 text-white">{`오늘의 질문`}</Text>
             </View>
             {topicIsLoading ? null : isError ? (
               <View className="overflow-hidden rounded-xl">
@@ -70,18 +73,23 @@ const DiaryMainScreen = () => {
                 </Pressable>
               </View>
             ) : (
-              <Text className="subHeading3 text-center text-gray-900">
-                {keepAllKorean(topicText)}
-              </Text>
+              <Text className="subHeading3 text-center text-white">{keepAllKorean(topicText)}</Text>
             )}
           </View>
-          <Pressable
-            onPress={() => navigation.navigate('DiaryWrite', { topic: topicText })}
-            className="flex-row items-center gap-1 rounded-xl bg-primary px-9 py-2"
-          >
-            <Icon name="IcEdit" size={24} fill="white" />
-            <Text className="body1 leading-[1.6] text-white">{`일기 쓰러가기`}</Text>
-          </Pressable>
+          <View className="overflow-hidden rounded-xl">
+            <Pressable
+              onPress={() => {
+                todayLog
+                  ? navigation.navigate('DiaryByDate', { logId: todayLog.id })
+                  : navigation.navigate('DiaryWrite', { topic: topicText });
+              }}
+              android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
+              className="flex-row items-center gap-1 bg-yellow-200 px-9 py-2"
+            >
+              <Icon name="IcEdit" size={24} fill="#121826" />
+              <Text className="body1 leading-[1.6] text-bg">{`일기 쓰러가기`}</Text>
+            </Pressable>
+          </View>
         </View>
         <View>
           {logIsLoading && <Loader />}

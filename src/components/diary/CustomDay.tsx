@@ -13,8 +13,16 @@ const CustomDay = ({ date, isToday, moodColor, disabled, onPress }: CustomDayPro
   if (!date) return <View style={{ width: 24, height: 24 }} />;
 
   const dow = new Date(date.dateString).getDay();
-  const bg = isToday ? '#131313' : (moodColor ?? 'transparent');
-  const textColor = isToday ? 'white' : dow === 0 ? '#B13E3E' : dow === 6 ? '#4492B9' : '#131313';
+  const bg = isToday ? 'white' : (moodColor ?? 'transparent');
+  const textColor = isToday
+    ? 'black'
+    : dow === 0
+      ? '#D63D3D'
+      : dow === 6
+        ? '#64BEEB'
+        : moodColor
+          ? 'black'
+          : 'white';
 
   const handlePress = () => {
     if (!disabled && onPress) onPress(date.dateString);
