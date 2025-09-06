@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, Image, Pressable } from 'react-native';
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -13,6 +13,7 @@ import {
 } from '@/services/letters';
 import Loader from '@common/Loader';
 import Icon from '@common/Icon';
+import { setHeaderExtras } from '@/types/Header';
 import DropDownMenu from '@/components/common/DropDownMenu';
 import ConfirmDeleteModal from '@/components/common/ConfirmDeleteModal';
 
@@ -71,7 +72,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [hasMyTribute, setHasMyTribute] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
-  // const openMenu = useCallback(() => setMenuVisible(true), []); // (사용 안 함)
+  const openMenu = useCallback(() => setMenuVisible(true), []);
   const closeMenu = useCallback(() => setMenuVisible(false), []);
   const { user } = useAuth();
 
@@ -197,6 +198,22 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     : null;
   const isOwner = Boolean(currentUserId && ownerId && String(ownerId) === String(currentUserId));
 
+  useLayoutEffect(() => {
+    setHeaderExtras(navigation, {
+      title: '한 마디 편지',
+      hasBack: true,
+      ...(isOwner
+        ? {
+            hasButton: true,
+            icon: 'IcVerticalDots',
+            iconSize: 38,
+            iconColor: 'white',
+            onPress: openMenu,
+          }
+        : { hasButton: false }),
+    });
+  }, [navigation, isOwner, openMenu]);
+
   const handleEdit = () => {
     if (!letter) return;
     // cast to any because LetterWriteScreen params may be undefined in RootStackParamList
@@ -260,11 +277,14 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           {/* 상단 꽃 아이콘 */}
           <Icon name="IcBigflower" size={64} />
           {/* 날짜 */}
-          <Text className="mt-6 body2" style={{ color: '#AAAAAA' }}>{formatKoreanDate(letter.createdAt)}</Text>
+          <Text className="body2 mt-6" style={{ color: '#AAAAAA' }}>
+            {formatKoreanDate(letter.createdAt)}
+          </Text>
           {/* 제목 (닉네임 문구) */}
           {(() => {
             const meName = user?.nickname ?? null;
-            const isMine = ownerId != null && (ownerId === user?.userId || ownerId === (user as any)?.id);
+            const isMine =
+              ownerId != null && (ownerId === user?.userId || ownerId === (user as any)?.id);
             const displayName = author?.nickname ?? (isMine ? meName : null) ?? '작성자 정보 없음';
             return (
               <Text
@@ -276,7 +296,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             );
           })()}
           {/* 내용 카드 */}
-          <View className="mt-10 w-full rounded-2xl bg-[#121826] border border-white/10 p-6">
+          <View className="mt-10 w-full rounded-2xl border border-white/10 bg-[#121826] p-6">
             {letter.photoUrl ? (
               <Image
                 source={{ uri: String(letter.photoUrl) }}
@@ -284,14 +304,18 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 resizeMode="cover"
               />
             ) : null}
-            <Text className="body1 leading-6" style={{ color: '#F2F2F2' }}>{letter.content}</Text>
+            <Text className="body1 leading-6" style={{ color: '#F2F2F2' }}>
+              {letter.content}
+            </Text>
           </View>
           {/* 헌화 카운트 */}
           <View className="mt-14 items-center">
             <View className="flex-row items-center gap-2">
               <Icon name="IcFlower" size={20} color="#F2F2F2" />
               {letter.tributeCount === 0 ? (
-                <Text className="body2" style={{ color: '#F2F2F2' }}>처음으로 헌화를 해주세요.</Text>
+                <Text className="body2" style={{ color: '#F2F2F2' }}>
+                  처음으로 헌화를 해주세요.
+                </Text>
               ) : (
                 <Text className="body2" style={{ color: '#F2F2F2' }}>
                   <Text style={{ color: '#F2F2F2', fontWeight: '600' }}>{letter.tributeCount}</Text>
@@ -306,7 +330,10 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               disabled={isTributing}
               onPress={handleTribute}
               className="mt-8 w-full rounded-2xl py-4"
-              style={{ backgroundColor: hasMyTribute ? '#E6D08F' : '#FFD86F', opacity: isTributing ? 0.7 : 1 }}
+              style={{
+                backgroundColor: hasMyTribute ? '#E6D08F' : '#FFD86F',
+                opacity: isTributing ? 0.7 : 1,
+              }}
             >
               <Text className="subHeading2B text-center text-black">
                 {hasMyTribute ? '취소하기' : '헌화하기'}
@@ -314,7 +341,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             </Pressable>
           )}
         </View>
-  </ScrollView>
+      </ScrollView>
       {isOwner && (
         <>
           <DropDownMenu

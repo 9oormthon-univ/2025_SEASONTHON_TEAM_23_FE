@@ -39,7 +39,12 @@
       ]
     },
     "plugins": [
-      ["react-native-bootsplash", { "assetsDir": "assets/bootsplash" }],
+      [
+        "react-native-bootsplash",
+        {
+          "assetsDir": "assets/bootsplash"
+        }
+      ],
       [
         "expo-build-properties",
         {
@@ -59,6 +64,11 @@
     ],
     "web": {
       "favicon": "./assets/images/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a2951c35-3011-49d9-a5c1-a4b9d04d8ae6"
+      }
     }
   }
 }
