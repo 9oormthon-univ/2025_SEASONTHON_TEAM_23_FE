@@ -1,12 +1,23 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { useAuth } from '@/provider/AuthProvider';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
+import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
+import { useFocusEffect } from '@react-navigation/native';
 
 const MyDailyLogsScreen = () => {
   const { user } = useAuth();
   const userId = user?.userId;
   const { data, isLoading, isError, refetch } = useDailyLogs(userId);
+  // 마이페이지 요약 refetch 용 (결과는 여기서 사용하지 않고 캐시만 최신화)
+  const { refetch: refetchMyPageSummary } = useMyPageSummary(!!user);
+
+  // 화면 포커스될 때마다 요약 재요청
+  useFocusEffect(
+    useCallback(() => {
+      refetchMyPageSummary();
+    }, [refetchMyPageSummary])
+  );
 
   const logs = useMemo(() => data ?? [], [data]);
 

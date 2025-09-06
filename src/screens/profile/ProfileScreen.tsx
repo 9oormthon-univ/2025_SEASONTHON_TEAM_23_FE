@@ -1,6 +1,7 @@
-import { Image, Text, View, TouchableOpacity, FlatList, SafeAreaView, StatusBar } from 'react-native';
+import { Image, Text, View, TouchableOpacity, FlatList, SafeAreaView, StatusBar, RefreshControl } from 'react-native';
 import { useAuth } from '@/provider/AuthProvider';
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
 import { fetchMyLetters } from '@/services/letters';
 import { EMOJIS } from '@/constants/diary/emoji';
@@ -45,7 +46,30 @@ const ProfileScreen = () => {
     }
   }, [tab, loadLetters]);
 
-  const { data: summary } = useMyPageSummary(!!user);
+  const { data: summary, refetch: refetchSummary, isFetching: isFetchingSummary } = useMyPageSummary(!!user);
+
+  // 스크린 포커스 시 최신 데이터 갱신
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        refetchSummary();
+        refetchDailyLogs();
+        if (tab === 'letter') {
+          loadLetters();
+        }
+      }
+    }, [user, tab, refetchSummary, refetchDailyLogs, loadLetters])
+  );
+
+  // Pull To Refresh 처리
+  const onRefresh = useCallback(() => {
+    refetchSummary();
+    refetchDailyLogs();
+    if (tab === 'letter') {
+      loadLetters();
+    }
+  }, [refetchSummary, refetchDailyLogs, loadLetters, tab]);
+  const refreshing = isFetchingSummary || isDailyLogsLoading || (tab === 'letter' && lettersLoading);
 
   const EmptyState = ({ message }: { message: string }) => (
     <View className="flex-1 items-center justify-start mt-16 px-10">
@@ -147,6 +171,7 @@ const ProfileScreen = () => {
                 );
               }}
               contentContainerStyle={{ paddingTop: 4, paddingBottom: 40 }}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
               ListEmptyComponent={<EmptyState message="오늘의 이야기를 들려주세요." />}
             />
           )
@@ -172,6 +197,7 @@ const ProfileScreen = () => {
                 </View>
               )}
               contentContainerStyle={{  paddingTop: 4, paddingBottom: 40 }}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
               ListEmptyComponent={<EmptyState message="편지로 추억을 나누어 봐요." />}
             />
           )
