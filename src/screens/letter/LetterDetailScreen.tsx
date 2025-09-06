@@ -219,35 +219,29 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     navigation.navigate('LetterWriteScreen' as any, { id: String(letter.id) });
   };
 
-  const handleDelete = () => {
-    if (!letter) return;
-    Alert.alert('편지 삭제', '정말로 이 편지를 삭제하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            // call API to delete the letter, support multiple id fields from original
-            const rawId =
-              letter.id ??
-              letter._raw?.id ??
-              letter._raw?.letterId ??
-              letter._raw?.letter_id ??
-              null;
-            if (!rawId) throw new Error('invalid_letter_id');
-            await deleteLetter(rawId);
+  const openDeleteConfirm = useCallback(() => {
+    setMenuVisible(false);
+    setConfirmVisible(true);
+  }, []);
 
-            Alert.alert('삭제 완료', '편지가 삭제되었습니다.', [
-              { text: '확인', onPress: () => navigation.goBack() },
-            ]);
-          } catch (e) {
-            Alert.alert('삭제 실패', '편지를 삭제하는 중 오류가 발생했습니다.');
-          }
-        },
-      },
-    ]);
-  };
+  const handleDelete = useCallback(async () => {
+    if (!letter) return;
+    try {
+      const rawId =
+        letter.id ??
+        letter._raw?.id ??
+        letter._raw?.letterId ??
+        letter._raw?.letter_id ??
+        null;
+      if (!rawId) throw new Error('invalid_letter_id');
+      await deleteLetter(rawId);
+      setConfirmVisible(false);
+      // 성공 시 추가 Alert 없이 바로 이전 화면으로 이동
+      navigation.goBack();
+    } catch (e) {
+      Alert.alert('삭제 실패', '편지를 삭제하는 중 오류가 발생했습니다.');
+    }
+  }, [letter, navigation]);
 
   if (loading) return <Loader />;
   if (error)
@@ -347,10 +341,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             visible={menuVisible}
             onDismiss={closeMenu}
             onEdit={handleEdit}
-            onDelete={() => {
-              setMenuVisible(false);
-              setConfirmVisible(true);
-            }}
+            onDelete={openDeleteConfirm}
           />
           <ConfirmDeleteModal
             visible={confirmVisible}
