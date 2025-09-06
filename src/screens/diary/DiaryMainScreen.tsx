@@ -12,6 +12,7 @@ import { keepAllKorean } from '@/utils/keepAll';
 import { useCallback, useLayoutEffect } from 'react';
 import { setHeaderExtras } from '@/types/Header';
 import { useQueryClient } from '@tanstack/react-query';
+import { localISODate, todayISO } from '@/utils/calendar/date';
 
 const DiaryMainScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
@@ -49,6 +50,8 @@ const DiaryMainScreen = () => {
     }
   };
 
+  const todayLog = byDate[localISODate(todayISO())];
+
   return (
     <ScrollView className="bg-bg">
       <View className="gap-7 px-7 pb-11 pt-8">
@@ -75,7 +78,11 @@ const DiaryMainScreen = () => {
           </View>
           <View className="overflow-hidden rounded-xl">
             <Pressable
-              onPress={() => navigation.navigate('DiaryWrite', { topic: topicText })}
+              onPress={() => {
+                todayLog
+                  ? navigation.navigate('DiaryByDate', { logId: todayLog.id })
+                  : navigation.navigate('DiaryWrite', { topic: topicText });
+              }}
               android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
               className="flex-row items-center gap-1 bg-yellow-200 px-9 py-2"
             >
