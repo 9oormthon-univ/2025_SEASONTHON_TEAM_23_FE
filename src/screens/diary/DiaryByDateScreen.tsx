@@ -37,7 +37,7 @@ const DiaryByDateScreen = () => {
       hasButton: true,
       icon: 'IcVerticalDots',
       iconSize: 38,
-      iconColor: '#313131',
+      iconColor: 'white',
       onPress: openMenu,
     });
   }, [navigation, openMenu]);
@@ -83,29 +83,41 @@ const DiaryByDateScreen = () => {
 
   return (
     <>
-      <ScrollView>
-        <View className="gap-4 bg-gray-50 px-7 pb-[42px] pt-10">
+      <ScrollView className="bg-bg">
+        <View className="gap-4 px-7 pb-[42px] pt-10">
           <View className="items-center gap-4">
             <View className="items-center gap-6">
-              <Text className="body2 text-[#343434]">{date}</Text>
-              <Text className="subHeading3 text-center text-gray-900">
+              <Text className="body2 text-gray-600">{date}</Text>
+              <Text className="subHeading3 text-center text-white">
                 {keepAllKorean(data.topic)}
               </Text>
             </View>
-            <TextArea disabled value={data.content} showCounter={false} onChangeText={() => {}} />
+            <TextArea
+              disabled
+              value={data.content}
+              minHeight={100}
+              showCounter={false}
+              onChangeText={() => {}}
+            />
           </View>
           {data?.aiReflection ? (
-            <View className="items-center gap-2.5 rounded-[20px] bg-[#C0E3A8] p-5">
-              <Icon name="IcFlower" size={24} color="#7EB658" />
-              <Text className="body1 text-center !leading-6 text-gray-900">
+            <View className="items-center gap-2.5 rounded-[20px] bg-bg-light p-5">
+              <Icon name="IcFlowerMini" width={40} height={28} />
+              <Text className="body1 text-center !leading-6 text-white">
                 {keepAllKorean(data.aiReflection)}
               </Text>
             </View>
           ) : null}
-          <View className="flex-row justify-center gap-3 rounded-[20px] bg-white px-6 py-[26px]">
+          <View className="flex-row justify-center gap-3 rounded-[20px] border border-[#2D3342] px-6 py-[26px]">
             <Icon name={moodLabel.icon} size={32} color={moodUI.icon} />
-            <View className={`gap-2 rounded-lg border p-2 ${moodUI.border} ${moodUI.bg}`}>
-              <Text className="body2 text-gray-900">{moodLabel.emotion}</Text>
+            <View
+              className={`gap-2 rounded-lg border p-2 ${moodKey === 'sad' ? 'border-white' : moodKey === 'bad' ? 'border-gray-200' : moodUI.border} ${moodKey === 'sad' ? 'bg-white' : moodKey === 'bad' ? `bg-[#808080]` : moodUI.bg}`}
+            >
+              <Text
+                className={`body2 ${moodKey === 'sad' || moodKey === 'bad' ? 'text-gray-900' : 'text-white'}`}
+              >
+                {moodLabel.emotion}
+              </Text>
             </View>
           </View>
         </View>
