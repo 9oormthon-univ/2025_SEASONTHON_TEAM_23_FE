@@ -17,3 +17,4 @@ export { default as IcWarning } from './ic-warning.svg';
 export { default as IcSmiley } from './ic-smiley.svg';
 export { default as IcSad } from './ic-sad.svg';
 export { default as IcBad } from './ic-bad.svg';
+export { default as IcDefaultImg } from './ic-defaultImg.svg';
