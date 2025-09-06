@@ -7,6 +7,7 @@ import { useAuth } from '@/provider/AuthProvider';
 import OnboardingScreen from '@/screens/onboarding/OnboardingScreen';
 import MyDailyLogsScreen from '@/screens/profile/MyDailyLogsScreen';
 import MyLettersScreen from '@/screens/profile/MyLettersScreen';
+import NotificationListScreen from '@/screens/notification/NotificationListScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -28,6 +29,7 @@ const RootNavigator = () => {
               component={MyLettersScreen}
               options={{ title: '내가 쓴 편지' }}
             />
+            <Stack.Screen name="Notification" component={NotificationListScreen} />
           </>
         ) : (
           <Stack.Screen
