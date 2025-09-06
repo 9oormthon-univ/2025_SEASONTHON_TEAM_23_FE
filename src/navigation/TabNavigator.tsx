@@ -17,38 +17,33 @@ const ICONS: IconMap = {
   Profile: { icon: 'IcProfile', name: '프로필' },
 } as const;
 
-const TABBAR_BG: Record<keyof TabsParamList, 'white' | 'gray'> = {
-  Home: 'gray',
-  Diary: 'white',
-  Letter: 'white',
-  Profile: 'gray',
-};
+// 디자인 명세: 공통 배경 #121826, 활성 아이콘/라벨 #FFD86F, 비활성 #AAAAAA
+const TAB_BG = '#121826';
+const ACTIVE_COLOR = '#FFD86F';
+const INACTIVE_COLOR = '#AAAAAA';
 
 const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => {
-        const { icon, name } = ICONS[route.name as keyof TabsParamList];
-        const tabBarBg =
-          TABBAR_BG[route.name as keyof TabsParamList] === 'white' ? 'white' : '#F5F5F5';
+  const { icon, name } = ICONS[route.name as keyof TabsParamList];
 
         return {
           headerTitleAlign: 'center',
           tabBarStyle: {
-            backgroundColor: tabBarBg,
-            height: 68, // 기존 105 -> 축소
-            borderTopWidth: 1,
-            borderTopColor: '#E7E7E7',
+            backgroundColor: TAB_BG,
+            height: 68,
+            borderTopWidth: 0,
             paddingTop: 6,
-            paddingBottom: 12,
+            paddingBottom: 10,
           },
-          tabBarLabel: ({ focused }) => (
-            <Text className={`captionB pt-[5px] ${focused ? 'text-[#313131]' : 'text-[#808080]'}`}>
+            tabBarLabel: ({ focused }) => (
+            <Text className="captionB pt-[4px]" style={{ color: focused ? ACTIVE_COLOR : INACTIVE_COLOR }}>
               {name}
             </Text>
           ),
           tabBarIcon: ({ focused }) => (
-            <TabIcon name={icon} color={focused ? '#313131' : '#808080'} />
+            <TabIcon name={icon} color={focused ? ACTIVE_COLOR : INACTIVE_COLOR} />
           ),
         };
       }}
