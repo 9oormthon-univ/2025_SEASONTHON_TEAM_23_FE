@@ -7,7 +7,7 @@ const OnboardingScreen = () => {
 
   return (
     <ScrollView className="bg-bg">
-      <View className="items-center gap-10 px-7 pb-[50px] pt-9">
+      <View className="items-center gap-10 px-12 pb-[50px] pt-9">
         <View className="gap-[80px]">
           <Image source={require('@images/img-onboarding.png')} />
           <View className="flex-row gap-3 overflow-hidden">
