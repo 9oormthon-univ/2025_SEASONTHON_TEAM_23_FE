@@ -1,4 +1,4 @@
-import { Image, Text, View, Pressable, TouchableOpacity, FlatList } from 'react-native';
+import { Image, Text, View, TouchableOpacity, FlatList, SafeAreaView, StatusBar } from 'react-native';
 import { useAuth } from '@/provider/AuthProvider';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
@@ -6,8 +6,8 @@ import { fetchMyLetters } from '@/services/letters';
 import { formatRelativeTime } from '@/utils/relativeTime';
 import { EMOJIS } from '@/constants/diary/emoji';
 import { emojiKeyFromNumber } from '@/utils/calendar/mood';
-import { fetchMyPageSummary } from '@/services/mypage';
 import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
+import Icon from '@common/Icon';
 
 const ProfileScreen = () => {
   const { user } = useAuth();
@@ -49,89 +49,127 @@ const ProfileScreen = () => {
   const { data: summary } = useMyPageSummary(!!user);
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="items-center pt-10 pb-6">
+    <SafeAreaView className="flex-1 bg-[#121826]">
+      <StatusBar barStyle="light-content" />
+      {/* Header (간단한 타이틀) - 네비게이션 헤더를 쓰고 있다면 제거 가능 */}
+      <View className="px-6 pt-2 pb-4 flex-row items-center justify-between">
+        <Text className="subHeading1B text-white">프로필</Text>
+        {/* 설정 아이콘 자리 (향후 설정 화면 라우팅) */}
+        <TouchableOpacity className="p-2" hitSlop={8}>
+          <Icon name="IcVerticalDots" size={20} fill="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+
+      {/* 프로필 카드 */}
+      <View className="mx-6 rounded-2xl bg-[#1F2A3C] px-6 py-6 flex-row items-center gap-5">
         {profileImage ? (
-          <Image
-            source={{ uri: profileImage }}
-            className="w-24 h-24 rounded-full bg-gray-200"
-          />
+          <Image source={{ uri: profileImage }} className="w-20 h-20 rounded-full bg-gray-300" />
         ) : (
-          <View className="w-24 h-24 rounded-full bg-gray-200 items-center justify-center">
-            <Text className="captionB text-gray-500">No Image</Text>
+          <View className="w-20 h-20 rounded-full bg-gray-500/30 items-center justify-center">
+            <Icon name="IcProfile" size={36} fill="#FFFFFF" />
           </View>
         )}
-        <Text className="subHeading1B mt-4 text-gray-900">{user?.nickname ?? '익명'}</Text>
+        <View className="flex-1">
+          <View className="flex-row items-center justify-between">
+            <Text className="subHeading1B text-white" numberOfLines={1}>{user?.nickname ?? '익명'}</Text>
+            <TouchableOpacity hitSlop={8} className="ml-2">
+              <Icon name="IcPaw" size={22} fill="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+          <View className="flex-row mt-4 gap-5">
+            <View className="flex-row items-center gap-1">
+              <Icon name="IcCalendar" size={16} fill="#F3DE77" />
+              <Text className="captionB text-[#F3DE77]">{summary?.dailyLogCount ?? 0}</Text>
+              <Text className="captionSB text-gray-300 ml-0.5">일기</Text>
+            </View>
+            <View className="flex-row items-center gap-1">
+              <Icon name="IcLetter" size={16} fill="#8FC3F6" />
+              <Text className="captionB text-[#8FC3F6]">{summary?.letterCount ?? 0}</Text>
+              <Text className="captionSB text-gray-300 ml-0.5">편지</Text>
+            </View>
+            <View className="flex-row items-center gap-1">
+              <Icon name="IcFlower" size={16} fill="#A6EB7C" />
+              <Text className="captionB text-[#A6EB7C]">{summary?.tributeCount ?? 0}</Text>
+              <Text className="captionSB text-gray-300 ml-0.5">헌화</Text>
+            </View>
+          </View>
+        </View>
       </View>
-        <Text className=" text-gray-500">{summary?.dailyLogCount} 일기 </Text>
-        <Text className=" text-gray-500">{summary?.letterCount} 편지</Text>
-        <Text className=" text-gray-500">{summary?.tributeCount} 헌화</Text>
 
-      {/* 탭 버튼 */}
-      <View style={{ flexDirection: 'row', marginHorizontal: 24, marginBottom: 8 }}>
-        <TouchableOpacity style={{ flex: 1 }} onPress={() => setTab('diary')}>
-          <Text style={{ textAlign: 'center', fontWeight: tab === 'diary' ? 'bold' : 'normal' }}>나의 일기</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{ flex: 1 }} onPress={() => setTab('letter')}>
-          <Text style={{ textAlign: 'center', fontWeight: tab === 'letter' ? 'bold' : 'normal' }}>보낸 편지</Text>
-        </TouchableOpacity>
+      {/* 탭 */}
+      <View className="mt-8 px-6">
+        <View className="flex-row">
+          <TouchableOpacity className="flex-1 pb-2" onPress={() => setTab('diary')} activeOpacity={0.8}>
+            <Text className={`text-center subHeading3 ${tab === 'diary' ? 'text-white' : 'text-gray-500'}`}>나의 일기</Text>
+            {tab === 'diary' && <View className="h-1 rounded-full bg-white mt-2 mx-12" />}
+          </TouchableOpacity>
+          <TouchableOpacity className="flex-1 pb-2" onPress={() => setTab('letter')} activeOpacity={0.8}>
+            <Text className={`text-center subHeading3 ${tab === 'letter' ? 'text-white' : 'text-gray-500'}`}>보낸 편지</Text>
+            {tab === 'letter' && <View className="h-1 rounded-full bg-white mt-2 mx-12" />}
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* 탭 컨텐츠 */}
-      <View style={{ flex: 1 }}>
+      {/* 콘텐츠 */}
+      <View className="flex-1 mt-4">
         {tab === 'diary' ? (
           isDailyLogsLoading ? (
-            <Text style={{ textAlign: 'center', marginTop: 24 }}>불러오는 중...</Text>
+            <Text className="text-center text-gray-300 mt-6">불러오는 중...</Text>
           ) : isDailyLogsError ? (
-            <Text style={{ textAlign: 'center', marginTop: 24 }} onPress={() => refetchDailyLogs()}>
-              일기를 불러오지 못했어요. 다시 시도하려면 눌러주세요.
-            </Text>
+            <Text className="text-center text-error mt-6" onPress={() => refetchDailyLogs()}>일기를 불러오지 못했어요. 다시 시도하려면 눌러주세요.</Text>
           ) : (
             <FlatList
               data={logs}
               keyExtractor={(item) => String(item.id)}
-              renderItem={({ item }) => (
-                <View style={{ marginHorizontal: 16, marginVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', padding: 12 }}>
-                  <Text style={{ color: '#6b7280', fontSize: 12 }}>{item.logDate}</Text>
-                  <Text style={{ fontWeight: 'bold', marginTop: 4 }}>
-                    {(() => {
-                      const key = emojiKeyFromNumber(item.mood);
-                      return EMOJIS[key]?.emotion || '';
-                    })()}
-                  </Text>
-                  <Text style={{ color: '#374151', marginTop: 8 }} numberOfLines={2}>{item.preview}</Text>
-                </View>
-              )}
-              contentContainerStyle={{ paddingVertical: 12 }}
-              ListEmptyComponent={<Text style={{ textAlign: 'center', color: '#6b7280', marginTop: 40 }}>오늘의 이야기를 나누어 주세요.</Text>}
+              renderItem={({ item }) => {
+                const key = emojiKeyFromNumber(item.mood);
+                const emotion = EMOJIS[key]?.emotion || '';
+                const colorMap: Record<string, string> = {
+                  best: '#A6EB7C',
+                  good: '#8FC3F6',
+                  soso: '#F3DE77',
+                  sad: '#CECECE',
+                  bad: '#808080',
+                };
+                return (
+                  <View className="mx-6 mb-4 rounded-2xl bg-[#1F2A3C] px-5 py-4">
+                    <View className="flex-row items-start justify-between">
+                      <View className="flex-row items-center gap-2 flex-1 pr-2">
+                        <Icon name={EMOJIS[key].icon as any} size={18} fill={colorMap[key] || '#FFFFFF'} />
+                        <Text className="body2" style={{ color: colorMap[key] || '#FFFFFF' }}>{emotion}</Text>
+                      </View>
+                      <Text className="captionSB text-gray-400 ml-2">{item.logDate}</Text>
+                    </View>
+                    <Text className="body1 text-white mt-3" numberOfLines={2}>{item.preview}</Text>
+                  </View>
+                );
+              }}
+              contentContainerStyle={{ paddingTop: 4, paddingBottom: 40 }}
+              ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">오늘의 이야기를 나누어 주세요.</Text>}
             />
           )
         ) : (
           lettersLoading ? (
-            <Text style={{ textAlign: 'center', marginTop: 24 }}>불러오는 중...</Text>
+            <Text className="text-center text-gray-300 mt-6">불러오는 중...</Text>
           ) : lettersError ? (
-            <Text style={{ textAlign: 'center', marginTop: 24 }} onPress={loadLetters}>
-              {lettersError} 다시 시도하려면 눌러주세요.
-            </Text>
+            <Text className="text-center text-error mt-6" onPress={loadLetters}>{lettersError} 다시 시도하려면 눌러주세요.</Text>
           ) : (
             <FlatList
               data={letters}
               keyExtractor={(item, idx) => `${item.id}-${idx}`}
               renderItem={({ item }) => (
-                <View style={{ marginHorizontal: 16, marginVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', padding: 12 }}>
-                  <Text style={{ color: '#111827' }}>{item.content}</Text>
-                  <Text style={{ color: '#6b7280', fontSize: 12, marginTop: 8 }}>
-                    {item.createdAt ? formatRelativeTime(item.createdAt) : ''} · 헌화 {item.tributeCount ?? 0}
-                  </Text>
+                <View className="mx-6 mb-4 rounded-2xl bg-[#1F2A3C] px-5 py-4">
+                  <Text className="body1 text-white" numberOfLines={4}>{item.content}</Text>
+                  <Text className="captionSB text-gray-400 mt-3">{item.createdAt ? formatRelativeTime(item.createdAt) : ''} · 헌화 {item.tributeCount ?? 0}</Text>
                 </View>
               )}
-              contentContainerStyle={{ paddingVertical: 12 }}
-              ListEmptyComponent={<Text style={{ textAlign: 'center', color: '#6b7280', marginTop: 40 }}>편지로 추억을 나누어 봐요.</Text>}
+              contentContainerStyle={{ paddingTop: 4, paddingBottom: 40 }}
+              ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">편지로 추억을 나누어 봐요.</Text>}
             />
           )
         )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
