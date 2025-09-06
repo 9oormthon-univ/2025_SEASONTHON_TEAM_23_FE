@@ -11,7 +11,7 @@ import LetterStackNavigator from '@/navigation/letter/LetterStackNavigator';
 const Tab = createBottomTabNavigator<TabsParamList>();
 
 const ICONS: IconMap = {
-  Home: { icon: 'IcHome', name: 'Home' },
+  Home: { icon: 'IcHome', name: '홈' },
   Diary: { icon: 'IcCalendar', name: '일기', title: '오늘의 일기 - 감정 캘린더' },
   Letter: { icon: 'IcLetter', name: '편지' },
   Profile: { icon: 'IcProfile', name: '프로필' },
@@ -36,11 +36,11 @@ const TabNavigator = () => {
           headerTitleAlign: 'center',
           tabBarStyle: {
             backgroundColor: tabBarBg,
-            height: 105,
-            borderTopWidth: 1.6,
+            height: 68, // 기존 105 -> 축소
+            borderTopWidth: 1,
             borderTopColor: '#E7E7E7',
-            paddingTop: 16,
-            paddingBottom: 36,
+            paddingTop: 6,
+            paddingBottom: 12,
           },
           tabBarLabel: ({ focused }) => (
             <Text className={`captionB pt-[5px] ${focused ? 'text-[#313131]' : 'text-[#808080]'}`}>
