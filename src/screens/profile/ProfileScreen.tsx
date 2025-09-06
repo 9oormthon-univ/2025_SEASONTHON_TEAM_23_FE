@@ -1,4 +1,4 @@
-import { Image, Text, View, TouchableOpacity, FlatList, SafeAreaView, StatusBar, RefreshControl } from 'react-native';
+import { Image, Text, View, TouchableOpacity, FlatList, SafeAreaView, StatusBar, RefreshControl, Alert } from 'react-native';
 import { useAuth } from '@/provider/AuthProvider';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
@@ -12,7 +12,7 @@ import DefaultProfile from '@images/default-profile.png';
 import ProfileDog from '@images/profile-dog.png';
 
 const ProfileScreen = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   // 탭 상태: 'diary' | 'letter'
   const [tab, setTab] = useState<'diary' | 'letter'>('diary');
@@ -47,6 +47,24 @@ const ProfileScreen = () => {
   }, [tab, loadLetters]);
 
   const { data: summary, refetch: refetchSummary, isFetching: isFetchingSummary } = useMyPageSummary(!!user);
+
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const handleLogout = useCallback(async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await logout(); // 내부에서 /auth/logout 포함
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }, [logout, isLoggingOut]);
+
+  const confirmLogout = useCallback(() => {
+    Alert.alert('로그아웃', '로그아웃하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      { text: '확인', style: 'destructive', onPress: handleLogout },
+    ]);
+  }, [handleLogout]);
 
   // 스크린 포커스 시 최신 데이터 갱신
   useFocusEffect(
@@ -98,8 +116,8 @@ const ProfileScreen = () => {
         <View className="flex-1">
           <View className="flex-row items-center justify-between">
             <Text className="subHeading1B text-white" numberOfLines={1}>{user?.nickname ?? '익명'}</Text>
-            <TouchableOpacity hitSlop={8} className="ml-2">
-              <Icon name="IcPaw" size={22} fill="#FFFFFF" />
+            <TouchableOpacity hitSlop={8} className="ml-2" onPress={confirmLogout} disabled={isLoggingOut}>
+              <Text className="captionSB underline text-gray-300">{isLoggingOut ? '처리중...' : '로그아웃'}</Text>
             </TouchableOpacity>
           </View>
           <View className="flex-row mt-4 gap-5">
