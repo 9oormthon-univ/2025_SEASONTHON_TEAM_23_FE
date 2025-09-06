@@ -10,6 +10,7 @@ const SaveButton = ({ onPress, disabled }: SaveButtonProps) => {
     <Pressable
       onPress={onPress}
       className={`rounded-lg ${disabled ? 'bg-yellow-100' : 'bg-yellow-200'} px-3 py-2`}
+      disabled={disabled}
     >
       <Text className="body2 text-gray-900">{`완료`}</Text>
     </Pressable>
