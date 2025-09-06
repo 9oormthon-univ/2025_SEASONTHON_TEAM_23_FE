@@ -5,7 +5,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { LetterStackParamList } from '@/types/navigation';
 import { useAuth } from '@/provider/AuthProvider';
 import { useTribute } from '@/provider/TributeProvider';
-import { formatRelativeTime } from '@/utils/relativeTime';
+
 import { fetchLetters } from '@/services/letters';
 import Loader from '../common/Loader';
 import Icon from '@common/Icon';
@@ -94,7 +94,7 @@ const LetterFeed: React.FC = () => {
             const authorName = authorObj?.nickname ?? authorObj?.name ?? authorObj?.displayName ?? null;
             const mine = user && (authorId === user?.userId || authorId === (user as any)?.id);
             const display = authorName ?? (mine ? user?.nickname ?? null : null) ?? '작성자 정보 없음';
-            const timeText = item.createdAt ? formatRelativeTime(item.createdAt) : '';
+            const timeText = item.createdAt ? (item.createdAt) : '';
             // 사진 후보 필드 추출 (다양한 API 형태 대응)
             const photoUri =
               item.photoUrl ||

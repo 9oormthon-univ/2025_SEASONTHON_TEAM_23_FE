@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { fetchMyLetters } from '@/services/letters';
-import { formatRelativeTime } from '@/utils/relativeTime';
 
 const MyLettersScreen = () => {
   const [letters, setLetters] = useState<any[]>([]);
@@ -48,9 +47,7 @@ const MyLettersScreen = () => {
         renderItem={({ item }) => (
           <View className="mx-4 my-2 rounded-xl border border-gray-200 p-4">
             <Text className="bodyB text-gray-900">{item.content}</Text>
-            <Text className="captionB text-gray-500 mt-2">
-              {item.createdAt ? formatRelativeTime(item.createdAt) : ''} · 헌화 {item.tributeCount ?? 0}
-            </Text>
+            <Text className="captionB text-gray-500 mt-2">{item.createdAt ?? ''} · 별 {item.tributeCount ?? 0}</Text>
           </View>
         )}
         contentContainerStyle={{ paddingVertical: 12 }}
