@@ -62,3 +62,10 @@ export type UpdateDailyLogBody = {
   content: string;
   needAiReflection: boolean;
 };
+
+// 지난 달 mood 분석 응답
+export type DailyLogMoodAnalyze = {
+  bestMoodCount: number; // 가장 좋은 기분(예: best) 횟수
+  goodMoodCount: number; // 좋은 기분 횟수 (요구스펙에 있으나 문구엔 사용 안됨, 보존)
+  dailyCount: number; // 지난 달 전체 일기 수
+};
