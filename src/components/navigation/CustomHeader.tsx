@@ -10,23 +10,24 @@ const CustomHeader = ({
   hasLogo,
   icon,
   iconSize = 32,
-  iconColor = '#343434',
+  iconColor = 'white',
   hasButton,
   title,
   onPress,
+  disabled,
 }: HeaderProps) => {
   const navigation = useNavigation();
   return (
-    <SafeAreaView edges={['top']} className="bg-white">
+    <SafeAreaView edges={['top']} className="bg-[#2D3342]">
       <View className="h-[60px] flex-row items-center justify-between px-7 py-4">
         <View className="flex-row gap-5">
           {hasBack && (
             <Pressable onPress={() => navigation.goBack()}>
-              <Icon name="IcBack" size={28} color={'#131313'} />
+              <Icon name="IcBack" size={28} color={'white'} />
             </Pressable>
           )}
-          {hasLogo && <Icon name="IcBrandLogo" width={94} height={30} />}
-          {title && <Text className="subHeading2B color-gray-900">{title}</Text>}
+          {hasLogo && <Icon name="IcBrandLogo" width={74} height={28} />}
+          {title && <Text className="subHeading2B text-white">{title}</Text>}
         </View>
         {hasButton &&
           (icon ? (
@@ -34,7 +35,7 @@ const CustomHeader = ({
               <Icon name={icon} size={iconSize} color={iconColor} />
             </Pressable>
           ) : (
-            <SaveButton onPress={onPress} />
+            <SaveButton onPress={onPress} disabled={disabled} />
           ))}
       </View>
     </SafeAreaView>

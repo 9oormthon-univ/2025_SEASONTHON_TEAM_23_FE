@@ -3,10 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { linking } from './linking';
 import { type RootStackParamList } from '@/types/navigation';
 import TabNavigator from './TabNavigator';
-import {useAuth} from "@/provider/AuthProvider";
-import OnboardingScreen from "@/screens/onboarding/OnboardingScreen";
-import LetterWriteScreen from '../screens/letter/LetterWriteScreen';
-import LetterDetailScreen from '@/screens/letter/LetterDetailScreen';
+import { useAuth } from '@/provider/AuthProvider';
+import OnboardingScreen from '@/screens/onboarding/OnboardingScreen';
 import MyDailyLogsScreen from '@/screens/profile/MyDailyLogsScreen';
 import MyLettersScreen from '@/screens/profile/MyLettersScreen';
 
@@ -19,10 +17,17 @@ const RootNavigator = () => {
       <Stack.Navigator screenOptions={{ headerTitleAlign: 'center' }}>
         {user ? (
           <>
-            <Stack.Screen name="Tabs" component={TabNavigator} options={{headerShown: false}}/>
-            <Stack.Screen name="LetterDetail" component={LetterDetailScreen} />
-            <Stack.Screen name="MyDailyLogs" component={MyDailyLogsScreen} options={{ title: '내가 쓴 일기' }} />
-            <Stack.Screen name="MyLetters" component={MyLettersScreen} options={{ title: '내가 쓴 편지' }} />
+            <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="MyDailyLogs"
+              component={MyDailyLogsScreen}
+              options={{ title: '내가 쓴 일기' }}
+            />
+            <Stack.Screen
+              name="MyLetters"
+              component={MyLettersScreen}
+              options={{ title: '내가 쓴 편지' }}
+            />
           </>
         ) : (
           <Stack.Screen

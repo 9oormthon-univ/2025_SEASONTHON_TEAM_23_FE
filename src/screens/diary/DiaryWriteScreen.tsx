@@ -41,6 +41,7 @@ const DiaryWriteScreen = () => {
       hasBack: true,
       hasButton: true,
       onPress: submit,
+      disabled: !value.trim(),
     });
   }, [navigation, submit]);
   const inputRef = useRef<TextInput>(null);

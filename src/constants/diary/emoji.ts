@@ -1,9 +1,9 @@
 export const EMOJIS = {
-  best: { icon: 'IcSmiley', labelKo: '최고예요', emotion: '오늘은 최고의 하루예요.' },
-  good: { icon: 'IcSmiley', labelKo: '좋아요', emotion: '오늘은 좋은 하루예요.' },
-  soso: { icon: 'IcSmiley', labelKo: '평범해요', emotion: '오늘은 평범한 하루예요.' },
-  sad: { icon: 'IcSad', labelKo: '슬퍼요', emotion: '오늘은 슬픈 하루였어요.' },
-  bad: { icon: 'IcBad', labelKo: '별로예요', emotion: '오늘은 별로인 하루였어요.' },
+  best: { icon: 'IcSmiley', labelKo: '최고예요', emotion: '오늘은 좋은 하루였어요.' },
+  good: { icon: 'IcSmiley', labelKo: '좋아요', emotion: '오늘은 조금 괜찮은 하루였어요.' },
+  soso: { icon: 'IcSmiley', labelKo: '평범해요', emotion: '오늘은 평범한 하루였어요.' },
+  sad: { icon: 'IcSad', labelKo: '슬퍼요', emotion: '오늘은 마음이 무거운 하루였어요.' },
+  bad: { icon: 'IcBad', labelKo: '별로예요', emotion: '오늘은 많이 힘든 하루였어요.' },
 } as const;
 export type EmojiKey = keyof typeof EMOJIS;
 
@@ -25,8 +25,8 @@ export const ACTIVE_UI: Record<EmojiKey, { border: string; bg: string; icon: str
   },
   sad: {
     border: 'border-emoji-sad',
-    bg: 'bg-emoji-off',
+    bg: 'bg-gray-800',
     icon: '#CECECE',
   },
-  bad: { border: 'border-emoji-bad', bg: 'bg-emoji-off', icon: '#808080' },
+  bad: { border: 'border-gray-700', bg: 'bg-gray-900', icon: '#808080' },
 };
