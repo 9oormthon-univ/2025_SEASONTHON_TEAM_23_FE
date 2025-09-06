@@ -160,7 +160,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           await refreshTributes(currentUserId);
         } catch {}
         setHasMyTribute(false);
-        Alert.alert('헌화가 취소되었습니다');
+        Alert.alert('위로의 별 전달이 취소되었습니다');
       } finally {
         setIsTributing(false);
       }
