@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, Image, Pressable } from 'react-native';
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -13,8 +13,6 @@ import {
 } from '@/services/letters';
 import Loader from '@common/Loader';
 import Icon from '@common/Icon';
-import TextArea from '@common/TextArea';
-import { setHeaderExtras } from '@/types/Header';
 import DropDownMenu from '@/components/common/DropDownMenu';
 import ConfirmDeleteModal from '@/components/common/ConfirmDeleteModal';
 
@@ -73,24 +71,11 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [hasMyTribute, setHasMyTribute] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
-  const openMenu = useCallback(() => setMenuVisible(true), []);
+  // const openMenu = useCallback(() => setMenuVisible(true), []); // (사용 안 함)
   const closeMenu = useCallback(() => setMenuVisible(false), []);
   const { user } = useAuth();
 
-  // 원본 이미지 사이즈로 표시를 위한 상태 (모든 렌더에서 동일한 훅 순서 보장 위해 상단에 둠)
-  const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
-  useEffect(() => {
-    const uri = (letter && letter.photoUrl) ? String(letter.photoUrl) : null;
-    if (!uri) {
-      setImgSize(null);
-      return;
-    }
-    Image.getSize(
-      uri,
-      (w, h) => setImgSize({ w, h }),
-      () => setImgSize(null)
-    );
-  }, [letter?.photoUrl]);
+  // (이미지 원본 크기 표시 로직 제거: 디자인 상 고정 높이 사용)
 
   // user id 정규화: 여러 후보 필드에서 찾아 숫자로 변환
   const rawUserId = (user as any)?.id ?? (user as any)?.userId ?? (user as any)?.user_id ?? null;
@@ -212,22 +197,6 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     : null;
   const isOwner = Boolean(currentUserId && ownerId && String(ownerId) === String(currentUserId));
 
-  useLayoutEffect(() => {
-    setHeaderExtras(navigation, {
-      title: '오늘의 일기',
-      hasBack: true,
-      ...(isOwner
-        ? {
-            hasButton: true,
-            icon: 'IcVerticalDots',
-            iconSize: 38,
-            iconColor: '#313131',
-            onPress: openMenu,
-          }
-        : { hasButton: false }),
-    });
-  }, [navigation, isOwner, openMenu]);
-
   const handleEdit = () => {
     if (!letter) return;
     // cast to any because LetterWriteScreen params may be undefined in RootStackParamList
@@ -282,71 +251,70 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   // 원본 이미지 사이즈로 표시: 화면 폭을 넘지 않게 축소, 업스케일 금지
 
   return (
-    <>
-      <ScrollView>
-        <View className="gap-[170px] bg-bg px-7 pb-[42px] pt-10">
-          <View className="items-center gap-7">
-            <View className="w-full items-center gap-4">
-              <View className="items-center gap-6">
-                <View className="items-center gap-2">
-                  <Icon name="IcFlower" size={28} color="#FFD86F" />
-                  <Text className="body2 text-gray-500">{formatKoreanDate(letter.createdAt)}</Text>
-                </View>
-                {(() => {
-          const meName = user?.nickname ?? null;
-          const isMine = ownerId != null && (ownerId === user?.userId || ownerId === (user as any)?.id);
-          const displayName = author?.nickname ?? (isMine ? meName : null) ?? '작성자 정보 없음';
-          return (
-            <Text style={{ fontSize: 12, color: '#333', marginBottom: 6 }}>{`${displayName}님의 추억이에요.`}</Text>
-          );
-        })()}
-              </View>
-              <View className="w-full rounded-[20px] bg-white py-5">
-                <View className="p-5 pb-0">
-                  {letter.photoUrl ? (
-                    <Image
-                      source={{ uri: String(letter.photoUrl) }}
-                      className="h-[220px] rounded-lg"
-                      resizeMode="cover"
-                    />
-                  ) : null}
-                </View>
-                <TextArea
-                  disabled
-                  value={letter.content}
-                  minHeight={50}
-                  showCounter={false}
-                  onChangeText={() => {}}
-                />
-              </View>
-            </View>
-            <View className="flex-row items-center justify-center rounded-lg bg-bg-light p-1">
-              <View className="p-1">
-                <Icon name="IcFlower" size={16} color="#FFD86F" />
-              </View>
+    <View style={{ flex: 1, backgroundColor: '#121826' }}>
+      <ScrollView
+        style={{ backgroundColor: '#121826' }}
+        contentContainerStyle={{ paddingHorizontal: 28, paddingTop: 56, paddingBottom: 100 }}
+      >
+        <View className="items-center">
+          {/* 상단 꽃 아이콘 */}
+          <Icon name="IcBigflower" size={64} />
+          {/* 날짜 */}
+          <Text className="mt-6 body2" style={{ color: '#AAAAAA' }}>{formatKoreanDate(letter.createdAt)}</Text>
+          {/* 제목 (닉네임 문구) */}
+          {(() => {
+            const meName = user?.nickname ?? null;
+            const isMine = ownerId != null && (ownerId === user?.userId || ownerId === (user as any)?.id);
+            const displayName = author?.nickname ?? (isMine ? meName : null) ?? '작성자 정보 없음';
+            return (
+              <Text
+                className="mt-6 text-center text-white"
+                style={{ fontSize: 14, fontWeight: '600', lineHeight: 20 }}
+              >
+                {`${displayName}님의 추억이에요.`}
+              </Text>
+            );
+          })()}
+          {/* 내용 카드 */}
+          <View className="mt-10 w-full rounded-2xl bg-[#121826] border border-white/10 p-6">
+            {letter.photoUrl ? (
+              <Image
+                source={{ uri: String(letter.photoUrl) }}
+                className="mb-5 h-[220px] rounded-lg"
+                resizeMode="cover"
+              />
+            ) : null}
+            <Text className="body1 leading-6" style={{ color: '#F2F2F2' }}>{letter.content}</Text>
+          </View>
+          {/* 헌화 카운트 */}
+          <View className="mt-14 items-center">
+            <View className="flex-row items-center gap-2">
+              <Icon name="IcFlower" size={20} color="#F2F2F2" />
               {letter.tributeCount === 0 ? (
-                <Text className="body2 text-body-200">{`처음으로 헌화를 해주세요.`}</Text>
+                <Text className="body2" style={{ color: '#F2F2F2' }}>처음으로 헌화를 해주세요.</Text>
               ) : (
-                <View className="flex-row gap-1 px-1">
-                  <Text className="body2 text-body-100">{letter.tributeCount}</Text>
-                  <Text className="body2 text-body-200">{`개의 헌화를 받았어요.`}</Text>
-                </View>
+                <Text className="body2" style={{ color: '#F2F2F2' }}>
+                  <Text style={{ color: '#F2F2F2', fontWeight: '600' }}>{letter.tributeCount}</Text>
+                  {` 개의 헌화를 받았어요.`}
+                </Text>
               )}
             </View>
           </View>
+          {/* 버튼 */}
           {letter && (
             <Pressable
               disabled={isTributing}
               onPress={handleTribute}
-              className={`${hasMyTribute ? 'bg-gray-300' : 'bg-yellow'} rounded-2xl px-[120px] py-4`}
+              className="mt-8 w-full rounded-2xl py-4"
+              style={{ backgroundColor: hasMyTribute ? '#E6D08F' : '#FFD86F', opacity: isTributing ? 0.7 : 1 }}
             >
-              <Text className="subHeading2B text-center">
+              <Text className="subHeading2B text-center text-black">
                 {hasMyTribute ? '취소하기' : '헌화하기'}
               </Text>
             </Pressable>
           )}
         </View>
-      </ScrollView>
+  </ScrollView>
       {isOwner && (
         <>
           <DropDownMenu
@@ -366,7 +334,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           />
         </>
       )}
-    </>
+    </View>
   );
 };
 
