@@ -258,7 +258,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       >
         <View className="items-center">
           {/* 상단 꽃 아이콘 */}
-          <Icon name="IcFlower" size={56} />
+          <Icon name="IcBigflower" size={64} />
           {/* 날짜 */}
           <Text className="mt-6 body2" style={{ color: '#AAAAAA' }}>{formatKoreanDate(letter.createdAt)}</Text>
           {/* 제목 (닉네임 문구) */}
@@ -267,7 +267,12 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             const isMine = ownerId != null && (ownerId === user?.userId || ownerId === (user as any)?.id);
             const displayName = author?.nickname ?? (isMine ? meName : null) ?? '작성자 정보 없음';
             return (
-              <Text className="mt-6 subHeading2B text-center text-white">{`${displayName}님의 추억이에요.`}</Text>
+              <Text
+                className="mt-6 text-center text-white"
+                style={{ fontSize: 14, fontWeight: '600', lineHeight: 20 }}
+              >
+                {`${displayName}님의 추억이에요.`}
+              </Text>
             );
           })()}
           {/* 내용 카드 */}
