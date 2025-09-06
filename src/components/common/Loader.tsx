@@ -9,7 +9,7 @@ const Loader = ({ isPageLoader = false }: LoaderProps) => {
   return (
     <SafeAreaView
       edges={isPageLoader ? ['top'] : []}
-      className={`absolute bottom-0 left-0 right-0 ${isPageLoader ? 'top-[60px]' : 'top-0'} z-10 justify-center bg-bg/30`}
+      className={`absolute bottom-0 left-0 right-0 ${isPageLoader ? 'top-[80px]' : 'top-0'} z-10 justify-center bg-bg/30`}
     >
       <View className="" pointerEvents="auto">
         <ActivityIndicator size="large" color="#FFD86F" />
