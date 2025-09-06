@@ -11,46 +11,40 @@ import LetterStackNavigator from '@/navigation/letter/LetterStackNavigator';
 const Tab = createBottomTabNavigator<TabsParamList>();
 
 const ICONS: IconMap = {
-  Home: { icon: 'IcHome', name: 'Home' },
+  Home: { icon: 'IcHome', name: '홈' },
   Diary: { icon: 'IcCalendar', name: '일기', title: '오늘의 일기 - 감정 캘린더' },
   Letter: { icon: 'IcLetter', name: '편지' },
-  Counseling: { icon: 'IcCounseling', name: '상담소', title: '펫로스 상담소' },
   Profile: { icon: 'IcProfile', name: '프로필' },
 } as const;
 
-const TABBAR_BG: Record<keyof TabsParamList, 'white' | 'gray'> = {
-  Home: 'gray',
-  Diary: 'white',
-  Letter: 'white',
-  Counseling: 'white',
-  Profile: 'gray',
-};
+// 디자인 명세: 공통 배경 #121826, 활성 아이콘/라벨 #FFD86F, 비활성 #AAAAAA
+const TAB_BG = '#121826';
+const ACTIVE_COLOR = '#FFD86F';
+const INACTIVE_COLOR = '#AAAAAA';
 
 const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => {
-        const { icon, name } = ICONS[route.name as keyof TabsParamList];
-        const tabBarBg =
-          TABBAR_BG[route.name as keyof TabsParamList] === 'white' ? 'white' : '#F5F5F5';
+  const { icon, name } = ICONS[route.name as keyof TabsParamList];
 
         return {
           headerTitleAlign: 'center',
           tabBarStyle: {
-            backgroundColor: tabBarBg,
-            height: 105,
-            borderTopWidth: 1.6,
-            borderTopColor: '#E7E7E7',
-            paddingTop: 16,
-            paddingBottom: 36,
+            backgroundColor: TAB_BG,
+            height: 68,
+            borderTopWidth: 0.5,
+            borderTopColor: '#2D3852',
+            paddingTop: 6,
+            paddingBottom: 10,
           },
-          tabBarLabel: ({ focused }) => (
-            <Text className={`captionB pt-[5px] ${focused ? 'text-[#313131]' : 'text-[#808080]'}`}>
+            tabBarLabel: ({ focused }) => (
+            <Text className="captionB pt-[4px]" style={{ color: focused ? ACTIVE_COLOR : INACTIVE_COLOR }}>
               {name}
             </Text>
           ),
           tabBarIcon: ({ focused }) => (
-            <TabIcon name={icon} color={focused ? '#313131' : '#808080'} />
+            <TabIcon name={icon} color={focused ? ACTIVE_COLOR : INACTIVE_COLOR} />
           ),
         };
       }}
@@ -64,7 +58,13 @@ const TabNavigator = () => {
       />
       <Tab.Screen name="Diary" component={DiaryStackNavigator} options={{ headerShown: false }} />
       <Tab.Screen name="Letter" component={LetterStackNavigator} options={{ headerShown: false }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          header: () => <CustomHeader hasBack title="프로필" />, // 뒤로가기 버튼 추가
+        }}
+      />
     </Tab.Navigator>
   );
 };
