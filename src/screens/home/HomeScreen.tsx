@@ -4,6 +4,7 @@ import { SafeAreaView, View, Text, Image } from "react-native";
 // import type { TabsParamList } from '@/types/navigation';
 import { useAuth } from '@/provider/AuthProvider';
 import { useDailyLogMoodAnalyze } from '@/hooks/queries/useDailyLogMoodAnalyze';
+import Icon from '@common/Icon';
 
 export default function HomeScreen() {
   // const navigation = useNavigation<BottomTabNavigationProp<TabsParamList>>();
@@ -17,6 +18,13 @@ export default function HomeScreen() {
     {/* 지난 달 통계 박스 (스타일: '오늘의 질문' 박스와 통일) */}
         {moodAnalyze && (
           <View className="relative items-center overflow-hidden rounded-[20px] bg-bg-light px-6 py-5 mt-10 mb-8 self-center" style={{ width: '88%' }}>
+            <Icon
+              name="IcSmiley"
+              width={25}
+              height={25}
+              bottom={5}
+              color="#6BBD39"
+            />
             <Text className="subHeading3 text-center text-white">
               {`지난 달에 작성한 ${moodAnalyze.dailyCount}개의 일기 중,\n좋았던 날은 ${moodAnalyze.bestMoodCount}일이에요.`}
             </Text>
