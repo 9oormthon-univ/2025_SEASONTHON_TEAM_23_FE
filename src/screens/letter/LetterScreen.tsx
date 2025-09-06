@@ -12,7 +12,7 @@ const LetterScreen = () => {
   return (
     <LetterProvider>
       <View className="flex-1 gap-7 bg-bg px-7 pt-8">
-        <View className="items-center gap-5 rounded-[20px] bg-bg-light px-6 py-5">
+        <View className="items-center gap-5 rounded-[20px] px-6 py-5">
           <Text className="color-[#F2F2F2] subHeading3 text-center text-body-100">{`사랑하는 반려동물과의 소중한\n추억을 함께 나누세요.`}</Text>
           <WriteButton label="편지 쓰기" onPress={() => navigation.navigate('LetterWriteScreen')} />
         </View>
