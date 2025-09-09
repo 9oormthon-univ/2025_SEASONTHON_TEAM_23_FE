@@ -7,6 +7,7 @@ import ProfileScreen from '@/screens/profile/ProfileScreen';
 import TabIcon from '@navigation/TabIcon';
 import CustomHeader from '@navigation/CustomHeader';
 import LetterStackNavigator from '@/navigation/letter/LetterStackNavigator';
+import type { HeaderProps } from '@/types/Header';
 
 const Tab = createBottomTabNavigator<TabsParamList>();
 
@@ -26,7 +27,7 @@ const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => {
-  const { icon, name } = ICONS[route.name as keyof TabsParamList];
+        const { icon, name } = ICONS[route.name as keyof TabsParamList];
 
         return {
           headerTitleAlign: 'center',
@@ -38,8 +39,11 @@ const TabNavigator = () => {
             paddingTop: 6,
             paddingBottom: 10,
           },
-            tabBarLabel: ({ focused }) => (
-            <Text className="captionB pt-[4px]" style={{ color: focused ? ACTIVE_COLOR : INACTIVE_COLOR }}>
+          tabBarLabel: ({ focused }) => (
+            <Text
+              className="captionB pt-[4px]"
+              style={{ color: focused ? ACTIVE_COLOR : INACTIVE_COLOR }}
+            >
               {name}
             </Text>
           ),
@@ -53,7 +57,22 @@ const TabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          header: () => <CustomHeader hasLogo hasButton icon="IcNotification" />,
+          header: (props) => {
+            const { options } = props;
+            const { hasLogo, hasButton, bgColor, icon, iconSize, iconColor, onPress } =
+              options as unknown as HeaderProps;
+            return (
+              <CustomHeader
+                hasLogo={!!hasLogo}
+                hasButton={!!hasButton}
+                bgColor={bgColor}
+                icon={icon}
+                iconSize={iconSize}
+                iconColor={iconColor}
+                onPress={onPress}
+              />
+            );
+          },
         }}
       />
       <Tab.Screen name="Diary" component={DiaryStackNavigator} options={{ headerShown: false }} />
