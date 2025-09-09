@@ -26,7 +26,10 @@ const LetterStackNavigator = () => {
               iconSize={iconSize}
               iconColor={iconColor}
               title={title}
-              onBack={() => navigation.goBack()}
+              onBack={() => {
+                if (navigation.canGoBack()) navigation.goBack();
+                navigation.getParent()?.navigate('Tabs', { screen: 'Home' });
+              }}
               onPress={onPress}
             />
           );
