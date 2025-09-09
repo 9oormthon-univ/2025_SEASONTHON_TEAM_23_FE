@@ -4,6 +4,7 @@ export type HeaderProps = {
   hasBack?: boolean;
   hasLogo?: boolean;
   hasButton?: boolean;
+  bgColor?: string;
   icon?: keyof typeof Icons;
   iconSize?: number;
   iconColor?: string;

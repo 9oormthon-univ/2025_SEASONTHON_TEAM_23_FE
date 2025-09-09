@@ -1,5 +1,4 @@
 import './global.css';
-import { StatusBar } from 'react-native';
 import BootSplash from 'react-native-bootsplash';
 import AppProvider from '@/provider/AppProvider';
 import RootNavigator from '@/navigation/RootNavigator';
@@ -10,6 +9,7 @@ import {
   registerForegroundNotificationHandler,
 } from '@/provider/NotifeeClient';
 import notifee from '@notifee/react-native';
+import { StatusBar } from 'react-native';
 
 const App = () => {
   const navRef = useRef<NavigationContainerRef<any>>(null);
@@ -45,7 +45,7 @@ const App = () => {
 
   return (
     <AppProvider>
-      <StatusBar barStyle="light-content" backgroundColor="#121826" />
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <RootNavigator navigationRef={navRef} />
     </AppProvider>
   );

@@ -1,12 +1,14 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
-import type { IconMap, TabsParamList } from '@/types/navigation';
+import type { IconMap, RootStackParamList, TabsParamList } from '@/types/navigation';
 import HomeScreen from '@/screens/home/HomeScreen';
 import DiaryStackNavigator from '@/navigation/diary/DiaryStackNavigator';
 import ProfileScreen from '@/screens/profile/ProfileScreen';
 import TabIcon from '@navigation/TabIcon';
 import CustomHeader from '@navigation/CustomHeader';
 import LetterStackNavigator from '@/navigation/letter/LetterStackNavigator';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const Tab = createBottomTabNavigator<TabsParamList>();
 
@@ -23,10 +25,12 @@ const ACTIVE_COLOR = '#FFD86F';
 const INACTIVE_COLOR = '#AAAAAA';
 
 const TabNavigator = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => {
-  const { icon, name } = ICONS[route.name as keyof TabsParamList];
+        const { icon, name } = ICONS[route.name as keyof TabsParamList];
 
         return {
           headerTitleAlign: 'center',
@@ -38,8 +42,11 @@ const TabNavigator = () => {
             paddingTop: 6,
             paddingBottom: 10,
           },
-            tabBarLabel: ({ focused }) => (
-            <Text className="captionB pt-[4px]" style={{ color: focused ? ACTIVE_COLOR : INACTIVE_COLOR }}>
+          tabBarLabel: ({ focused }) => (
+            <Text
+              className="captionB pt-[4px]"
+              style={{ color: focused ? ACTIVE_COLOR : INACTIVE_COLOR }}
+            >
               {name}
             </Text>
           ),
@@ -53,7 +60,16 @@ const TabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          header: () => <CustomHeader hasLogo hasButton icon="IcNotification" />,
+          header: () => (
+            <CustomHeader
+              hasLogo
+              hasButton
+              icon="IcNotification"
+              bgColor="#121826"
+              iconColor="white"
+              onPress={() => navigation.navigate('NotificationList')}
+            />
+          ),
         }}
       />
       <Tab.Screen name="Diary" component={DiaryStackNavigator} options={{ headerShown: false }} />

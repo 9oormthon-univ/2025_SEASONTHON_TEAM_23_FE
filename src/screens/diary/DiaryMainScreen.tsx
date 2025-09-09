@@ -3,7 +3,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '@/provider/AuthProvider';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
-import type { DiaryStackParamList } from '@/types/navigation';
+import type { DiaryStackParamList, RootStackParamList } from '@/types/navigation';
 import Icon from '@common/Icon';
 import EmotionCalendar from '@diary/EmotionCalendar';
 import Loader from '@common/Loader';
@@ -13,9 +13,12 @@ import { useCallback, useLayoutEffect } from 'react';
 import { setHeaderExtras } from '@/types/Header';
 import { useQueryClient } from '@tanstack/react-query';
 import { localISODate, todayISO } from '@/utils/calendar/date';
+import type { StackNavigationProp } from '@react-navigation/stack';
 
 const DiaryMainScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
+  const rootNavigaton = useNavigation<StackNavigationProp<RootStackParamList>>();
+
   const { user } = useAuth();
   const userId = user!.userId;
 
@@ -33,6 +36,7 @@ const DiaryMainScreen = () => {
       hasBack: true,
       hasButton: true,
       icon: 'IcNotification',
+      onPress: () => rootNavigaton.navigate('NotificationList'),
     });
   }, [navigation]);
   const { byDate, isLoading: logIsLoading } = useDailyLogs(userId);
