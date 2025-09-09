@@ -2,7 +2,7 @@ import { View, Text } from 'react-native';
 import WriteButton from '@/components/common/WriteButton';
 import { LetterProvider } from '@/components/letter/LetterContext';
 import LetterFeed from '@/components/letter/LetterFeed';
-import type { LetterStackParamList } from '@/types/navigation';
+import type { LetterStackParamList, RootStackParamList } from '@/types/navigation';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import { useLayoutEffect } from 'react';
@@ -10,6 +10,8 @@ import { setHeaderExtras } from '@/types/Header';
 
 const LetterScreen = () => {
   const navigation = useNavigation<StackNavigationProp<LetterStackParamList>>();
+  const rootNavigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
       title: '기억의 별자리',
@@ -18,6 +20,7 @@ const LetterScreen = () => {
       icon: 'IcNotification',
       iconSize: 28,
       iconColor: 'white',
+      onPress: () => rootNavigation.navigate('NotificationList'),
     });
   }, [navigation]);
 
