@@ -1,13 +1,14 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
-import type { IconMap, TabsParamList } from '@/types/navigation';
+import type { IconMap, RootStackParamList, TabsParamList } from '@/types/navigation';
 import HomeScreen from '@/screens/home/HomeScreen';
 import DiaryStackNavigator from '@/navigation/diary/DiaryStackNavigator';
 import ProfileScreen from '@/screens/profile/ProfileScreen';
 import TabIcon from '@navigation/TabIcon';
 import CustomHeader from '@navigation/CustomHeader';
 import LetterStackNavigator from '@/navigation/letter/LetterStackNavigator';
-import type { HeaderProps } from '@/types/Header';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const Tab = createBottomTabNavigator<TabsParamList>();
 
@@ -24,6 +25,8 @@ const ACTIVE_COLOR = '#FFD86F';
 const INACTIVE_COLOR = '#AAAAAA';
 
 const TabNavigator = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => {
@@ -57,22 +60,16 @@ const TabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          header: (props) => {
-            const { options } = props;
-            const { hasLogo, hasButton, bgColor, icon, iconSize, iconColor, onPress } =
-              options as unknown as HeaderProps;
-            return (
-              <CustomHeader
-                hasLogo={!!hasLogo}
-                hasButton={!!hasButton}
-                bgColor={bgColor}
-                icon={icon}
-                iconSize={iconSize}
-                iconColor={iconColor}
-                onPress={onPress}
-              />
-            );
-          },
+          header: () => (
+            <CustomHeader
+              hasLogo
+              hasButton
+              icon="IcNotification"
+              bgColor="#121826"
+              iconColor="white"
+              onPress={() => navigation.navigate('NotificationList')}
+            />
+          ),
         }}
       />
       <Tab.Screen name="Diary" component={DiaryStackNavigator} options={{ headerShown: false }} />
