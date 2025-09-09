@@ -8,6 +8,7 @@ import SaveButton from '@common/SaveButton';
 const CustomHeader = ({
   hasBack,
   hasLogo,
+  bgColor = '#2D3342',
   icon,
   iconSize = 32,
   iconColor = 'white',
@@ -18,7 +19,7 @@ const CustomHeader = ({
 }: HeaderProps) => {
   const navigation = useNavigation();
   return (
-  <SafeAreaView edges={['top']} className="bg-[#121826]">
+    <SafeAreaView edges={['top']} style={{ backgroundColor: bgColor }}>
       <View className="h-[60px] flex-row items-center justify-between px-7 py-4">
         <View className="flex-row gap-5">
           {hasBack && (
@@ -31,7 +32,7 @@ const CustomHeader = ({
         </View>
         {hasButton &&
           (icon ? (
-            <Pressable onPress={onPress}>
+            <Pressable onPress={onPress} disabled={disabled}>
               <Icon name={icon} size={iconSize} color={iconColor} />
             </Pressable>
           ) : (
