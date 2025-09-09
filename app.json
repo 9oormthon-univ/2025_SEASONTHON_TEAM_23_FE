@@ -9,9 +9,9 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/splash-logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#121826"
     },
     "ios": {
       "supportsTablet": true,
@@ -22,23 +22,11 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#121826"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.PetFarewell",
       "intentFilters": [
-        {
-          "action": "VIEW",
-          "autoVerify": true,
-          "category": ["BROWSABLE", "DEFAULT"],
-          "data": [
-            {
-              "scheme": "https",
-              "host": "petfarewell.site",
-              "pathPrefix": "/"
-            }
-          ]
-        },
         {
           "action": "VIEW",
           "autoVerify": true,
