@@ -1,4 +1,16 @@
-import { Image, Text, View, TouchableOpacity, FlatList, SafeAreaView, StatusBar, RefreshControl, Alert, Modal, TextInput, ActivityIndicator } from 'react-native';
+import {
+  Image,
+  Text,
+  View,
+  TouchableOpacity,
+  FlatList,
+  RefreshControl,
+  Alert,
+  Modal,
+  TextInput,
+  ActivityIndicator,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/provider/AuthProvider';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
@@ -20,7 +32,12 @@ const ProfileScreen = () => {
 
   // 일기 데이터
   const userId = user?.userId;
-  const { data: dailyLogs, isLoading: isDailyLogsLoading, isError: isDailyLogsError, refetch: refetchDailyLogs } = useDailyLogs(userId);
+  const {
+    data: dailyLogs,
+    isLoading: isDailyLogsLoading,
+    isError: isDailyLogsError,
+    refetch: refetchDailyLogs,
+  } = useDailyLogs(userId);
   const logs = useMemo(() => dailyLogs ?? [], [dailyLogs]);
 
   // 편지 데이터
@@ -47,7 +64,11 @@ const ProfileScreen = () => {
     }
   }, [tab, loadLetters]);
 
-  const { data: summary, refetch: refetchSummary, isFetching: isFetchingSummary } = useMyPageSummary(!!user);
+  const {
+    data: summary,
+    refetch: refetchSummary,
+    isFetching: isFetchingSummary,
+  } = useMyPageSummary(!!user);
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [nicknameModalVisible, setNicknameModalVisible] = useState(false);
@@ -117,77 +138,118 @@ const ProfileScreen = () => {
       loadLetters();
     }
   }, [refetchSummary, refetchDailyLogs, loadLetters, tab]);
-  const refreshing = isFetchingSummary || isDailyLogsLoading || (tab === 'letter' && lettersLoading);
+  const refreshing =
+    isFetchingSummary || isDailyLogsLoading || (tab === 'letter' && lettersLoading);
 
   const EmptyState = ({ message }: { message: string }) => (
-    <View className="flex-1 items-center justify-start mt-16 px-10">
-      <Text className="subHeading2B text-white text-center mb-8">{message}</Text>
-      <Image source={ProfileDog}/>
+    <View className="mt-16 flex-1 items-center justify-start px-10">
+      <Text className="subHeading2B mb-8 text-center text-white">{message}</Text>
+      <Image source={ProfileDog} />
     </View>
   );
 
   return (
     <SafeAreaView className="flex-1 bg-[#121826]">
-      <StatusBar barStyle="light-content" />
-
       {/* 프로필 카드 */}
-      <View className="mx-6 rounded-2xl bg-[#1F2A3C] px-6 py-6 flex-row items-center gap-5">
-          <View>
-            <Image source={DefaultProfile} className="w-20 h-20" />
-          </View>
+      <View className="mx-6 flex-row items-center gap-5 rounded-2xl bg-[#1F2A3C] px-6 py-6">
+        <View>
+          <Image source={DefaultProfile} className="h-20 w-20" />
+        </View>
         <View className="flex-1">
           <View className="flex-row items-center justify-between">
-            <Text className="subHeading1B text-white" numberOfLines={1}>{user?.nickname ?? '익명'}</Text>
+            <Text className="subHeading1B text-white" numberOfLines={1}>
+              {user?.nickname ?? '익명'}
+            </Text>
             <View className="flex-row items-center">
-              <TouchableOpacity hitSlop={8} className="ml-2" onPress={openNicknameModal} disabled={isSavingNickname}>
-                <Text className="captionSB underline text-gray-300">닉네임 수정</Text>
+              <TouchableOpacity
+                hitSlop={8}
+                className="ml-2"
+                onPress={openNicknameModal}
+                disabled={isSavingNickname}
+              >
+                <Text className="captionSB text-gray-300 underline">닉네임 수정</Text>
               </TouchableOpacity>
-              <TouchableOpacity hitSlop={8} className="ml-3" onPress={confirmLogout} disabled={isLoggingOut}>
-                <Text className="captionSB underline text-gray-300">{isLoggingOut ? '처리중...' : '로그아웃'}</Text>
+              <TouchableOpacity
+                hitSlop={8}
+                className="ml-3"
+                onPress={confirmLogout}
+                disabled={isLoggingOut}
+              >
+                <Text className="captionSB text-gray-300 underline">
+                  {isLoggingOut ? '처리중...' : '로그아웃'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
-          <View className="flex-row mt-4 gap-5">
+          <View className="mt-4 flex-row gap-5">
             <View className="flex-row items-center gap-1">
               <Icon name="IcCalendar" size={20} />
               <Text className="captionB text-[#F3DE77]">{summary?.dailyLogCount ?? 0}</Text>
-              <Text className="captionSB text-gray-300 ml-0.5">일기</Text>
+              <Text className="captionSB ml-0.5 text-gray-300">일기</Text>
             </View>
             <View className="flex-row items-center gap-1">
               <Icon name="IcLetter" size={20} />
               <Text className="captionB text-[#F3DE77]">{summary?.letterCount ?? 0}</Text>
-              <Text className="captionSB text-gray-300 ml-0.5">편지</Text>
+              <Text className="captionSB ml-0.5 text-gray-300">편지</Text>
             </View>
             <View className="flex-row items-center gap-1">
-              <Icon name="IcStar" size={20}/>
+              <Icon name="IcStar" size={20} />
               <Text className="captionB text-[#F3DE77]">{summary?.tributeCount ?? 0}</Text>
-              <Text className="captionSB text-gray-300 ml-0.5">위로의 별</Text>
+              <Text className="captionSB ml-0.5 text-gray-300">위로의 별</Text>
             </View>
           </View>
         </View>
       </View>
 
       {/* 탭 */}
-  <View className="mt-8 px-6">
+      <View className="mt-8 px-6">
         <View className="flex-row">
-          <TouchableOpacity className="flex-1 pb-2" onPress={() => setTab('diary')} activeOpacity={0.8}>
-    <Text className={`text-center subHeading3 ${tab === 'diary' ? 'text-white' : 'text-gray-500'}`}>나의 일기</Text>
-    {tab === 'diary' && <View className="h-1 rounded-full mt-2 mx-12" style={{ backgroundColor: '#D6B654' }} />}
+          <TouchableOpacity
+            className="flex-1 pb-2"
+            onPress={() => setTab('diary')}
+            activeOpacity={0.8}
+          >
+            <Text
+              className={`subHeading3 text-center ${tab === 'diary' ? 'text-white' : 'text-gray-500'}`}
+            >
+              나의 일기
+            </Text>
+            {tab === 'diary' && (
+              <View
+                className="mx-12 mt-2 h-1 rounded-full"
+                style={{ backgroundColor: '#D6B654' }}
+              />
+            )}
           </TouchableOpacity>
-          <TouchableOpacity className="flex-1 pb-2" onPress={() => setTab('letter')} activeOpacity={0.8}>
-    <Text className={`text-center subHeading3 ${tab === 'letter' ? 'text-white' : 'text-gray-500'}`}>보낸 편지</Text>
-    {tab === 'letter' && <View className="h-1 rounded-full mt-2 mx-12" style={{ backgroundColor: '#D6B654' }} />}
+          <TouchableOpacity
+            className="flex-1 pb-2"
+            onPress={() => setTab('letter')}
+            activeOpacity={0.8}
+          >
+            <Text
+              className={`subHeading3 text-center ${tab === 'letter' ? 'text-white' : 'text-gray-500'}`}
+            >
+              보낸 편지
+            </Text>
+            {tab === 'letter' && (
+              <View
+                className="mx-12 mt-2 h-1 rounded-full"
+                style={{ backgroundColor: '#D6B654' }}
+              />
+            )}
           </TouchableOpacity>
         </View>
       </View>
 
       {/* 콘텐츠 */}
-      <View className="flex-1 mt-4">
+      <View className="mt-4 flex-1">
         {tab === 'diary' ? (
           isDailyLogsLoading ? (
-            <Text className="text-center text-gray-300 mt-6">불러오는 중...</Text>
+            <Text className="mt-6 text-center text-gray-300">불러오는 중...</Text>
           ) : isDailyLogsError ? (
-            <Text className="text-center text-error mt-6" onPress={() => refetchDailyLogs()}>일기를 불러오지 못했어요. 다시 시도하려면 눌러주세요.</Text>
+            <Text className="mt-6 text-center text-error" onPress={() => refetchDailyLogs()}>
+              일기를 불러오지 못했어요. 다시 시도하려면 눌러주세요.
+            </Text>
           ) : (
             <FlatList
               data={logs}
@@ -228,9 +290,9 @@ const ProfileScreen = () => {
                           {emotion}
                         </Text>
                       </View>
-                      <Text className="captionSB text-gray-400 ml-2">{item.logDate}</Text>
+                      <Text className="captionSB ml-2 text-gray-400">{item.logDate}</Text>
                     </View>
-                    <Text className="body1 text-white mt-4" style={{ lineHeight: 20 }}>
+                    <Text className="body1 mt-4 text-white" style={{ lineHeight: 20 }}>
                       {item.preview}
                     </Text>
                   </View>
@@ -241,32 +303,39 @@ const ProfileScreen = () => {
               ListEmptyComponent={<EmptyState message="오늘의 이야기를 들려주세요." />}
             />
           )
+        ) : lettersLoading ? (
+          <Text className="mt-6 text-center text-gray-300">불러오는 중...</Text>
+        ) : lettersError ? (
+          <Text className="mt-6 text-center text-error" onPress={loadLetters}>
+            {lettersError} 다시 시도하려면 눌러주세요.
+          </Text>
         ) : (
-          lettersLoading ? (
-            <Text className="text-center text-gray-300 mt-6">불러오는 중...</Text>
-          ) : lettersError ? (
-            <Text className="text-center text-error mt-6" onPress={loadLetters}>{lettersError} 다시 시도하려면 눌러주세요.</Text>
-          ) : (
-            <FlatList
-              data={letters}
-              keyExtractor={(item, idx) => `${item.id}-${idx}`}
-              renderItem={({ item, index }) => (
-                <View className={`bg-[#1F2A3C] px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`} style={{ borderColor: '#313846' }}>
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-row items-center gap-2">
-                      <Icon name="IcStar" size={18} fill="#D6B654" />
-                      <Text className="captionB text-white">{item.tributeCount ?? 0}</Text>
-                    </View>
-                    <Text className="captionSB text-gray-400 ml-2">{item.createdAt?.slice(0,10) ?? ''}</Text>
+          <FlatList
+            data={letters}
+            keyExtractor={(item, idx) => `${item.id}-${idx}`}
+            renderItem={({ item, index }) => (
+              <View
+                className={`bg-[#1F2A3C] px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
+                style={{ borderColor: '#313846' }}
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-2">
+                    <Icon name="IcStar" size={18} fill="#D6B654" />
+                    <Text className="captionB text-white">{item.tributeCount ?? 0}</Text>
                   </View>
-                  <Text className="body1 text-white mt-4" style={{ lineHeight: 20 }}>{item.content}</Text>
+                  <Text className="captionSB ml-2 text-gray-400">
+                    {item.createdAt?.slice(0, 10) ?? ''}
+                  </Text>
                 </View>
-              )}
-              contentContainerStyle={{  paddingTop: 4, paddingBottom: 40 }}
-              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-              ListEmptyComponent={<EmptyState message="편지로 추억을 나누어 봐요." />}
-            />
-          )
+                <Text className="body1 mt-4 text-white" style={{ lineHeight: 20 }}>
+                  {item.content}
+                </Text>
+              </View>
+            )}
+            contentContainerStyle={{ paddingTop: 4, paddingBottom: 40 }}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            ListEmptyComponent={<EmptyState message="편지로 추억을 나누어 봐요." />}
+          />
         )}
       </View>
       {/* 닉네임 수정 모달 */}
@@ -276,9 +345,11 @@ const ProfileScreen = () => {
         animationType="fade"
         onRequestClose={() => !isSavingNickname && setNicknameModalVisible(false)}
       >
-        <View className="flex-1 bg-black/60 items-center justify-center px-8">
+        <View className="flex-1 items-center justify-center bg-black/60 px-8">
           <View className="w-full rounded-2xl bg-[#1F2A3C] p-6">
-            <Text className="subHeading2B text-white mb-4">닉네임 {user?.nickname ? '수정' : '설정'}</Text>
+            <Text className="subHeading2B mb-4 text-white">
+              닉네임 {user?.nickname ? '수정' : '설정'}
+            </Text>
             <TextInput
               value={nicknameInput}
               onChangeText={setNicknameInput}
@@ -286,21 +357,24 @@ const ProfileScreen = () => {
               placeholderTextColor="#7A8699"
               maxLength={20}
               autoFocus
-              className="text-white body1 bg-[#273246] rounded-lg px-4 py-3"
+              className="body1 rounded-lg bg-[#273246] px-4 py-3 text-white"
             />
-            <Text className="caption text-gray-400 mt-2">최대 20자 • 공백 양끝 자동 제거</Text>
-            <View className="flex-row justify-end mt-6 gap-4">
-              <TouchableOpacity disabled={isSavingNickname} onPress={() => setNicknameModalVisible(false)}>
-                <Text className="captionSB underline text-gray-300">취소</Text>
+            <Text className="caption mt-2 text-gray-400">최대 20자 • 공백 양끝 자동 제거</Text>
+            <View className="mt-6 flex-row justify-end gap-4">
+              <TouchableOpacity
+                disabled={isSavingNickname}
+                onPress={() => setNicknameModalVisible(false)}
+              >
+                <Text className="captionSB text-gray-300 underline">취소</Text>
               </TouchableOpacity>
               <TouchableOpacity disabled={isSavingNickname} onPress={onConfirmNickname}>
                 {isSavingNickname ? (
                   <View className="flex-row items-center gap-2">
                     <ActivityIndicator size="small" color="#F3DE77" />
-                    <Text className="captionSB underline text-gray-300">저장중...</Text>
+                    <Text className="captionSB text-gray-300 underline">저장중...</Text>
                   </View>
                 ) : (
-                  <Text className="captionSB underline text-[#F3DE77]">확인</Text>
+                  <Text className="captionSB text-[#F3DE77] underline">확인</Text>
                 )}
               </TouchableOpacity>
             </View>
