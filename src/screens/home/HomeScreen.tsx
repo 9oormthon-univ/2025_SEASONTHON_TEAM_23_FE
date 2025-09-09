@@ -1,32 +1,13 @@
 import { SafeAreaView, View, Text, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-// import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-// import type { TabsParamList } from '@/types/navigation';
 import { useAuth } from '@/provider/AuthProvider';
 import { useDailyLogMoodAnalyze } from '@/hooks/queries/useDailyLogMoodAnalyze';
 import Icon from '@common/Icon';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/types/navigation';
-import { useLayoutEffect } from 'react';
-import { setHeaderExtras } from '@/types/Header';
 
 export default function HomeScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useAuth();
   const nickname = user?.nickname ?? '사용자';
 
   const { data: moodAnalyze } = useDailyLogMoodAnalyze();
-
-  useLayoutEffect(() => {
-    setHeaderExtras(navigation, {
-      hasLogo: true,
-      hasButton: true,
-      bgColor: '#121826',
-      icon: 'IcNotification',
-      iconColor: 'white',
-      onPress: () => navigation.navigate('NotificationList'),
-    });
-  }, [navigation]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#121826]">
