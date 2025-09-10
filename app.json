@@ -18,7 +18,7 @@
       "runtimeVersion": {
         "policy": "appVersion"
       },
-      "bundleIdentifier": "com.PetFarewell"
+      "bundleIdentifier": "org.name.PetFarewell"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,7 +26,7 @@
         "backgroundColor": "#121826"
       },
       "edgeToEdgeEnabled": true,
-      "package": "org.name.PetFarewell",
+      "package": "com.PetFarewell",
       "intentFilters": [
         {
           "action": "VIEW",
