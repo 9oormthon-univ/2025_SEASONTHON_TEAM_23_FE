@@ -17,7 +17,8 @@
       "supportsTablet": true,
       "runtimeVersion": {
         "policy": "appVersion"
-      }
+      },
+      "bundleIdentifier": "com.PetFarewell"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,7 +26,7 @@
         "backgroundColor": "#121826"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.PetFarewell",
+      "package": "org.name.PetFarewell",
       "intentFilters": [
         {
           "action": "VIEW",
