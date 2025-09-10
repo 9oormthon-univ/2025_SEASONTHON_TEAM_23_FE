@@ -9,6 +9,7 @@ import { useTribute } from '@/provider/TributeProvider';
 import { fetchLetters } from '@/services/letters';
 import Loader from '../common/Loader';
 import Icon from '@common/Icon';
+import { formatRelativeKo } from '@/utils/formatRelativeKo';
 
 type NavProp = NativeStackNavigationProp<LetterStackParamList>;
 
@@ -85,16 +86,21 @@ const LetterFeed: React.FC = () => {
           <Text className="body1 pb-4 text-error">{error}</Text>
         </View>
       ) : (
-  <FlatList
+        <FlatList
           data={letters}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={({ item }) => {
             const authorObj = item.author ?? item.user ?? null;
-            const authorId = item.authorId ?? item.author_id ?? item.userId ?? item.user_id ?? authorObj?.id ?? authorObj?.userId ?? null;
-            const authorName = authorObj?.nickname ?? authorObj?.name ?? authorObj?.displayName ?? null;
+            const authorId = item.userId ?? authorObj?.id ?? authorObj?.userId ?? null;
+            const authorName =
+              authorObj?.nickname ?? authorObj?.name ?? authorObj?.displayName ?? null;
             const mine = user && (authorId === user?.userId || authorId === (user as any)?.id);
-            const display = authorName ?? (mine ? user?.nickname ?? null : null) ?? '작성자 정보 없음';
-            const timeText = item.createdAt ? (item.createdAt) : '';
+            const display =
+              item.nickname ??
+              authorName ??
+              (mine ? (user?.nickname ?? null) : null) ??
+              '작성자 정보 없음';
+            const timeText = item.createdAt ? item.createdAt : '';
             // 사진 후보 필드 추출 (다양한 API 형태 대응)
             const photoUri =
               item.photoUrl ||
@@ -112,7 +118,12 @@ const LetterFeed: React.FC = () => {
                   <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
                     <Image
                       source={{ uri: String(photoUri) }}
-                      style={{ width: 84, height: 84, borderRadius: 12, backgroundColor: '#1F2A3C' }}
+                      style={{
+                        width: 84,
+                        height: 84,
+                        borderRadius: 12,
+                        backgroundColor: '#1F2A3C',
+                      }}
                       resizeMode="cover"
                     />
                     <Text
@@ -131,11 +142,13 @@ const LetterFeed: React.FC = () => {
                 <View className="mt-3 flex-row items-center justify-between">
                   <Text style={{ color: '#F2F2F2', fontSize: 12 }}>
                     {display}
-                    {timeText ? ` · ${timeText}` : ''}
+                    {timeText ? ` · ${formatRelativeKo(timeText)}` : ''}
                   </Text>
                   <View className="flex-row items-center gap-1">
                     <Icon name="IcStar" size={20} color="#F2F2F2" />
-                    <Text style={{ color: '#F2F2F2', fontSize: 14, fontWeight: '300' }}>{item.tributeCount ?? 0}</Text>
+                    <Text style={{ color: '#F2F2F2', fontSize: 14, fontWeight: '300' }}>
+                      {item.tributeCount ?? 0}
+                    </Text>
                   </View>
                 </View>
               </Pressable>
