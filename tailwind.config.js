@@ -42,6 +42,10 @@ module.exports = {
       },
       fontFamily: {
         pretendard: ['Pretendard'],
+        pretendardBold: ['Pretendard-Bold'],
+        pretendardSemiBold: ['Pretendard-SemiBold'],
+        pretendardMedium: ['Pretendard-Medium'],
+        pretendardRegular: ['Pretendard-Regular'],
       },
     },
   },

@@ -9,6 +9,7 @@ import {
   Switch,
   Pressable,
   ScrollView,
+  Platform,
 } from 'react-native';
 // (이전 로직 잔여) import { Dimensions, PixelRatio } from 'react-native'; // 전체폭 이미지 렌더링 제거로 미사용
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -123,7 +124,7 @@ const LetterWriteScreen = () => {
   // 헤더 구성 (완료 버튼)
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
-      title: editingId ? '한 마디 편지 수정' : '한 마디 편지 쓰기',
+      title: editingId ? '기억의 별자리 수정' : '기억의 별자리 쓰기',
   disabled: !letter.trim() || isSaving || hasSubmitted,
       hasBack: true,
       hasButton: true,
@@ -148,7 +149,15 @@ const LetterWriteScreen = () => {
         keyboardShouldPersistTaps="handled"
       >
         <View style={{ alignItems: 'center' }}>
-          <Icon name="IcStarSky" size={56} color="#F2F2F2" />
+          {Platform.OS === 'ios' ? (
+            <Image
+              source={require('@images/star-sky.png')}
+              style={{ width: 56 * (124 / 88), height: 56 }}
+              resizeMode="contain"
+            />
+          ) : (
+            <Icon name="IcStarSky" size={56} color="#F2F2F2" />
+          )}
           <Text style={{ marginTop: 16, color: '#AAAAAA', fontSize: 12 }}>
             {formatKoreanDate(new Date().toISOString())}
           </Text>

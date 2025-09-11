@@ -14,7 +14,13 @@ const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     (async () => {
       await Font.loadAsync({
+        // Variable 유지 (안드/웹 등 기본 폰트로 사용)
         Pretendard: require('@fonts/PretendardVariable.ttf'),
+        // 굵기별 TTF (iOS에서 확실한 굵기 표현용)
+        'Pretendard-Regular': require('@fonts/Pretendard-Regular.ttf'),
+        'Pretendard-Medium': require('@fonts/Pretendard-Medium.ttf'),
+        'Pretendard-SemiBold': require('@fonts/Pretendard-SemiBold.ttf'),
+        'Pretendard-Bold': require('@fonts/Pretendard-Bold.ttf'),
       });
       setReady(true);
     })();

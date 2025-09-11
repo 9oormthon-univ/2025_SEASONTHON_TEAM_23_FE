@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, Pressable, Image } from 'react-native';
+import { View, Text, FlatList, Pressable, Image, Platform } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { LetterStackParamList } from '@/types/navigation';
@@ -145,7 +145,15 @@ const LetterFeed: React.FC = () => {
                     {timeText ? ` · ${formatRelativeKo(timeText)}` : ''}
                   </Text>
                   <View className="flex-row items-center gap-1">
-                    <Icon name="IcStar" size={20} color="#F2F2F2" />
+                    {Platform.OS === 'ios' ? (
+                      <Image
+                        source={require('@images/mini-star.png')}
+                        style={{ width: 20, height: 20 }}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <Icon name="IcStar" size={20} color="#F2F2F2" />
+                    )}
                     <Text style={{ color: '#F2F2F2', fontSize: 14, fontWeight: '300' }}>
                       {item.tributeCount ?? 0}
                     </Text>

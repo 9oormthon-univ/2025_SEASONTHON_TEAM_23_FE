@@ -9,6 +9,7 @@ import {
   Modal,
   TextInput,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/provider/AuthProvider';
@@ -151,7 +152,10 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView className="flex-1 bg-[#121826]">
       {/* 프로필 카드 */}
-      <View className="mx-6 flex-row items-center gap-5 rounded-2xl bg-[#1F2A3C] px-6 py-6">
+      <View
+        className="mx-6 flex-row items-center gap-5 rounded-2xl bg-[#1F2A3C] px-6 py-6"
+        style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}
+      >
         <View>
           <Image source={DefaultProfile} className="h-20 w-20" />
         </View>
@@ -193,7 +197,15 @@ const ProfileScreen = () => {
               <Text className="captionSB ml-0.5 text-gray-300">편지</Text>
             </View>
             <View className="flex-row items-center gap-1">
-              <Icon name="IcStar" size={20} />
+              {Platform.OS === 'ios' ? (
+                <Image
+                  source={require('@images/mini-star.png')}
+                  style={{ width: 20, height: 20 }}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Icon name="IcStar" size={20} />
+              )}
               <Text className="captionB text-[#F3DE77]">{summary?.tributeCount ?? 0}</Text>
               <Text className="captionSB ml-0.5 text-gray-300">위로의 별</Text>
             </View>
@@ -202,7 +214,7 @@ const ProfileScreen = () => {
       </View>
 
       {/* 탭 */}
-      <View className="mt-8 px-6">
+  <View className="mt-8 px-6" style={{ marginTop: Platform.OS === 'ios' ? 20 : undefined }}>
         <View className="flex-row">
           <TouchableOpacity
             className="flex-1 pb-2"
@@ -242,7 +254,7 @@ const ProfileScreen = () => {
       </View>
 
       {/* 콘텐츠 */}
-      <View className="mt-4 flex-1">
+  <View className="mt-4 flex-1" style={{ marginTop: Platform.OS === 'ios' ? 8 : undefined }}>
         {tab === 'diary' ? (
           isDailyLogsLoading ? (
             <Text className="mt-6 text-center text-gray-300">불러오는 중...</Text>
@@ -320,7 +332,15 @@ const ProfileScreen = () => {
               >
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center gap-2">
-                    <Icon name="IcStar" size={18} fill="#D6B654" />
+                    {Platform.OS === 'ios' ? (
+                      <Image
+                        source={require('@images/mini-star.png')}
+                        style={{ width: 18, height: 18 }}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <Icon name="IcStar" size={18} fill="#D6B654" />
+                    )}
                     <Text className="captionB text-white">{item.tributeCount ?? 0}</Text>
                   </View>
                   <Text className="captionSB ml-2 text-gray-400">

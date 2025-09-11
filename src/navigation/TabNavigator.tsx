@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
+import { Text, Platform } from 'react-native';
 import type { IconMap, RootStackParamList, TabsParamList } from '@/types/navigation';
 import HomeScreen from '@/screens/home/HomeScreen';
 import DiaryStackNavigator from '@/navigation/diary/DiaryStackNavigator';
@@ -36,7 +36,7 @@ const TabNavigator = () => {
           headerTitleAlign: 'center',
           tabBarStyle: {
             backgroundColor: TAB_BG,
-            height: 68,
+            height: Platform.OS === 'ios' ? 80 : 68,
             borderTopWidth: 0.5,
             borderTopColor: '#2D3852',
             paddingTop: 6,
