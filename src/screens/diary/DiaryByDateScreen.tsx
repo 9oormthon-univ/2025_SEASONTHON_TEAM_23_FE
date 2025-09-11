@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, Image, Platform } from 'react-native';
 import { ACTIVE_UI, EMOJIS } from '@/constants/diary/emoji';
 import Icon from '@common/Icon';
 import TextArea from '@common/TextArea';
@@ -102,7 +102,15 @@ const DiaryByDateScreen = () => {
           </View>
           {data?.aiReflection ? (
             <View className="items-center gap-2.5 rounded-[20px] bg-bg-light p-5">
-              <Icon name="IcStar" width={40} height={28} />
+              {Platform.OS === 'ios' ? (
+                <Image
+                  source={require('@images/mini-star.png')}
+                  style={{ height: 28, aspectRatio: 1, marginTop: -3}}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Icon name="IcStar" width={40} height={28} />
+              )}
               <Text className="body1 text-center !leading-6 text-white">
                 {keepAllKorean(data.aiReflection)}
               </Text>

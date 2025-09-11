@@ -9,6 +9,7 @@ import {
   Modal,
   TextInput,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/provider/AuthProvider';
@@ -193,7 +194,15 @@ const ProfileScreen = () => {
               <Text className="captionSB ml-0.5 text-gray-300">편지</Text>
             </View>
             <View className="flex-row items-center gap-1">
-              <Icon name="IcStar" size={20} />
+              {Platform.OS === 'ios' ? (
+                <Image
+                  source={require('@images/mini-star.png')}
+                  style={{ width: 20, height: 20 }}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Icon name="IcStar" size={20} />
+              )}
               <Text className="captionB text-[#F3DE77]">{summary?.tributeCount ?? 0}</Text>
               <Text className="captionSB ml-0.5 text-gray-300">위로의 별</Text>
             </View>
@@ -320,7 +329,15 @@ const ProfileScreen = () => {
               >
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center gap-2">
-                    <Icon name="IcStar" size={18} fill="#D6B654" />
+                    {Platform.OS === 'ios' ? (
+                      <Image
+                        source={require('@images/mini-star.png')}
+                        style={{ width: 18, height: 18 }}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <Icon name="IcStar" size={18} fill="#D6B654" />
+                    )}
                     <Text className="captionB text-white">{item.tributeCount ?? 0}</Text>
                   </View>
                   <Text className="captionSB ml-2 text-gray-400">

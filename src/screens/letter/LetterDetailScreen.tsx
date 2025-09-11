@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
-import { View, Text, ScrollView, Alert, Image, Pressable } from 'react-native';
+import { View, Text, ScrollView, Alert, Image, Pressable, Platform } from 'react-native';
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { LetterStackParamList } from '@/types/navigation';
@@ -267,8 +267,16 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         contentContainerStyle={{ paddingHorizontal: 28, paddingBottom: 100 }}
       >
         <View className="items-center">
-          {/* 상단 별 아이콘 */}
-          <Icon name="IcStarSky" size={128} />
+          {/* 상단 별 아이콘: iOS에서는 PNG로 대체 */}
+          {Platform.OS === 'ios' ? (
+            <Image
+              source={require('@images/star-sky.png')}
+              style={{ width: 128, aspectRatio: 124 / 88 }}
+              resizeMode="contain"
+            />
+          ) : (
+            <Icon name="IcStarSky" size={128} />
+          )}
           {/* 날짜 */}
           <Text className="body2 mt-6" style={{ color: '#AAAAAA' }}>
             {formatKoreanDate(letter.createdAt)}
@@ -304,7 +312,15 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           {/* 별 카운트 */}
           <View className="mt-14 items-center">
             <View className="flex-row items-center gap-2">
-              <Icon name="IcStar" size={20} color="#F2F2F2" />
+              {Platform.OS === 'ios' ? (
+                <Image
+                  source={require('@images/mini-star.png')}
+                  style={{ width: 20, height: 20 }}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Icon name="IcStar" size={20} color="#F2F2F2" />
+              )}
               {letter.tributeCount === 0 ? (
                 <Text className="body2" style={{ color: '#F2F2F2' }}>
                   첫 위로의 별을 전달해 보세요.

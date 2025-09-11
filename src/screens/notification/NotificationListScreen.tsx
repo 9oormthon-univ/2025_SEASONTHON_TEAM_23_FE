@@ -1,4 +1,4 @@
-import { Image, View, Text, FlatList } from 'react-native';
+import { Image, View, Text, FlatList, Platform } from 'react-native';
 import { useLayoutEffect } from 'react';
 import { setHeaderExtras } from '@/types/Header';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -36,7 +36,15 @@ const NotificationListScreen = () => {
           <View className="flex-row justify-between gap-3 rounded-[20px] bg-bg-light px-7 py-5">
             <View className="gap-1">
               <View className="flex-row items-center gap-0.5">
-                <Icon name={'IcStar'} size={20} />
+                {Platform.OS === 'ios' ? (
+                  <Image
+                    source={require('@images/mini-star.png')}
+                    style={{ width: 20, height: 20 }}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <Icon name={'IcStar'} size={20} />
+                )}
                 <Text className="body2 text-gray-300">{`위로의 별을 받았어요`}</Text>
               </View>
               <Text className="subHeading3 text-white">{`${item.count}명의 사람들이 위로의 별을 보냈어요.`}</Text>
