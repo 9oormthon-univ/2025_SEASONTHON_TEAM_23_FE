@@ -3,6 +3,21 @@ apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
+def localProps = new Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+  localPropsFile.withReader('UTF-8') { reader -> localProps.load(reader) }
+}
+
+def kakaoKey =
+        localProps.getProperty("KAKAO_NATIVE_APP_KEY") ?:
+        System.getenv("KAKAO_NATIVE_APP_KEY") ?:
+        project.findProperty("KAKAO_NATIVE_APP_KEY") ?:
+        ""
+
+if (!kakaoKey) {
+  throw new GradleException("KAKAO_NATIVE_APP_KEY is missing. Put it in android/local.properties or env.")
+}
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -89,6 +104,8 @@ android {
 
     namespace 'com.PetFarewell'
     defaultConfig {
+        resValue "string", "kakao_app_key", kakaoKey
+        manifestPlaceholders += [ KAKAO_APP_KEY: kakaoKey ]
         applicationId 'com.PetFarewell'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
