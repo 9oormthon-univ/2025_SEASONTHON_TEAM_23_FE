@@ -1,4 +1,4 @@
-import { Pressable, View, Image, Text, ScrollView } from 'react-native';
+import { Pressable, View, Image, Text, ScrollView, Platform } from 'react-native';
 import IcKakaoLogo from '@icons/ic-kakao-logo.svg';
 import { useKakaoLogin } from '@/hooks/useKakaoLogin';
 
@@ -7,7 +7,10 @@ const OnboardingScreen = () => {
 
   return (
     <ScrollView className="bg-bg">
-      <View className="items-center gap-10 px-12 pb-[50px] pt-9">
+      <View
+        className="items-center gap-10 px-12 pb-[50px] pt-9"
+        style={Platform.OS === 'ios' ? { marginTop: 60 } : undefined}
+      >
         <View className="gap-[80px]">
           <Image source={require('@images/img-onboarding.png')} />
           <View className="flex-row gap-3 overflow-hidden">
