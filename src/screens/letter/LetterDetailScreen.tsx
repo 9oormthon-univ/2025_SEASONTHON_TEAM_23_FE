@@ -64,7 +64,6 @@ const normalizeLetter = (raw: any) => {
 const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const id = route?.params?.id;
   const [letter, setLetter] = useState<any | null>(null);
-  const [author, setAuthor] = useState<any | null>(null);
   const { toggleTribute, fetchTributes: refreshTributes } = useTribute();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,7 +96,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         const raw = (res as any)?.data ?? res;
         const normalized = normalizeLetter(raw);
         setLetter(normalized);
-        setAuthor(normalized?.author ?? null);
+  // author state 제거: 필요 시 letter.author 참조
       } catch (e) {
         setError('편지를 불러오지 못했습니다.');
       } finally {
@@ -153,7 +152,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           const raw = (res as any)?.data ?? res;
           const normalized = normalizeLetter(raw);
           setLetter(normalized);
-          setAuthor(normalized?.author ?? null);
+          // author state 제거
         } catch (e) {}
         // 서버 기준으로 다시 확인
         try {
@@ -176,7 +175,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         const raw = (res as any)?.data ?? res;
         const normalized = normalizeLetter(raw);
         setLetter(normalized);
-        setAuthor(normalized?.author ?? null);
+          // author state 제거
       } catch (e) {}
       try {
         await refreshTributes(currentUserId);
@@ -283,16 +282,41 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           </Text>
           {/* 제목 (닉네임 문구) */}
           {(() => {
-            const meName = user?.nickname ?? null;
-            const isMine =
-              ownerId != null && (ownerId === user?.userId || ownerId === (user as any)?.id);
-            const displayName = author?.nickname ?? (isMine ? meName : null) ?? '작성자 정보 없음';
+            // LetterFeed에서 사용한 패턴과 동일하게 author 정보 및 표시명 도출
+            const raw = letter?._raw ?? {};
+            const authorObj = raw.author ?? raw.user ?? letter?.author ?? null;
+            const authorId =
+              raw.userId ??
+              raw.user_id ??
+              raw.authorId ??
+              raw.author_id ??
+              authorObj?.id ??
+              authorObj?.userId ??
+              letter?.author?.id ??
+              letter?.authorId ??
+              null;
+            const authorName =
+              authorObj?.nickname ??
+              authorObj?.name ??
+              authorObj?.displayName ??
+              letter?.author?.nickname ??
+              null;
+            const mine =
+              !!user &&
+              (String(authorId) ===
+                String((user as any)?.userId ?? (user as any)?.id ?? '')); // 본인 글인지 판단
+            const display =
+              raw.nickname ??
+              letter?._raw?.nickname ??
+              authorName ??
+              (mine ? (user?.nickname ?? null) : null) ??
+              '작성자 정보 없음';
             return (
               <Text
                 className="mt-6 text-center text-white"
                 style={{ fontSize: 14, fontWeight: '600', lineHeight: 20 }}
               >
-                {`${displayName}님의 추억이에요.`}
+                {`${display}님의 추억이에요.`}
               </Text>
             );
           })()}
