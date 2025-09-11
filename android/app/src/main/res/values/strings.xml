@@ -1,5 +1,4 @@
 <resources>
   <string name="app_name">PetFarewell</string>
   <string name="expo_runtime_version">1.0.0</string>
-  <string name="kakao_app_key">4d5a023571508cc9cb93f870bb0a9084</string>
 </resources>
