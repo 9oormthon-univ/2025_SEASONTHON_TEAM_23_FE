@@ -152,7 +152,10 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView className="flex-1 bg-[#121826]">
       {/* 프로필 카드 */}
-      <View className="mx-6 flex-row items-center gap-5 rounded-2xl bg-[#1F2A3C] px-6 py-6">
+      <View
+        className="mx-6 flex-row items-center gap-5 rounded-2xl bg-[#1F2A3C] px-6 py-6"
+        style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}
+      >
         <View>
           <Image source={DefaultProfile} className="h-20 w-20" />
         </View>
@@ -211,7 +214,7 @@ const ProfileScreen = () => {
       </View>
 
       {/* 탭 */}
-      <View className="mt-8 px-6">
+  <View className="mt-8 px-6" style={{ marginTop: Platform.OS === 'ios' ? 20 : undefined }}>
         <View className="flex-row">
           <TouchableOpacity
             className="flex-1 pb-2"
@@ -251,7 +254,7 @@ const ProfileScreen = () => {
       </View>
 
       {/* 콘텐츠 */}
-      <View className="mt-4 flex-1">
+  <View className="mt-4 flex-1" style={{ marginTop: Platform.OS === 'ios' ? 8 : undefined }}>
         {tab === 'diary' ? (
           isDailyLogsLoading ? (
             <Text className="mt-6 text-center text-gray-300">불러오는 중...</Text>
