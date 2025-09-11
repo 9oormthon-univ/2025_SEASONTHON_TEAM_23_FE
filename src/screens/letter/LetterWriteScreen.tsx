@@ -123,7 +123,7 @@ const LetterWriteScreen = () => {
   // 헤더 구성 (완료 버튼)
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
-      title: editingId ? '한 마디 편지 수정' : '한 마디 편지 쓰기',
+      title: editingId ? '기억의 별자리 수정' : '기억의 별자리 쓰기',
   disabled: !letter.trim() || isSaving || hasSubmitted,
       hasBack: true,
       hasButton: true,
