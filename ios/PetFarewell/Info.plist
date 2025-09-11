@@ -23,13 +23,13 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>KAKAO_APP_KEY</key>
-	<string>4d5a023571508cc9cb93f870bb0a9084</string>
+	<string>$(KAKAO_NATIVE_APP_KEY)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>kakao4d5a023571508cc9cb93f870bb0a9084</string>
+				<string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
 			</array>
 		</dict>
 	</array>
