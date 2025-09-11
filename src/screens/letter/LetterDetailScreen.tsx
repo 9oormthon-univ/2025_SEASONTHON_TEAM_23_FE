@@ -19,51 +19,9 @@ import ConfirmDeleteModal from '@/components/common/ConfirmDeleteModal';
 
 type Props = NativeStackScreenProps<LetterStackParamList, 'LetterDetail'>;
 
-const normalizeLetter = (raw: any) => {
-  // 다양한 API 응답 형태를 하나의 표준형으로 변환
-  if (!raw) return null;
-  const id = raw.id ?? raw.letterId ?? raw._id ?? raw.letter_id ?? null;
-  const content = raw.content ?? raw.body ?? raw.text ?? '';
-  const createdAt = raw.createdAt ?? raw.created_at ?? raw.date ?? null;
-  const photoUrl = raw.photoUrl ?? raw.photo_url ?? raw.imageUrl ?? raw.image_url ?? null;
-  const tributeCount = Number(raw.tributeCount ?? raw.tribute_count ?? raw.tributes ?? 0) || 0;
-
-  // author 정보: 객체 또는 id 필드 후보들을 합쳐서 간단히 표현
-  const authorObj = raw.author ?? raw.user ?? null;
-  const authorId =
-    raw.authorId ??
-    raw.author_id ??
-    raw.userId ??
-    raw.user_id ??
-    authorObj?.id ??
-    authorObj?.userId ??
-    null;
-  const author = authorObj
-    ? {
-        id: authorObj.id ?? authorObj.userId ?? authorObj.user_id ?? null,
-        nickname: authorObj.nickname ?? authorObj.name ?? authorObj.displayName ?? null,
-      }
-    : authorId
-      ? { id: authorId, nickname: null }
-      : null;
-
-  return {
-    // 화면 전체에서 사용하기 쉬운 형태
-    id,
-    content,
-    createdAt,
-    photoUrl,
-    tributeCount,
-    author,
-    _raw: raw,
-    // 보존: 원본의 가능성 있는 식별자들
-    authorId,
-  };
-};
-
 const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const id = route?.params?.id;
-  const [letter, setLetter] = useState<any | null>(null);
+  const [letter, setLetter] = useState<any | null>(null); // 백엔드 camelCase 그대로 저장
   const { toggleTribute, fetchTributes: refreshTributes } = useTribute();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,10 +35,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   // (이미지 원본 크기 표시 로직 제거: 디자인 상 고정 높이 사용)
 
-  // user id 정규화: 여러 후보 필드에서 찾아 숫자로 변환
-  const rawUserId = (user as any)?.id ?? (user as any)?.userId ?? (user as any)?.user_id ?? null;
-  const parsedUserId = rawUserId != null ? Number(rawUserId) : NaN;
-  const currentUserId = !isNaN(parsedUserId) ? parsedUserId : null;
+  // camelCase 기준 단순 userId
+  const currentUserId = (user as any)?.userId ?? null;
 
   useEffect(() => {
     navigation.setOptions({ title: '기억의 별자리' });
@@ -92,11 +48,9 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetchLetterById(id);
-        const raw = (res as any)?.data ?? res;
-        const normalized = normalizeLetter(raw);
-        setLetter(normalized);
-  // author state 제거: 필요 시 letter.author 참조
+  const res = await fetchLetterById(id);
+  const raw = (res as any)?.data ?? res;
+  setLetter(raw);
       } catch (e) {
         setError('편지를 불러오지 못했습니다.');
       } finally {
@@ -139,8 +93,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     }
     if (isTributing) return;
 
-    // normalized letter.id 사용 (normalizeLetter로 보장)
-    const letterId = String(letter.id ?? letter._raw?.id ?? '');
+  const letterId = String(letter.id ?? '');
     const has = hasMyTribute;
 
     if (has) {
@@ -150,9 +103,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         try {
           const res = await fetchLetterById(letterId);
           const raw = (res as any)?.data ?? res;
-          const normalized = normalizeLetter(raw);
-          setLetter(normalized);
-          // author state 제거
+          setLetter(raw);
         } catch (e) {}
         // 서버 기준으로 다시 확인
         try {
@@ -173,9 +124,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       try {
         const res = await fetchLetterById(letterId);
         const raw = (res as any)?.data ?? res;
-        const normalized = normalizeLetter(raw);
-        setLetter(normalized);
-          // author state 제거
+        setLetter(raw);
       } catch (e) {}
       try {
         await refreshTributes(currentUserId);
@@ -186,14 +135,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   };
 
-  const ownerId = letter
-    ? (letter.author?.id ??
-      letter.authorId ??
-      letter.author_id ??
-      letter._raw?.userId ??
-      letter._raw?.user_id ??
-      null)
-    : null;
+  const ownerId = letter?.userId ?? null;
   const isOwner = Boolean(currentUserId && ownerId && String(ownerId) === String(currentUserId));
 
   useLayoutEffect(() => {
@@ -226,12 +168,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleDelete = useCallback(async () => {
     if (!letter) return;
     try {
-      const rawId =
-        letter.id ??
-        letter._raw?.id ??
-        letter._raw?.letterId ??
-        letter._raw?.letter_id ??
-        null;
+      const rawId = letter.id;
       if (!rawId) throw new Error('invalid_letter_id');
       await deleteLetter(rawId);
       setConfirmVisible(false);
@@ -282,35 +219,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           </Text>
           {/* 제목 (닉네임 문구) */}
           {(() => {
-            // LetterFeed에서 사용한 패턴과 동일하게 author 정보 및 표시명 도출
-            const raw = letter?._raw ?? {};
-            const authorObj = raw.author ?? raw.user ?? letter?.author ?? null;
-            const authorId =
-              raw.userId ??
-              raw.user_id ??
-              raw.authorId ??
-              raw.author_id ??
-              authorObj?.id ??
-              authorObj?.userId ??
-              letter?.author?.id ??
-              letter?.authorId ??
-              null;
-            const authorName =
-              authorObj?.nickname ??
-              authorObj?.name ??
-              authorObj?.displayName ??
-              letter?.author?.nickname ??
-              null;
-            const mine =
-              !!user &&
-              (String(authorId) ===
-                String((user as any)?.userId ?? (user as any)?.id ?? '')); // 본인 글인지 판단
-            const display =
-              raw.nickname ??
-              letter?._raw?.nickname ??
-              authorName ??
-              (mine ? (user?.nickname ?? null) : null) ??
-              '작성자 정보 없음';
+            const display = letter.nickname ?? '작성자 정보 없음';
             return (
               <Text
                 className="mt-6 text-center text-white"
@@ -345,7 +254,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               ) : (
                 <Icon name="IcStar" size={20} color="#F2F2F2" />
               )}
-              {letter.tributeCount === 0 ? (
+              {Number(letter?.tributeCount ?? 0) === 0 ? (
                 <Text className="body2" style={{ color: '#F2F2F2' }}>
                   첫 위로의 별을 전달해 보세요.
                 </Text>
