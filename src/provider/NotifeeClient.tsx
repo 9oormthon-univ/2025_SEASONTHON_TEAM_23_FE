@@ -26,7 +26,7 @@ export const showStarBatchNotification = async (count: number) => {
     body: `${count}명의 사람들이 위로의 별을 보냈어요.`,
     android: {
       channelId: channelId ?? 'star',
-      // smallIcon: 'ic_stat_paw', // 준비되면 주석 해제
+      smallIcon: 'ic_stat_star',
       pressAction: { id: 'open_notification' },
     },
   });
