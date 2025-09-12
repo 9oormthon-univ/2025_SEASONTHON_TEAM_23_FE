@@ -10,6 +10,7 @@ import {
 } from '@/provider/NotifeeClient';
 import notifee from '@notifee/react-native';
 import { StatusBar } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const App = () => {
   const navRef = useRef<NavigationContainerRef<any>>(null);
@@ -44,10 +45,12 @@ const App = () => {
   }, []);
 
   return (
-    <AppProvider>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      <RootNavigator navigationRef={navRef} />
-    </AppProvider>
+    <SafeAreaProvider>
+      <AppProvider>
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <RootNavigator navigationRef={navRef} />
+      </AppProvider>
+    </SafeAreaProvider>
   );
 };
 
