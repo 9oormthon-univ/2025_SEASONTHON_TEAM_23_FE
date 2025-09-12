@@ -108,24 +108,34 @@ const LetterWriteScreen = () => {
         });
       }
 
-    Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
+      Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
         { text: '확인', onPress: () => navigation.navigate('LetterScreen') },
       ]);
       setLetter('');
       setImageUri(null);
-    setHasSubmitted(true); // 첫 성공 후 영구 비활성
+      setHasSubmitted(true); // 첫 성공 후 영구 비활성
     } catch (error) {
       Alert.alert('저장 실패', '서버에 저장하는 중 오류가 발생했습니다.');
     } finally {
-    setIsSaving(false);
+      setIsSaving(false);
     }
-  }, [imageUri, letter, isPublic, editingId, user, navigation, originalHasPhoto, isSaving, hasSubmitted]);
+  }, [
+    imageUri,
+    letter,
+    isPublic,
+    editingId,
+    user,
+    navigation,
+    originalHasPhoto,
+    isSaving,
+    hasSubmitted,
+  ]);
 
   // 헤더 구성 (완료 버튼)
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
       title: editingId ? '기억의 별자리 수정' : '기억의 별자리 쓰기',
-  disabled: !letter.trim() || isSaving || hasSubmitted,
+      disabled: !letter.trim() || isSaving || hasSubmitted,
       hasBack: true,
       hasButton: true,
       onPress: handleSave,
@@ -156,7 +166,7 @@ const LetterWriteScreen = () => {
               resizeMode="contain"
             />
           ) : (
-            <Icon name="IcStarSky" size={56} color="#F2F2F2" />
+            <Icon name="IcStarSky" width={123} height={88} color="#F2F2F2" />
           )}
           <Text style={{ marginTop: 16, color: '#AAAAAA', fontSize: 12 }}>
             {formatKoreanDate(new Date().toISOString())}
