@@ -42,8 +42,6 @@ target 'PetFarewell' do
     :privacy_file_aggregation_enabled => podfile_properties['apple.privacyManifestAggregationEnabled'] != 'false',
   )
 
-  pod 'RNKakaoLogins', :path => '../node_modules/@react-native-seoul/kakao-login'
-
   post_install do |installer|
     react_native_post_install(
       installer,
