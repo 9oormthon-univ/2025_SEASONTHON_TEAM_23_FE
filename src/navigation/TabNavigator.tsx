@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, Platform } from 'react-native';
+import { Text } from 'react-native';
 import type { IconMap, RootStackParamList, TabsParamList } from '@/types/navigation';
 import HomeScreen from '@/screens/home/HomeScreen';
 import DiaryStackNavigator from '@/navigation/diary/DiaryStackNavigator';
@@ -9,6 +9,7 @@ import CustomHeader from '@navigation/CustomHeader';
 import LetterStackNavigator from '@/navigation/letter/LetterStackNavigator';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator<TabsParamList>();
 
@@ -20,12 +21,14 @@ const ICONS: IconMap = {
 } as const;
 
 // 디자인 명세: 공통 배경 #121826, 활성 아이콘/라벨 #FFD86F, 비활성 #AAAAAA
-const TAB_BG = '#121826';
+const TAB_BG = '#060C1A';
 const ACTIVE_COLOR = '#FFD86F';
-const INACTIVE_COLOR = '#AAAAAA';
+const INACTIVE_COLOR = '#808080';
 
 const TabNavigator = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const insets = useSafeAreaInsets();
+  const extra = Math.max(insets.bottom, 16);
 
   return (
     <Tab.Navigator
@@ -33,14 +36,13 @@ const TabNavigator = () => {
         const { icon, name } = ICONS[route.name as keyof TabsParamList];
 
         return {
-          headerTitleAlign: 'center',
           tabBarStyle: {
             backgroundColor: TAB_BG,
-            height: Platform.OS === 'ios' ? 80 : 68,
             borderTopWidth: 0.5,
             borderTopColor: '#2D3852',
-            paddingTop: 6,
-            paddingBottom: 10,
+            paddingTop: 16,
+            paddingBottom: extra,
+            height: 68 + extra,
           },
           tabBarLabel: ({ focused }) => (
             <Text
