@@ -17,5 +17,6 @@ export { default as IcSad } from './ic-sad.svg';
 export { default as IcBad } from './ic-bad.svg';
 export { default as IcDefaultImg } from './ic-defaultImg.svg';
 export { default as IcPic } from './ic-pic.svg';
+export { default as IcClose } from './ic-close.svg';
 export { default as IcStar } from './ic-star.svg';
 export { default as IcStarSky } from './ic-starsky.svg';
