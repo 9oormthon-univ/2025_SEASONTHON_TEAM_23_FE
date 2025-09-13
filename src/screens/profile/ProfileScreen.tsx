@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/provider/AuthProvider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
@@ -27,6 +29,11 @@ import ProfileDog from '@images/profile-dog.png';
 
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
+
+  // Bottom tab & safe-area heights to keep last item above the tab bar
+  const tabBarHeight = useBottomTabBarHeight();
+  const { bottom: insetBottom } = useSafeAreaInsets();
+  const bottomPadding = tabBarHeight + insetBottom;
 
   // 탭 상태: 'diary' | 'letter'
   const [tab, setTab] = useState<'diary' | 'letter'>('diary');
@@ -150,7 +157,7 @@ const ProfileScreen = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#121826]">
+    <SafeAreaView edges={["top"]} className="flex-1 bg-[#121826]">
       {/* 프로필 카드 */}
       <View
         className="mx-6 flex-row items-center gap-5 rounded-2xl bg-[#1F2A3C] px-6 py-6"
@@ -214,7 +221,7 @@ const ProfileScreen = () => {
       </View>
 
       {/* 탭 */}
-  <View className="mt-8 px-6" style={{ marginTop: Platform.OS === 'ios' ? 20 : undefined }}>
+      <View className="mt-8 px-6" style={{ marginTop: Platform.OS === 'ios' ? 20 : undefined }}>
         <View className="flex-row">
           <TouchableOpacity
             className="flex-1 pb-2"
@@ -254,7 +261,7 @@ const ProfileScreen = () => {
       </View>
 
       {/* 콘텐츠 */}
-  <View className="mt-4 flex-1" style={{ marginTop: Platform.OS === 'ios' ? 8 : undefined }}>
+      <View className="mt-4 flex-1" style={{ marginTop: Platform.OS === 'ios' ? 8 : undefined }}>
         {tab === 'diary' ? (
           isDailyLogsLoading ? (
             <Text className="mt-6 text-center text-gray-300">불러오는 중...</Text>
@@ -310,7 +317,7 @@ const ProfileScreen = () => {
                   </View>
                 );
               }}
-              contentContainerStyle={{ paddingTop: 4, paddingBottom: 40 }}
+              contentContainerStyle={{ paddingBottom: bottomPadding }}
               refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
               ListEmptyComponent={<EmptyState message="오늘의 이야기를 들려주세요." />}
             />
@@ -352,7 +359,7 @@ const ProfileScreen = () => {
                 </Text>
               </View>
             )}
-            contentContainerStyle={{ paddingTop: 4, paddingBottom: 40 }}
+            contentContainerStyle={{ paddingBottom: bottomPadding }}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             ListEmptyComponent={<EmptyState message="편지로 추억을 나누어 봐요." />}
           />
