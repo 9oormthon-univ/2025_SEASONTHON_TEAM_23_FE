@@ -1,13 +1,15 @@
-import { Image, View, Text, FlatList, Platform } from 'react-native';
+import { Image, View, Text, FlatList, Platform, Pressable } from 'react-native';
 import { useLayoutEffect } from 'react';
 import { setHeaderExtras } from '@/types/Header';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { formatRelativeKo } from '@/utils/formatRelativeKo';
 import Icon from '@common/Icon';
 import { useNotify } from '@/provider/NotifyProvider';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/types/navigation';
 
 const NotificationListScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { items, refetchNow } = useNotify();
 
   useFocusEffect(() => {
@@ -33,7 +35,17 @@ const NotificationListScreen = () => {
         data={items}
         keyExtractor={(i) => i.id}
         renderItem={({ item }) => (
-          <View className="flex-row justify-between gap-3 rounded-[20px] bg-bg-light px-7 py-5">
+          <Pressable
+            onPress={() => {
+              if (item.letterId != null) {
+                navigation.navigate('Tabs', {
+                  screen: 'Letter',
+                  params: { screen: 'LetterDetail', params: { id: String(item.letterId) } },
+                });
+              }
+            }}
+            className="flex-row justify-between gap-3 rounded-[20px] bg-bg-light px-7 py-5"
+          >
             <View className="gap-1">
               <View className="flex-row items-center gap-0.5">
                 {Platform.OS === 'ios' ? (
@@ -45,22 +57,29 @@ const NotificationListScreen = () => {
                 ) : (
                   <Icon name={'IcStar'} size={20} />
                 )}
-                <Text className="body2 text-gray-300">{`위로의 별을 받았어요`}</Text>
+                <Text className="body2 text-gray-300">{`${item.count}명의 사람들이 위로의 별을 보냈어요.`}</Text>
               </View>
-              <Text className="subHeading3 text-white">{`${item.count}명의 사람들이 위로의 별을 보냈어요.`}</Text>
+              <Text className="subHeading3 text-white">
+                {item.preview ? (
+                  <Text className="body2 text-gray-300" numberOfLines={2}>
+                    {item.preview}
+                  </Text>
+                ) : null}
+              </Text>
             </View>
             <Text className="captionSB text-gray-300">{formatRelativeKo(item.receivedAtIso)}</Text>
-          </View>
+          </Pressable>
         )}
         ListEmptyComponent={() => (
-          <View className="items-center justify-center">
-            <View className="items-center gap-3">
+          <View className="flex-1 justify-center">
+            <View className="items-center gap-12">
               <Text className="subHeading1B text-gray-500">{`아직 온 알림이 없어요.`}</Text>
               <Image source={require('@images/img-notification-dog.png')} />
             </View>
           </View>
         )}
-        className="py-[26px]"
+        className={`${items.length > 0 ? 'py-[26px]' : 'pb-[25px]'}`}
+        contentContainerStyle={{ flexGrow: 1 }}
         ItemSeparatorComponent={() => <View className="h-2" />}
       />
     </View>

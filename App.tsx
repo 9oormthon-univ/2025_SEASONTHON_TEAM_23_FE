@@ -5,19 +5,25 @@ import RootNavigator from '@/navigation/RootNavigator';
 import { useEffect, useRef } from 'react';
 import type { NavigationContainerRef } from '@react-navigation/native';
 import {
-  consumePendingOpenNotificationFlag,
+  consumePendingOpenNotification,
   registerForegroundNotificationHandler,
 } from '@/provider/NotifeeClient';
 import notifee from '@notifee/react-native';
 import { StatusBar } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const App = () => {
   const navRef = useRef<NavigationContainerRef<any>>(null);
 
   useEffect(() => {
-    const unsub = registerForegroundNotificationHandler(() => {
-      navRef.current?.navigate('NotificationList'); // 실제 스크린 이름으로 교체
+    const unsub = registerForegroundNotificationHandler(({ letterId }) => {
+      if (letterId != null) {
+        navRef.current?.navigate('Tabs', {
+          screen: 'Letter',
+          params: { screen: 'LetterDetail', params: { id: String(letterId) } },
+        });
+      } else {
+        navRef.current?.navigate('NotificationList');
+      }
     });
     return unsub;
   }, []);
@@ -26,12 +32,26 @@ const App = () => {
   useEffect(() => {
     const checkInitial = async () => {
       const initial = await notifee.getInitialNotification();
-      if (initial && initial.pressAction?.id === 'open_notification' && navRef.current) {
-        navRef.current.navigate('NotificationList');
+      const pressed = initial?.pressAction?.id === 'open_notification';
+      const raw = initial?.notification?.data?.letterId as string | undefined;
+      const fromInitial = raw ? Number(raw) : null;
+
+      if (pressed && navRef.current) {
+        if (fromInitial != null)
+          navRef.current.navigate('LetterDetail', { id: String(fromInitial) });
+        else navRef.current.navigate('NotificationList');
+        return;
       }
 
-      const pending = await consumePendingOpenNotificationFlag();
-      if (pending) navRef.current?.navigate('NotificationList');
+      const pending = await consumePendingOpenNotification();
+      if (pending.shouldOpen && navRef.current) {
+        if (pending.letterId != null)
+          navRef.current?.navigate('Tabs', {
+            screen: 'Letter',
+            params: { screen: 'LetterDetail', params: { id: String(pending.letterId) } },
+          });
+        else navRef.current.navigate('NotificationList');
+      }
     };
     checkInitial();
   }, []);
@@ -45,12 +65,10 @@ const App = () => {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <AppProvider>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-        <RootNavigator navigationRef={navRef} />
-      </AppProvider>
-    </SafeAreaProvider>
+    <AppProvider>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <RootNavigator navigationRef={navRef} />
+    </AppProvider>
   );
 };
 
