@@ -157,10 +157,10 @@ const ProfileScreen = () => {
   );
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-[#121826]">
+    <SafeAreaView edges={['top']} className="flex-1 bg-bg">
       {/* 프로필 카드 */}
       <View
-        className={`mx-6 flex-row items-center gap-5 rounded-2xl bg-[#1F2A3C] px-6 py-6 ${Platform.OS === 'android' ? 'mb-4' : ''}`}
+        className={`mx-6 flex-row items-center gap-5 rounded-2xl bg-bg px-6 py-6 ${Platform.OS === 'android' ? 'mb-4' : ''}`}
         style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}
       >
         <View>
@@ -195,12 +195,12 @@ const ProfileScreen = () => {
           <View className="mt-4 flex-row gap-5">
             <View className="flex-row items-center gap-1">
               <Icon name="IcCalendar" size={20} />
-              <Text className="captionB text-[#F3DE77]">{summary?.dailyLogCount ?? 0}</Text>
+              <Text className="captionB text-yellow-200">{summary?.dailyLogCount ?? 0}</Text>
               <Text className="captionSB ml-0.5 text-gray-300">일기</Text>
             </View>
             <View className="flex-row items-center gap-1">
               <Icon name="IcLetter" size={20} />
-              <Text className="captionB text-[#F3DE77]">{summary?.letterCount ?? 0}</Text>
+              <Text className="captionB text-yellow-200">{summary?.letterCount ?? 0}</Text>
               <Text className="captionSB ml-0.5 text-gray-300">편지</Text>
             </View>
             <View className="flex-row items-center gap-1">
@@ -213,7 +213,7 @@ const ProfileScreen = () => {
               ) : (
                 <Icon name="IcStar" size={20} />
               )}
-              <Text className="captionB text-[#F3DE77]">{summary?.tributeCount ?? 0}</Text>
+              <Text className="captionB text-yellow-200">{summary?.tributeCount ?? 0}</Text>
               <Text className="captionSB ml-0.5 text-gray-300">위로의 별</Text>
             </View>
           </View>
@@ -285,8 +285,8 @@ const ProfileScreen = () => {
                 };
                 return (
                   <View
-                    className={`bg-[#1F2A3C] px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
-                    style={{ borderColor: '#313846' }}
+                    className={`bg-bg-light px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
+                    style={{ borderColor: 'black' }}
                   >
                     <View className="flex-row justify-between" style={{ alignItems: 'flex-start' }}>
                       <View
@@ -334,8 +334,8 @@ const ProfileScreen = () => {
             keyExtractor={(item, idx) => `${item.id}-${idx}`}
             renderItem={({ item, index }) => (
               <View
-                className={`bg-[#1F2A3C] px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
-                style={{ borderColor: '#313846' }}
+                className={`bg-bg-light px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
+                style={{ borderColor: 'black' }}
               >
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center gap-2">
@@ -407,7 +407,7 @@ const ProfileScreen = () => {
                     <Text className="captionSB text-gray-300 underline">저장중...</Text>
                   </View>
                 ) : (
-                  <Text className="captionSB text-[#F3DE77] underline">확인</Text>
+                  <Text className="captionSB text-yellow-200 underline">확인</Text>
                 )}
               </TouchableOpacity>
             </View>
