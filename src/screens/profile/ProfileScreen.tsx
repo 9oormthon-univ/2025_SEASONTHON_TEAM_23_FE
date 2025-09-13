@@ -204,7 +204,7 @@ const ProfileScreen = () => {
                   resizeMode="contain"
                 />
               ) : (
-                <Icon name="IcStar" size={20} />
+                <Icon name="IcStar" size={14} />
               )}
               <Text className="captionB text-[#F3DE77]">{summary?.tributeCount ?? 0}</Text>
               <Text className="captionSB ml-0.5 text-gray-300">위로의 별</Text>
@@ -214,7 +214,7 @@ const ProfileScreen = () => {
       </View>
 
       {/* 탭 */}
-  <View className="mt-8 px-6" style={{ marginTop: Platform.OS === 'ios' ? 20 : undefined }}>
+      <View className="mt-8 px-6" style={{ marginTop: Platform.OS === 'ios' ? 20 : undefined }}>
         <View className="flex-row">
           <TouchableOpacity
             className="flex-1 pb-2"
@@ -254,7 +254,7 @@ const ProfileScreen = () => {
       </View>
 
       {/* 콘텐츠 */}
-  <View className="mt-4 flex-1" style={{ marginTop: Platform.OS === 'ios' ? 8 : undefined }}>
+      <View className="mt-4 flex-1" style={{ marginTop: Platform.OS === 'ios' ? 8 : undefined }}>
         {tab === 'diary' ? (
           isDailyLogsLoading ? (
             <Text className="mt-6 text-center text-gray-300">불러오는 중...</Text>
