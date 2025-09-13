@@ -157,7 +157,7 @@ const ProfileScreen = () => {
   );
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-[#121826]">
+    <SafeAreaView edges={['top']} className="flex-1 bg-[#121826]">
       {/* 프로필 카드 */}
       <View
         className="mx-6 flex-row items-center gap-5 rounded-2xl bg-[#1F2A3C] px-6 py-6"
@@ -384,7 +384,13 @@ const ProfileScreen = () => {
               placeholderTextColor="#7A8699"
               maxLength={20}
               autoFocus
-              className="body1 rounded-lg bg-[#273246] px-4 py-3 text-white"
+              className="body1 rounded-lg bg-[#273246] px-4 text-white"
+              style={{
+                lineHeight: 18,
+                height: 44,
+                paddingVertical: 10,
+                textAlignVertical: 'center',
+              }}
             />
             <Text className="caption mt-2 text-gray-400">최대 20자 • 공백 양끝 자동 제거</Text>
             <View className="mt-6 flex-row justify-end gap-4">
