@@ -4,9 +4,12 @@ const BASE = 'NOTIFY_ITEMS_V1';
 const keyOf = (userId: string | number) => `${BASE}::${String(userId)}`;
 
 export type StoredStarItem = {
-  id: string; // 고유 키 (serverIso + count 기반 권장)
-  count: number; // 이번 interval 동안 받은 수
-  receivedAtIso: string; // 서버 기준 ISO
+  id: string;
+  count: number;
+  receivedAtIso: string;
+  letterId: number | null;
+  preview?: string | null;
+  photoUrl?: string | null;
 };
 
 export async function loadNotifyItems(userId: string | number): Promise<StoredStarItem[]> {

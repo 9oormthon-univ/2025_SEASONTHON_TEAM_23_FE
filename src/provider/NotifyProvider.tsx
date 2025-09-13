@@ -5,6 +5,45 @@ import { showStarBatchNotification } from '@/provider/NotifeeClient';
 import { loadNotifyItems, saveNotifyItems, type StoredStarItem } from '@/store/notifyStorage';
 import { useAuth } from '@/provider/AuthProvider';
 
+const parseRecentArray = (resp: any): StoredStarItem[] => {
+  const serverIso = (() => {
+    const h = resp?.headers?.date;
+    return h ? new Date(h).toISOString() : new Date().toISOString();
+  })();
+
+  const data = resp?.data ?? resp;
+
+  if (Array.isArray(data)) {
+    return data
+      .map((it: any) => ({
+        id: `${serverIso}-${it.letterId ?? 'none'}-${Number(it.unreadTributeCount ?? 0)}`,
+        count: Number(it.unreadTributeCount ?? 0),
+        receivedAtIso: serverIso,
+        letterId: typeof it.letterId === 'number' ? it.letterId : null,
+        preview: it.content ?? null,
+        photoUrl: it.photoUrl ?? null,
+      }))
+      .filter((x) => x.count > 0);
+  }
+
+  if (typeof data?.unreadTributeCount === 'number') {
+    const count = Number(data.unreadTributeCount);
+    if (count <= 0) return [];
+    return [
+      {
+        id: `${serverIso}-none-${count}`,
+        count,
+        receivedAtIso: serverIso,
+        letterId: null,
+        preview: null,
+        photoUrl: null,
+      },
+    ];
+  }
+
+  return [];
+};
+
 type Ctx = {
   items: StoredStarItem[];
   refetchNow: () => Promise<void>;
@@ -51,32 +90,31 @@ export const NotifyProvider: React.FC<Props> = ({
     void saveNotifyItems(userId, items);
   }, [userId, items]);
 
-  const getServerNowIso = (resp: any) => {
-    const header = resp?.headers?.date;
-    return header ? new Date(header).toISOString() : new Date().toISOString();
-  };
-
   const tick = useCallback(async () => {
     if (inFlightRef.current) return;
     if (authLoading || !userId) return; // 유저 확정 전에는 동작 금지
     inFlightRef.current = true;
     try {
-      const resp = await api.get<{ unreadTributeCount: number }>('/tributes/notifications/recent', {
+      const resp = await api.get('/tributes/notifications/recent', {
         headers: { 'Cache-Control': 'no-cache' },
       });
-      const serverNowIso = getServerNowIso(resp as any);
-      const count = resp.data?.unreadTributeCount ?? 0;
 
-      if (count > 0) {
-        const stableId = `${serverNowIso}-${count}`;
-        setItems((prev) => {
-          if (prev.some((it) => it.id === stableId)) return prev; // 중복 방지
-          const next = [{ id: stableId, count, receivedAtIso: serverNowIso }, ...prev];
-          return next.slice(0, maxItems);
-        });
-        // 전역에서 팝업: 어떤 화면이든 알림 표시
-        await showStarBatchNotification(count);
-      }
+      const parsed = parseRecentArray(resp);
+      if (parsed.length === 0) return;
+
+      setItems((prev) => {
+        const prevIds = new Set(prev.map((p) => p.id));
+        const merged = [...parsed.filter((p) => !prevIds.has(p.id)), ...prev];
+        return merged.slice(0, maxItems);
+      });
+
+      const top = parsed[0];
+      await showStarBatchNotification({
+        count: top.count,
+        letterId: top.letterId ?? null,
+        preview: top.preview ? String(top.preview).slice(0, 140) : null,
+        photoUrl: top.photoUrl ?? null,
+      });
     } finally {
       inFlightRef.current = false;
     }
