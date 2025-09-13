@@ -1,16 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useCallback } from 'react';
-import {
-  View,
-  TextInput,
-  Alert,
-  Image,
-  TouchableOpacity,
-  Text,
-  Switch,
-  Pressable,
-  ScrollView,
-  Platform,
-} from 'react-native';
+import { View, TextInput, Alert, Image, Text, Pressable, ScrollView, Platform } from 'react-native';
 // (이전 로직 잔여) import { Dimensions, PixelRatio } from 'react-native'; // 전체폭 이미지 렌더링 제거로 미사용
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
@@ -22,11 +11,13 @@ import { formatKoreanDate } from '@/utils/formatDate';
 import Icon from '@common/Icon';
 import { useAuth } from '@/provider/AuthProvider';
 import { setHeaderExtras } from '@/types/Header';
+import CustomSwitch from '@common/CustomSwitch';
 
 // local user id will be fetched from local mock server (/users)
 // do not hardcode — fetch at runtime so tests/dev can change db.json
 
 const LetterWriteScreen = () => {
+  const [focused, setFocused] = useState(false);
   const [letter, setLetter] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
   // (이전) 원본 비율 기반 전체폭 프리뷰용 naturalSize 상태는 작은 썸네일 방식으로 변경되며 더 이상 필요하지 않아 제거.
@@ -108,24 +99,34 @@ const LetterWriteScreen = () => {
         });
       }
 
-    Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
+      Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
         { text: '확인', onPress: () => navigation.navigate('LetterScreen') },
       ]);
       setLetter('');
       setImageUri(null);
-    setHasSubmitted(true); // 첫 성공 후 영구 비활성
+      setHasSubmitted(true); // 첫 성공 후 영구 비활성
     } catch (error) {
       Alert.alert('저장 실패', '서버에 저장하는 중 오류가 발생했습니다.');
     } finally {
-    setIsSaving(false);
+      setIsSaving(false);
     }
-  }, [imageUri, letter, isPublic, editingId, user, navigation, originalHasPhoto, isSaving, hasSubmitted]);
+  }, [
+    imageUri,
+    letter,
+    isPublic,
+    editingId,
+    user,
+    navigation,
+    originalHasPhoto,
+    isSaving,
+    hasSubmitted,
+  ]);
 
   // 헤더 구성 (완료 버튼)
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
-      title: editingId ? '기억의 별자리 수정' : '기억의 별자리 쓰기',
-  disabled: !letter.trim() || isSaving || hasSubmitted,
+      title: '기억의 별자리',
+      disabled: !letter.trim() || isSaving || hasSubmitted,
       hasBack: true,
       hasButton: true,
       onPress: handleSave,
@@ -136,6 +137,8 @@ const LetterWriteScreen = () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 1,
+      allowsMultipleSelection: false,
+      selectionLimit: 1,
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setImageUri(result.assets[0].uri);
@@ -143,180 +146,100 @@ const LetterWriteScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#121826' }}>
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 28, paddingTop: 48, paddingBottom: 120 }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={{ alignItems: 'center' }}>
-          {Platform.OS === 'ios' ? (
-            <Image
-              source={require('@images/star-sky.png')}
-              style={{ width: 56 * (124 / 88), height: 56 }}
-              resizeMode="contain"
-            />
-          ) : (
-            <Icon name="IcStarSky" size={56} color="#F2F2F2" />
-          )}
-          <Text style={{ marginTop: 16, color: '#AAAAAA', fontSize: 12 }}>
-            {formatKoreanDate(new Date().toISOString())}
-          </Text>
-          <Text
-            style={{
-              marginTop: 24,
-              color: '#FFFFFF',
-              fontSize: 16,
-              fontWeight: '600',
-              textAlign: 'center',
-              lineHeight: 22,
-            }}
-          >
-            사랑하는 반려동물과의 소중한 추억을 함께 나눠요
-          </Text>
-        </View>
-
-        {/* 입력 카드 */}
-        <View
-          style={{
-            marginTop: 40,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.2)',
-            padding: 20,
-            backgroundColor: '#121826',
-          }}
-        >
-          <TextInput
-            style={{
-              minHeight: 140,
-              color: '#F2F2F2',
-              fontSize: 14,
-              lineHeight: 20,
-            }}
-            multiline
-            placeholder="텍스트를 입력해주세요."
-            placeholderTextColor="#6B6B6B"
-            value={letter}
-            maxLength={100}
-            onChangeText={setLetter}
-            textAlignVertical="top"
-          />
-          <Text
-            style={{ position: 'absolute', right: 20, bottom: 20, fontSize: 12, color: '#AAAAAA' }}
-          >{`${letter.length} / 최대 100자`}</Text>
-        </View>
-
-        {/* 사진 첨부 버튼 & 프리뷰 */}
-        <View style={{ marginTop: 20, alignItems: 'flex-end' }}>
-          <Pressable
-            onPress={pickImage}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              borderWidth: 1,
-              borderColor: '#FFD86F',
-              paddingHorizontal: 18,
-              paddingVertical: 10,
-              borderRadius: 12,
-              backgroundColor: '#121826',
-              gap: 6,
-            }}
-          >
-            <Icon name="IcPic" size={18} color="#FFD86F" />
-            <Text style={{ color: '#FFD86F', fontWeight: '600' }}>사진 첨부</Text>
-          </Pressable>
-        </View>
-        {imageUri && (
-          <View
-            style={{
-              marginTop: 12,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 12,
-              alignSelf: 'flex-start',
-            }}
-          >
-            <View style={{ position: 'relative' }}>
-              <Image
-                source={{ uri: imageUri }}
-                style={{ width: 84, height: 84, borderRadius: 12, backgroundColor: '#1F2A3C' }}
-                resizeMode="cover"
-              />
-              <TouchableOpacity
-                onPress={() => setImageUri(null)}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                style={{ position: 'absolute', top: -6, right: -6 }}
-              >
-                <View
-                  style={{
-                    height: 22,
-                    width: 22,
-                    borderRadius: 11,
-                    backgroundColor: 'rgba(0,0,0,0.65)',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.6)',
-                  }}
-                >
-                  <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>×</Text>
-                </View>
-              </TouchableOpacity>
+    <ScrollView className="flex=-1 bg-bg" keyboardShouldPersistTaps="handled">
+      <View className="gap-5 px-7 pb-14 pt-10">
+        <View className="gap-4">
+          <View className="items-center gap-6">
+            <View className="items-center gap-2">
+              {Platform.OS === 'ios' ? (
+                <Image
+                  source={require('@images/star-sky.png')}
+                  style={{ width: 56 * (124 / 88), height: 56 }}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Icon name="IcStarSky" width={123} height={88} />
+              )}
+              <Text className="body2 text-gray-600">
+                {formatKoreanDate(new Date().toISOString())}
+              </Text>
             </View>
-            <Pressable
-              onPress={pickImage}
-              style={{
-                paddingHorizontal: 14,
-                paddingVertical: 10,
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: '#394356',
-                backgroundColor: '#1F2A3C',
-              }}
-            >
-              <Text style={{ color: '#F2F2F2', fontSize: 12 }}>다른 사진 선택</Text>
-            </Pressable>
+            <Text className="subHeading3 text-white">
+              {`사랑하는 반려동물과의 소중한 추억을 함께 나눠요`}
+            </Text>
           </View>
-        )}
+
+          <View className="gap-2">
+            {/* 입력 카드 */}
+            <View
+              className={`${focused ? 'border-gray-200' : 'border-gray-600'} rounded-[20px] border p-5`}
+            >
+              <TextInput
+                className="body1 min-h-[160px] !leading-5 text-white"
+                multiline
+                placeholder="텍스트를 입력해주세요."
+                placeholderTextColor="#9D9D9D"
+                value={letter}
+                maxLength={100}
+                onChangeText={setLetter}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                textAlignVertical="top"
+              />
+              <View className="absolute bottom-5 left-5">
+                {imageUri && (
+                  <View className="relative bottom-3 w-[80px]">
+                    <Image
+                      source={{ uri: imageUri }}
+                      className="h-[80px] w-[80px] rounded-xl border border-yellow-200 bg-[#464646]"
+                      resizeMode="cover"
+                    />
+                    <Pressable
+                      onPress={() => setImageUri(null)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      className="absolute right-1 top-1"
+                    >
+                      <Icon name="IcClose" size={20} />
+                    </Pressable>
+                  </View>
+                )}
+              </View>
+              <Text className="captionSB absolute bottom-5 right-5 text-gray-500">{`${letter.length} / 최대 100자`}</Text>
+            </View>
+
+            {/* 사진 첨부 버튼 */}
+            <View className="items-end">
+              <Pressable
+                disabled={!!imageUri}
+                onPress={pickImage}
+                className={`flex-row items-center gap-1 rounded-xl border px-4 py-2 ${imageUri ? 'border-gray-600 bg-gray-800' : 'border-yellow-200'}`}
+              >
+                <Icon name="IcPic" size={20} color={imageUri ? '#808080' : '#FFD86F'} />
+                <Text
+                  className={`body1 !leading-6  ${imageUri ? 'text-gray-600' : 'text-yellow-200'}`}
+                >
+                  {`사진 첨부`}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
 
         {/* 안내 문구 */}
-        <Text
-          style={{
-            marginTop: 40,
-            fontSize: 16,
-            fontWeight: '600',
-            color: '#FFFFFF',
-            textAlign: 'center',
-          }}
-        >
-          글을 함께 보며 위로의 별을 주고받아보세요
-        </Text>
+        <View className="items-center gap-4">
+          <Text className="subHeading3 text-white">{`글을 함께 보며 위로의 별을 주고받아보세요`}</Text>
 
-        {/* 공개 토글 카드 */}
-        <View
-          style={{
-            marginTop: 28,
-            backgroundColor: '#1F2A3C',
-            borderRadius: 24,
-            paddingHorizontal: 24,
-            paddingVertical: 20,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <View style={{ flexShrink: 1 }}>
-            <Text style={{ color: '#F2F2F2', fontSize: 13, fontWeight: '600' }}>
-              이 글 전체공개 하면
-            </Text>
-            <Text style={{ color: '#F2F2F2', fontSize: 13, marginTop: 4 }}>
-              위로의 별을 받을 수 있어요.
-            </Text>
+          {/* 공개 토글 카드 */}
+          <View className="w-full flex-row items-center justify-between rounded-[20px] bg-bg-light px-8 py-5">
+            <View>
+              <Text className="captionSB text-white">{`이 글을 전체공개 하면`}</Text>
+              <Text className="body1 !leading-6 text-white">{`위로의 별을 받을 수 있어요.`}</Text>
+            </View>
+            <CustomSwitch value={isPublic} onValueChange={setIsPublic} />
           </View>
-          <Switch value={isPublic} onValueChange={setIsPublic} />
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 };
 

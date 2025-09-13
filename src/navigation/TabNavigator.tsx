@@ -42,7 +42,7 @@ const TabNavigator = () => {
             borderTopColor: '#2D3852',
             paddingTop: 16,
             paddingBottom: extra,
-            height: 68 + extra,
+            height: 85 + extra,
           },
           tabBarLabel: ({ focused }) => (
             <Text

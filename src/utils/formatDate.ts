@@ -1,39 +1,35 @@
-/** 로컬 타임존 기준 한국식 날짜 포맷터 */
 export const formatKoreanDate = (input?: string | Date | null): string => {
   if (!input) return '';
+  const d =
+    input instanceof Date
+      ? input
+      : /^\d{4}-\d{2}-\d{2}$/.test(input)
+        ? new Date(input + 'T00:00:00')
+        : new Date(input);
 
-  // 문자열이면 'YYYY-MM-DD' 형태는 로컬로, 그 외(ISO 등)는 기본 파서 사용
-  const toLocalDate = (v: string | Date): Date | null => {
-    if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
-
-    // 날짜-only (예: 2025-03-08) → 로컬 자정으로 해석
-    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-      const [y, m, d] = v.split('-').map(Number);
-      return new Date(y, (m ?? 1) - 1, d ?? 1);
-    }
-
-    // 그 외(예: 2025-03-08T12:34:56Z) → 기본 파서 (내부 UTC 보관, getHours는 로컬)
-    const parsed = new Date(v);
-    return isNaN(parsed.getTime()) ? null : parsed;
-  };
-
-  const d = toLocalDate(typeof input === 'string' ? input : input);
-  if (!d) return '';
-
-  const year = d.getFullYear();
-  const month = d.getMonth() + 1; // 1-12
-  const date = d.getDate();
-  const hours = d.getHours();
-  const minutes = d.getMinutes();
-
-  const mm = String(month).padStart(2, '0');
-  const dd = String(date).padStart(2, '0');
-  const HH = String(hours).padStart(2, '0');
-  const MM = String(minutes).padStart(2, '0');
-
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const weekday = weekdays[d.getDay()];
-
-  // 예: 2025-03-08-토 09시 05분
-  return `${year}-${mm}-${dd}-${weekday} ${HH}시 ${MM}분`;
+  try {
+    const fmt = new Intl.DateTimeFormat('ko-KR', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    const p = Object.fromEntries(fmt.formatToParts(d).map((x) => [x.type, x.value]));
+    const w = (p.weekday || '').replace('요일', '');
+    return `${p.year}-${p.month}-${p.day}-${w} ${p.hour}시 ${p.minute}분`;
+  } catch {
+    // Intl 없으면 수동으로 KST(+9h)
+    const kst = new Date(d.getTime() + (9 * 60 + d.getTimezoneOffset()) * 60000);
+    const y = kst.getFullYear();
+    const m = String(kst.getMonth() + 1).padStart(2, '0');
+    const day = String(kst.getDate()).padStart(2, '0');
+    const w = ['일', '월', '화', '수', '목', '금', '토'][kst.getDay()];
+    const hh = String(kst.getHours()).padStart(2, '0');
+    const mm = String(kst.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${day}-${w} ${hh}시 ${mm}분`;
+  }
 };
