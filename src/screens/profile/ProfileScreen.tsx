@@ -24,6 +24,7 @@ import { useUpsertNickname } from '@/hooks/mutations/useUpsertNickname';
 import Icon from '@common/Icon';
 import DefaultProfile from '@images/default-profile.png';
 import ProfileDog from '@images/profile-dog.png';
+import Loader from '@common/Loader';
 
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
@@ -164,24 +165,18 @@ const ProfileScreen = () => {
             <Text className="subHeading1B text-white" numberOfLines={1}>
               {user?.nickname ?? '익명'}
             </Text>
-            <View className="flex-row items-center">
-              <TouchableOpacity
-                hitSlop={8}
-                className="ml-2"
-                onPress={openNicknameModal}
-                disabled={isSavingNickname}
-              >
-                <Text className="captionSB text-gray-300 underline">닉네임 수정</Text>
+            <View className="flex-row items-center gap-3">
+              <TouchableOpacity hitSlop={8} onPress={openNicknameModal} disabled={isSavingNickname}>
+                <Text className="body3 text-gray-600 underline">{`닉네임 수정`}</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                hitSlop={8}
-                className="ml-3"
-                onPress={confirmLogout}
-                disabled={isLoggingOut}
-              >
-                <Text className="captionSB text-gray-300 underline">
-                  {isLoggingOut ? '처리중...' : '로그아웃'}
-                </Text>
+              <TouchableOpacity hitSlop={8} onPress={confirmLogout} disabled={isLoggingOut}>
+                {isLoggingOut ? (
+                  <View className="w-[43px]">
+                    <Loader size="small" />
+                  </View>
+                ) : (
+                  <Text className="body3 text-gray-600 underline">{`로그아웃`}</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
