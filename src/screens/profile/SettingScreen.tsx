@@ -15,6 +15,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/provider/AuthProvider';
 import { useUpsertNickname } from '@/hooks/mutations/useUpsertNickname';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { ProfileStackParamList } from '@/types/navigation';
 
 const SettingItem = ({ label, onPress }: { label: string; onPress: () => void }) => (
   <TouchableOpacity
@@ -35,11 +38,12 @@ const SectionTitle = ({ title }: { title: string }) => (
 
 const SettingScreen = () => {
   const { user, logout } = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const [nicknameModal, setNicknameModal] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname ?? '');
   const [touched, setTouched] = useState(false);
   const { mutate: saveNickname, isPending } = useUpsertNickname();
-  const [withdrawing, setWithdrawing] = useState(false);
+  const [withdrawing] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
   const MIN = 1;
@@ -71,7 +75,9 @@ const SettingScreen = () => {
     });
   }, [validation, nickname, user?.nickname, saveNickname]);
 
-  const onChangePhoto = () => {};
+  const onChangePhoto = () => {
+    navigation.navigate('ImageSetting');
+  };
 
   const onManagePets = () => {};
 

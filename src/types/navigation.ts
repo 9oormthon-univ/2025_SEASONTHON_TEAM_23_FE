@@ -32,6 +32,7 @@ export type LetterStackParamList = {
 export type ProfileStackParamList = {
   ProfileMain: undefined;
   Setting: undefined;
+  ImageSetting: undefined;
 };
 
 export type IconMap = Record<
