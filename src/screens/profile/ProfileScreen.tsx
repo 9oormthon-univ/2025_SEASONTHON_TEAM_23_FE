@@ -21,6 +21,7 @@ import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
 import Icon from '@common/Icon';
 import DefaultProfile from '@images/default-profile.png';
 import ProfileDog from '@images/profile-dog.png';
+import { PROFILE_IMAGE_PRESETS } from '@/constants/profileImages';
 import Loader from '@common/Loader';
 
 const ProfileScreen = () => {
@@ -61,7 +62,6 @@ const ProfileScreen = () => {
     }
   }, []);
   if (tab === 'letter') {
-    // 최초 전환 시 가져오기 (focus effect 에서도 처리됨)
   }
 
   const {
@@ -69,8 +69,6 @@ const ProfileScreen = () => {
     refetch: refetchSummary,
     isFetching: isFetchingSummary,
   } = useMyPageSummary(!!user);
-
-  // 로그아웃 로직 제거됨
 
   useFocusEffect(
     useCallback(() => {
@@ -102,12 +100,21 @@ const ProfileScreen = () => {
     </View>
   );
 
+  const { profileImageKey } = useAuth() as any;
+  const finalProfileImage = profileImageKey
+    ? (PROFILE_IMAGE_PRESETS[profileImageKey] ?? DefaultProfile)
+    : DefaultProfile;
+
   return (
     <SafeAreaView edges={['top']} className="flex-1 bg-bg pt-[27px]">
       <View className="gap-4 px-7">
         {/* 프로필 카드 */}
         <View className="flex-row gap-5" style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}>
-          <Image source={DefaultProfile} className="h-20 w-20 rounded-xl border border-gray-300" />
+          <Image
+            source={finalProfileImage}
+            className="h-20 w-20 rounded-xl border border-gray-300"
+            resizeMode="cover"
+          />
           <View className="flex-1 justify-center gap-2">
             <View className="flex-row items-center justify-between">
               <Text className="subHeading1B text-white" numberOfLines={1}>

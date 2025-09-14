@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { ProfileStackParamList } from '@/types/navigation';
 import ProfileScreen from '@/screens/profile/ProfileScreen';
 import SettingScreen from '@/screens/profile/SettingScreen';
+import ImageSettingScreen from '@/screens/profile/ImageSettingScreen';
 import CustomHeader from '@navigation/CustomHeader';
 import type { HeaderProps } from '@/types/Header';
 
@@ -51,6 +52,13 @@ const ProfileStackNavigator = () => {
         component={SettingScreen}
         options={{
           title: '설정',
+        }}
+      />
+      <Stack.Screen
+        name="ImageSetting"
+        component={ImageSettingScreen}
+        options={{
+          title: '프로필 사진 변경',
         }}
       />
     </Stack.Navigator>

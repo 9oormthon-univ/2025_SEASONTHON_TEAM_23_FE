@@ -1,5 +1,6 @@
 import React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '@/services/axiosInstance';
 import { tokenStore } from '@/services/auth/tokenStore';
 import type { AuthMeResponse } from '@/types/auth';
@@ -12,12 +13,15 @@ type AuthContextValue = {
   logout: () => Promise<void>;
   unlink: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  profileImageKey: string | null;
+  setProfileImageKey: (key: string | null) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthMeResponse | null>(null);
+  const [profileImageKey, setProfileImageKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshUser = async () => {
@@ -48,12 +52,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     (async () => {
       await tokenStore.loadPair();
       await refreshUser();
+      try {
+        const savedKey = await AsyncStorage.getItem('profileImageKey');
+        if (savedKey) setProfileImageKey(savedKey);
+      } catch (e) {
+        console.warn('프로필 이미지 키 로드 실패', e);
+      }
       setLoading(false);
     })();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        if (profileImageKey) {
+          await AsyncStorage.setItem('profileImageKey', profileImageKey);
+        } else {
+          await AsyncStorage.removeItem('profileImageKey');
+        }
+      } catch (e) {
+        console.warn('프로필 이미지 키 저장 실패', e);
+      }
+    })();
+  }, [profileImageKey]);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, unlink, refreshUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        logout,
+        unlink,
+        refreshUser,
+        profileImageKey,
+        setProfileImageKey,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
