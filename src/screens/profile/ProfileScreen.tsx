@@ -157,102 +157,109 @@ const ProfileScreen = () => {
   );
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-bg">
-      {/* 프로필 카드 */}
-      <View
-        className={`mx-6 flex-row items-center gap-5 rounded-2xl bg-bg px-6 py-6 ${Platform.OS === 'android' ? 'mb-4' : ''}`}
-        style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}
-      >
-        <View>
-          <Image source={DefaultProfile} className="h-20 w-20" />
-        </View>
-        <View className="flex-1">
-          <View className="flex-row items-center justify-between">
-            <Text className="subHeading1B text-white" numberOfLines={1}>
-              {user?.nickname ?? '익명'}
-            </Text>
-            <View className="flex-row items-center justify-end gap-3">
-              <TouchableOpacity hitSlop={8} onPress={openNicknameModal} disabled={isSavingNickname}>
-                <Text className="body3 text-gray-600 underline">{`닉네임 수정`}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity hitSlop={8} onPress={confirmLogout} disabled={isLoggingOut}>
-                {isLoggingOut ? (
-                  <View className="w-[43px]">
-                    <Loader size="small" />
-                  </View>
-                ) : (
-                  <Text className="body3 text-gray-600 underline">{`로그아웃`}</Text>
-                )}
-              </TouchableOpacity>
+    <SafeAreaView edges={['top']} className="flex-1 bg-bg pt-[27px]">
+      <View className="gap-4 px-7">
+        {/* 프로필 카드 */}
+        <View className="flex-row gap-5" style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}>
+          <Image source={DefaultProfile} className="h-20 w-20 rounded-xl border border-gray-300" />
+          <View className="flex-1 justify-center gap-2">
+            <View className="flex-row items-center justify-between">
+              <Text className="subHeading1B text-white" numberOfLines={1}>
+                {user?.nickname ?? '익명'}
+              </Text>
+              <View className="flex-row items-center justify-end gap-3">
+                <TouchableOpacity
+                  hitSlop={8}
+                  onPress={openNicknameModal}
+                  disabled={isSavingNickname}
+                >
+                  <Text className="body3 text-gray-600 underline">{`닉네임 수정`}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity hitSlop={8} onPress={confirmLogout} disabled={isLoggingOut}>
+                  {isLoggingOut ? (
+                    <View className="w-[43px]">
+                      <Loader size="small" />
+                    </View>
+                  ) : (
+                    <Text className="body3 text-gray-600 underline">{`로그아웃`}</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-          <View className="flex-row gap-2">
-            <View className="flex-row items-center py-1">
-              <Icon name="IcCalendar" size={20} />
-              <Text className="captionB text-yellow-200">{summary?.dailyLogCount ?? 0}</Text>
-              <Text className="captionSB ml-0.5 text-gray-300">일기</Text>
-            </View>
-            <View className="flex-row items-center py-1">
-              <Icon name="IcLetter" size={20} />
-              <Text className="captionB text-yellow-200">{summary?.letterCount ?? 0}</Text>
-              <Text className="captionSB ml-0.5 text-gray-300">편지</Text>
-            </View>
-            <View className="flex-row items-center py-1">
-              {Platform.OS === 'ios' ? (
-                <Image
-                  source={require('@images/mini-star.png')}
-                  style={{ width: 20, height: 20 }}
-                  resizeMode="contain"
-                />
-              ) : (
-                <View className="px-0.5 ">
-                  <Icon name="IcStar" size={14} />
+            <View className="flex-row gap-2">
+              <View className="flex-row items-center py-1">
+                <Icon name="IcCalendar" size={20} />
+                <View className="flex-row items-center gap-0.5">
+                  <Text className="body1 !leading-6 text-yellow-200">
+                    {summary?.dailyLogCount ?? 0}
+                  </Text>
+                  <Text className="body1 !leading-6 text-gray-300">일기</Text>
                 </View>
-              )}
-              <Text className="captionB text-yellow-200">{summary?.tributeCount ?? 0}</Text>
-              <Text className="captionSB ml-0.5 text-gray-300">위로의 별</Text>
+              </View>
+              <View className="flex-row items-center py-1">
+                <Icon name="IcLetter" size={20} />
+                <View className="flex-row items-center gap-0.5">
+                  <Text className="body1 !leading-6 text-yellow-200">
+                    {summary?.letterCount ?? 0}
+                  </Text>
+                  <Text className="body1 !leading-6 text-gray-300">편지</Text>
+                </View>
+              </View>
+              <View className="flex-row items-center py-1">
+                {Platform.OS === 'ios' ? (
+                  <Image
+                    source={require('@images/mini-star.png')}
+                    style={{ width: 20, height: 20 }}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <View className="px-0.5 ">
+                    <Icon name="IcStar" size={14} />
+                  </View>
+                )}
+                <View className="flex-row items-center gap-0.5">
+                  <Text className="body1 !leading-6 text-yellow-200">
+                    {summary?.tributeCount ?? 0}
+                  </Text>
+                  <Text className="body1 !leading-6 text-gray-300">위로의 별</Text>
+                </View>
+              </View>
             </View>
           </View>
         </View>
-      </View>
 
-      {/* 탭 */}
-      <View className="mt-8 px-6" style={{ marginTop: Platform.OS === 'ios' ? 10 : undefined }}>
-        <View className="flex-row">
-          <TouchableOpacity
-            className="flex-1 pb-2"
-            onPress={() => setTab('diary')}
-            activeOpacity={0.8}
-          >
-            <Text
-              className={`subHeading3 text-center ${tab === 'diary' ? 'text-white' : 'text-gray-500'}`}
-            >
-              나의 일기
-            </Text>
-            {tab === 'diary' && (
-              <View
-                className="mx-12 mt-2 h-1 rounded-full"
-                style={{ backgroundColor: '#D6B654' }}
-              />
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="flex-1 pb-2"
-            onPress={() => setTab('letter')}
-            activeOpacity={0.8}
-          >
-            <Text
-              className={`subHeading3 text-center ${tab === 'letter' ? 'text-white' : 'text-gray-500'}`}
-            >
-              보낸 편지
-            </Text>
-            {tab === 'letter' && (
-              <View
-                className="mx-12 mt-2 h-1 rounded-full"
-                style={{ backgroundColor: '#D6B654' }}
-              />
-            )}
-          </TouchableOpacity>
+        {/* 탭 */}
+        <View style={{ marginTop: Platform.OS === 'ios' ? 10 : undefined }}>
+          <View className="flex-row items-center justify-center gap-2.5">
+            <View className="flex-1">
+              <TouchableOpacity
+                className="px-11 py-2"
+                onPress={() => setTab('diary')}
+                activeOpacity={0.8}
+              >
+                <Text
+                  className={`subHeading2B text-center ${tab === 'diary' ? 'text-white' : 'text-gray-600'}`}
+                >
+                  {`나의 일기`}
+                </Text>
+              </TouchableOpacity>
+              {tab === 'diary' && <View className="h-0.5 w-full rounded-full bg-yellow-200" />}
+            </View>
+            <View className="flex-1">
+              <TouchableOpacity
+                className="px-11 py-2"
+                onPress={() => setTab('letter')}
+                activeOpacity={0.8}
+              >
+                <Text
+                  className={`subHeading2B text-center ${tab === 'letter' ? 'text-white' : 'text-gray-600'}`}
+                >
+                  {`보낸 편지`}
+                </Text>
+              </TouchableOpacity>
+              {tab === 'letter' && <View className="h-0.5 w-full rounded-full bg-yellow-200" />}
+            </View>
+          </View>
         </View>
       </View>
 
@@ -260,10 +267,10 @@ const ProfileScreen = () => {
       <View className="mt-4 flex-1" style={{ marginTop: Platform.OS === 'ios' ? 8 : undefined }}>
         {tab === 'diary' ? (
           isDailyLogsLoading ? (
-            <Text className="mt-6 text-center text-gray-300">불러오는 중...</Text>
+            <Loader />
           ) : isDailyLogsError ? (
             <Text className="mt-6 text-center text-error" onPress={() => refetchDailyLogs()}>
-              일기를 불러오지 못했어요. 다시 시도하려면 눌러주세요.
+              {`일기를 불러오지 못했어요. 다시 시도하려면 눌러주세요.`}
             </Text>
           ) : (
             <FlatList
@@ -281,7 +288,7 @@ const ProfileScreen = () => {
                 };
                 return (
                   <View
-                    className={`bg-bg-light px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
+                    className={`gap-2 bg-bg-light px-7 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
                     style={{ borderColor: 'black' }}
                   >
                     <View className="flex-row justify-between" style={{ alignItems: 'flex-start' }}>
@@ -291,11 +298,11 @@ const ProfileScreen = () => {
                       >
                         <Icon
                           name={EMOJIS[key].icon as any}
-                          size={18}
+                          size={20}
                           fill={colorMap[key] || '#FFFFFF'}
                         />
                         <Text
-                          className="captionB text-white"
+                          className="body3 text-white"
                           style={{
                             color: colorMap[key] || '#FFFFFF',
                             flexShrink: 1,
@@ -305,9 +312,9 @@ const ProfileScreen = () => {
                           {emotion}
                         </Text>
                       </View>
-                      <Text className="captionSB ml-2 text-gray-400">{item.logDate}</Text>
+                      <Text className="captionSB ml-2 text-gray-300">{item.logDate}</Text>
                     </View>
-                    <Text className="body1 mt-4 text-white" style={{ lineHeight: 20 }}>
+                    <Text className="body1 text-white" style={{ lineHeight: 20 }}>
                       {item.preview}
                     </Text>
                   </View>
@@ -319,10 +326,10 @@ const ProfileScreen = () => {
             />
           )
         ) : lettersLoading ? (
-          <Text className="mt-6 text-center text-gray-300">불러오는 중...</Text>
+          <Loader />
         ) : lettersError ? (
           <Text className="mt-6 text-center text-error" onPress={loadLetters}>
-            {lettersError} 다시 시도하려면 눌러주세요.
+            {`${lettersError} 다시 시도하려면 눌러주세요.`}
           </Text>
         ) : (
           <FlatList
@@ -330,7 +337,7 @@ const ProfileScreen = () => {
             keyExtractor={(item, idx) => `${item.id}-${idx}`}
             renderItem={({ item, index }) => (
               <View
-                className={`bg-bg-light px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
+                className={`gap-2 bg-bg-light px-7 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
                 style={{ borderColor: 'black' }}
               >
                 <View className="flex-row items-center justify-between">
@@ -342,15 +349,15 @@ const ProfileScreen = () => {
                         resizeMode="contain"
                       />
                     ) : (
-                      <Icon name="IcStar" size={18} fill="#D6B654" />
+                      <Icon name="IcStar" size={18} />
                     )}
-                    <Text className="captionB text-white">{item.tributeCount ?? 0}</Text>
+                    <Text className="body3 text-white">{item.tributeCount ?? 0}</Text>
                   </View>
-                  <Text className="captionSB ml-2 text-gray-400">
+                  <Text className="captionSB ml-2 text-gray-300">
                     {item.createdAt?.slice(0, 10) ?? ''}
                   </Text>
                 </View>
-                <Text className="body1 mt-4 text-white" style={{ lineHeight: 20 }}>
+                <Text className="body1 text-white" style={{ lineHeight: 20 }}>
                   {item.content}
                 </Text>
               </View>
