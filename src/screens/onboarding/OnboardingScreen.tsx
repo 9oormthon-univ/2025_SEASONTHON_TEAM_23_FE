@@ -15,11 +15,21 @@ const OnboardingScreen = () => {
   const { loading, onKakaoPress } = useKakaoLogin();
 
   return (
-    <SafeAreaView edges={['top']} className="bg-bg">
-      <ScrollView>
+    <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-bg">
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 0,
+          paddingVertical: 0,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
         <View
-          className="items-center gap-[68px] pb-12 pt-8"
-          style={Platform.OS === 'ios' ? { marginTop: 60 } : undefined}
+          className={`w-full items-center ${
+            Platform.OS === 'android' ? 'gap-[25px]' : 'gap-[35px]'
+          }`}
         >
           <View className="items-center gap-7">
             <Image
@@ -29,7 +39,7 @@ const OnboardingScreen = () => {
             />
             <OnboardingCarousel images={slides} interval={5000} />
           </View>
-          <View className="flex-row overflow-hidden px-7">
+          <View className="w-full flex-row overflow-hidden px-7">
             <Pressable
               onPress={onKakaoPress}
               disabled={loading}
@@ -40,7 +50,7 @@ const OnboardingScreen = () => {
               <Text className="subHeading3 text-center">카카오 로그인</Text>
             </Pressable>
           </View>
-          <Text className="captionB color-gray-500">{`Developed By Team Petfarewell`}</Text>
+          <Text className="captionB px-1 pb-1 color-gray-500">{`Developed By 펫어웰 팀`}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
