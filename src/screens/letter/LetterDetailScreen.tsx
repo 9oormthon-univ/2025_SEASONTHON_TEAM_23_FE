@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, Alert, Image, Pressable, Platform } from 'react-native';
+import { Modal } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { LetterStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
@@ -48,8 +49,11 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [hasMyTribute, setHasMyTribute] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const [imageModalVisible, setImageModalVisible] = useState(false);
   const openMenu = useCallback(() => setMenuVisible(true), []);
   const closeMenu = useCallback(() => setMenuVisible(false), []);
+  const openImageModal = useCallback(() => setImageModalVisible(true), []);
+  const closeImageModal = useCallback(() => setImageModalVisible(false), []);
   const { user } = useAuth();
 
   const currentUserId = (user as any)?.userId ?? null;
@@ -237,11 +241,13 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           })()}
           <View className="mt-10 w-full rounded-2xl border border-white/10 bg-[#121826] p-6">
             {letter.photoUrl ? (
-              <Image
-                source={{ uri: String(letter.photoUrl) }}
-                className="mb-5 h-[220px] rounded-lg"
-                resizeMode="cover"
-              />
+              <Pressable onPress={openImageModal} className="mb-5">
+                <Image
+                  source={{ uri: String(letter.photoUrl) }}
+                  className="h-[220px] rounded-lg"
+                  resizeMode="cover"
+                />
+              </Pressable>
             ) : null}
             <Text className="body1 leading-6" style={{ color: '#F2F2F2' }}>
               {letter.content}
@@ -303,6 +309,39 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           />
         </>
       )}
+      <Modal
+        visible={imageModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeImageModal}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)' }}>
+          <Pressable style={{ flex: 1 }} onPress={closeImageModal}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Pressable
+                onPress={closeImageModal}
+                accessibilityLabel="닫기 버튼"
+                accessibilityRole="button"
+                hitSlop={12}
+                style={{
+                  position: 'absolute',
+                  top: 50,
+                  right: 24,
+                  padding: 4,
+                }}
+              >
+                <Text style={{ color: '#FFFFFF', fontSize: 28, lineHeight: 28 }}>×</Text>
+              </Pressable>
+              {letter.photoUrl && (
+                <Image
+                  source={{ uri: String(letter.photoUrl) }}
+                  style={{ width: '92%', height: '72%', resizeMode: 'contain' }}
+                />
+              )}
+            </View>
+          </Pressable>
+        </View>
+      </Modal>
     </View>
   );
 };

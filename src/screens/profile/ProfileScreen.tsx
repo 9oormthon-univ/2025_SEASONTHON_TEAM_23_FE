@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/provider/AuthProvider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
@@ -27,6 +29,11 @@ import Loader from '@common/Loader';
 
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
+
+  // Bottom tab & safe-area heights to keep last item above the tab bar
+  const tabBarHeight = useBottomTabBarHeight();
+  const { bottom: insetBottom } = useSafeAreaInsets();
+  const bottomPadding = tabBarHeight + insetBottom;
 
   // 탭 상태: 'diary' | 'letter'
   const [tab, setTab] = useState<'diary' | 'letter'>('diary');
@@ -150,11 +157,16 @@ const ProfileScreen = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#121826] pt-[27px]">
+    <SafeAreaView edges={['top']} className="flex-1 bg-bg">
       {/* 프로필 카드 */}
-      <View className="flex-row gap-5 px-7" style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}>
-        <Image source={DefaultProfile} className="h-20 w-20 rounded-xl border border-gray-300" />
-        <View className="flex-1 justify-center gap-2">
+      <View
+        className={`mx-6 flex-row items-center gap-5 rounded-2xl bg-bg px-6 py-6 ${Platform.OS === 'android' ? 'mb-4' : ''}`}
+        style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}
+      >
+        <View>
+          <Image source={DefaultProfile} className="h-20 w-20" />
+        </View>
+        <View className="flex-1">
           <View className="flex-row items-center justify-between">
             <Text className="subHeading1B text-white" numberOfLines={1}>
               {user?.nickname ?? '익명'}
@@ -177,21 +189,13 @@ const ProfileScreen = () => {
           <View className="flex-row gap-2">
             <View className="flex-row items-center py-1">
               <Icon name="IcCalendar" size={20} />
-              <View className="flex-row items-center gap-0.5">
-                <Text className="body1 !leading-6 text-yellow-200">
-                  {summary?.dailyLogCount ?? 0}
-                </Text>
-                <Text className="body1 !leading-6 text-gray-300">일기</Text>
-              </View>
+              <Text className="captionB text-yellow-200">{summary?.dailyLogCount ?? 0}</Text>
+              <Text className="captionSB ml-0.5 text-gray-300">일기</Text>
             </View>
             <View className="flex-row items-center py-1">
               <Icon name="IcLetter" size={20} />
-              <View className="flex-row items-center gap-0.5">
-                <Text className="body1 !leading-6 text-yellow-200">
-                  {summary?.letterCount ?? 0}
-                </Text>
-                <Text className="body1 !leading-6 text-gray-300">편지</Text>
-              </View>
+              <Text className="captionB text-yellow-200">{summary?.letterCount ?? 0}</Text>
+              <Text className="captionSB ml-0.5 text-gray-300">편지</Text>
             </View>
             <View className="flex-row items-center py-1">
               {Platform.OS === 'ios' ? (
@@ -205,19 +209,15 @@ const ProfileScreen = () => {
                   <Icon name="IcStar" size={14} />
                 </View>
               )}
-              <View className="flex-row items-center gap-0.5">
-                <Text className="body1 !leading-6 text-yellow-200">
-                  {summary?.tributeCount ?? 0}
-                </Text>
-                <Text className="body1 !leading-6 text-gray-300">위로의 별</Text>
-              </View>
+              <Text className="captionB text-yellow-200">{summary?.tributeCount ?? 0}</Text>
+              <Text className="captionSB ml-0.5 text-gray-300">위로의 별</Text>
             </View>
           </View>
         </View>
       </View>
 
       {/* 탭 */}
-      <View className="mt-8 px-6" style={{ marginTop: Platform.OS === 'ios' ? 20 : undefined }}>
+      <View className="mt-8 px-6" style={{ marginTop: Platform.OS === 'ios' ? 10 : undefined }}>
         <View className="flex-row">
           <TouchableOpacity
             className="flex-1 pb-2"
@@ -281,8 +281,8 @@ const ProfileScreen = () => {
                 };
                 return (
                   <View
-                    className={`bg-[#1F2A3C] px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
-                    style={{ borderColor: '#313846' }}
+                    className={`bg-bg-light px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
+                    style={{ borderColor: 'black' }}
                   >
                     <View className="flex-row justify-between" style={{ alignItems: 'flex-start' }}>
                       <View
@@ -313,7 +313,7 @@ const ProfileScreen = () => {
                   </View>
                 );
               }}
-              contentContainerStyle={{ paddingTop: 4, paddingBottom: 40 }}
+              contentContainerStyle={{ paddingBottom: bottomPadding }}
               refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
               ListEmptyComponent={<EmptyState message="오늘의 이야기를 들려주세요." />}
             />
@@ -330,8 +330,8 @@ const ProfileScreen = () => {
             keyExtractor={(item, idx) => `${item.id}-${idx}`}
             renderItem={({ item, index }) => (
               <View
-                className={`bg-[#1F2A3C] px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
-                style={{ borderColor: '#313846' }}
+                className={`bg-bg-light px-6 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
+                style={{ borderColor: 'black' }}
               >
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center gap-2">
@@ -355,7 +355,7 @@ const ProfileScreen = () => {
                 </Text>
               </View>
             )}
-            contentContainerStyle={{ paddingTop: 4, paddingBottom: 40 }}
+            contentContainerStyle={{ paddingBottom: bottomPadding }}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             ListEmptyComponent={<EmptyState message="편지로 추억을 나누어 봐요." />}
           />
@@ -380,7 +380,13 @@ const ProfileScreen = () => {
               placeholderTextColor="#7A8699"
               maxLength={20}
               autoFocus
-              className="body1 rounded-lg bg-[#273246] px-4 py-3 text-white"
+              className="body1 rounded-lg bg-[#273246] px-4 text-white"
+              style={{
+                lineHeight: 18,
+                height: 44,
+                paddingVertical: 10,
+                textAlignVertical: 'center',
+              }}
             />
             <Text className="caption mt-2 text-gray-400">최대 20자 • 공백 양끝 자동 제거</Text>
             <View className="mt-6 flex-row items-center justify-end gap-4">
@@ -396,7 +402,7 @@ const ProfileScreen = () => {
                     <Loader size="small" />
                   </View>
                 ) : (
-                  <Text className="captionSB text-[#F3DE77] underline">{`확인`}</Text>
+                  <Text className="captionSB text-yellow-200 underline">확인</Text>
                 )}
               </TouchableOpacity>
             </View>

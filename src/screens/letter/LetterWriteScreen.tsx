@@ -1,10 +1,8 @@
 import { useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { View, TextInput, Alert, Image, Text, Pressable, ScrollView, Platform } from 'react-native';
-// (이전 로직 잔여) import { Dimensions, PixelRatio } from 'react-native'; // 전체폭 이미지 렌더링 제거로 미사용
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { LetterStackParamList } from 'src/types/navigation';
-// AsyncStorage removed: not used in this screen
 import * as ImagePicker from 'expo-image-picker';
 import { fetchLetterById, createLetter, updateLetter } from '@/services/letters';
 import { formatKoreanDate } from '@/utils/formatDate';
@@ -13,15 +11,10 @@ import { useAuth } from '@/provider/AuthProvider';
 import { setHeaderExtras } from '@/types/Header';
 import CustomSwitch from '@common/CustomSwitch';
 
-// local user id will be fetched from local mock server (/users)
-// do not hardcode — fetch at runtime so tests/dev can change db.json
-
 const LetterWriteScreen = () => {
   const [focused, setFocused] = useState(false);
   const [letter, setLetter] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
-  // (이전) 원본 비율 기반 전체폭 프리뷰용 naturalSize 상태는 작은 썸네일 방식으로 변경되며 더 이상 필요하지 않아 제거.
-  // const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null); // 현재 미사용
   const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const { user } = useAuth();
@@ -30,7 +23,6 @@ const LetterWriteScreen = () => {
   const editingId = route?.params?.id ?? null;
 
   useEffect(() => {
-    // if editing, load existing letter into state via services
     if (!editingId) return;
     (async () => {
       try {
@@ -40,45 +32,29 @@ const LetterWriteScreen = () => {
         setIsPublic(data?.isPublic ?? true);
         const photo = data?.photoUrl ?? null;
         setImageUri(photo);
-        // remember whether the original letter had a photo
         setOriginalHasPhoto(!!photo);
       } catch (e) {
-        // ignore load error
+        console.error(e);
       }
     })();
   }, [editingId]);
 
-  // 측정: 이미지 원본 크기(px) → dp 변환을 위한 상태 저장
-  // 작은 썸네일만 사용할 때는 실제 렌더링에 필요 없지만, 나중 재확대 기능 대비 크기 정보는 유지 가능.
-  // useEffect(() => {
-  //   if (!imageUri) {
-  //     setNaturalSize(null);
-  //     return;
-  //   }
-  //   Image.getSize(imageUri, (w, h) => setNaturalSize({ w, h }), () => setNaturalSize(null));
-  // }, [imageUri]);
-
-  // user is provided by AuthProvider (may be null in dev/mock mode)
-
   const [isSaving, setIsSaving] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const handleSave = useCallback(async () => {
-    if (isSaving || hasSubmitted) return; // 중복 제출 방지
+    if (isSaving || hasSubmitted) return;
     try {
       setIsSaving(true);
-      // normalize imageUri: '' 를 null로 처리
       const normalizedImageUri = imageUri && imageUri !== '' ? imageUri : null;
 
-      // 생성 시(form-data 요구)에는 사용자 id를 본문에 포함하지 않음
       const userId = (user as any)?.id ?? (user as any)?.userId;
-      // ensure we have a userId (either id or userId from server/mock)
       if (!userId) {
         Alert.alert('사용자 정보를 불러오지 못했습니다. 편지를 저장할 수 없습니다.');
+        console.error('유저 아이디 없음');
         return;
       }
 
       if (editingId) {
-        // PUT existing — multipart/form-data
         const willRemoveImage = originalHasPhoto && normalizedImageUri === null;
         await updateLetter(editingId, {
           content: letter,
@@ -89,7 +65,6 @@ const LetterWriteScreen = () => {
           removeImage: !!willRemoveImage,
         });
       } else {
-        // POST new — multipart/form-data
         await createLetter({
           content: letter,
           isPublic,
@@ -102,11 +77,13 @@ const LetterWriteScreen = () => {
       Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
         { text: '확인', onPress: () => navigation.navigate('LetterScreen') },
       ]);
+      console.log('편지 저장 완료');
       setLetter('');
       setImageUri(null);
       setHasSubmitted(true); // 첫 성공 후 영구 비활성
     } catch (error) {
       Alert.alert('저장 실패', '서버에 저장하는 중 오류가 발생했습니다.');
+      console.error('편지 저장 실패:', error);
     } finally {
       setIsSaving(false);
     }
