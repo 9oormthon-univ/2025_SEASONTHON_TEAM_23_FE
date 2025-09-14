@@ -9,7 +9,6 @@ import { useDiarySubmit } from '@/hooks/diary/useDiarySubmit';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { DiaryStackParamList } from '@/types/navigation';
 import { setHeaderExtras } from '@/types/Header';
-import Loader from '@common/Loader';
 import { localISODate, todayISO, withKoreanDOW } from '@/utils/calendar/date';
 import CustomSwitch from '@common/CustomSwitch';
 
@@ -41,6 +40,7 @@ const DiaryWriteScreen = () => {
       hasBack: true,
       hasButton: true,
       onPress: submit,
+      isLoading: isSubmitting,
       disabled: !value.trim(),
     });
   }, [navigation, submit]);
@@ -50,7 +50,6 @@ const DiaryWriteScreen = () => {
 
   return (
     <ScrollView className="bg-bg pt-10">
-      {isSubmitting && <Loader isPageLoader />}
       <View className="gap-7 px-7 pb-[72px]">
         <View className="items-center gap-4">
           <View className="items-center gap-6">

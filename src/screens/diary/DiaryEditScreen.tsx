@@ -61,6 +61,7 @@ const DiaryEditScreen = () => {
       hasBack: true,
       hasButton: true,
       onPress: submit,
+      isLoading: isSubmitting,
       disabled: !value.trim(),
     });
   }, [navigation, submit]);
@@ -86,7 +87,6 @@ const DiaryEditScreen = () => {
 
   return (
     <ScrollView className="bg-bg pt-10">
-      {isSubmitting && <Loader isPageLoader />}
       <View className="gap-7 px-7 pb-[72px]">
         <View className="items-center gap-4">
           <View className="items-center gap-6">

@@ -92,20 +92,14 @@ const DiaryByDateScreen = () => {
                 {keepAllKorean(data.topic)}
               </Text>
             </View>
-            <TextArea
-              disabled
-              value={data.content}
-              minHeight={100}
-              showCounter={false}
-              onChangeText={() => {}}
-            />
+            <TextArea disabled value={data.content} minHeight={100} showCounter={false} />
           </View>
           {data?.aiReflection ? (
             <View className="items-center gap-2.5 rounded-[20px] bg-bg-light p-5">
               {Platform.OS === 'ios' ? (
                 <Image
                   source={require('@images/mini-star.png')}
-                  style={{ height: 28, aspectRatio: 1, marginTop: -3}}
+                  style={{ height: 28, aspectRatio: 1, marginTop: -3 }}
                   resizeMode="contain"
                 />
               ) : (

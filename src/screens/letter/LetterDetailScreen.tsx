@@ -5,7 +5,11 @@ import type { LetterStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
 import { useAuth } from '@/provider/AuthProvider';
 import { formatKoreanDate } from '@/utils/formatDate';
-import { fetchLetterById, deleteLetter, fetchTributes as fetchLetterTributes } from '@/services/letters';
+import {
+  fetchLetterById,
+  deleteLetter,
+  fetchTributes as fetchLetterTributes,
+} from '@/services/letters';
 import Loader from '@common/Loader';
 import Icon from '@common/Icon';
 import { setHeaderExtras } from '@/types/Header';
@@ -25,7 +29,9 @@ const parseBackendUtc = (value: string | Date | null | undefined): Date | null =
     const [, y, mo, d, h, mi, s, , frac] = m;
     const ms = (frac ?? '000').slice(0, 3).padEnd(3, '0');
     // 타임존 표기가 없으니 UTC 로 간주
-    return new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), Number(s), Number(ms)));
+    return new Date(
+      Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), Number(s), Number(ms))
+    );
   }
   // 이미 Z 또는 +오프셋이 있다면 기본 파서 사용
   const parsed = new Date(str);
@@ -184,7 +190,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     return d ? formatKoreanDate(d) : '';
   }, [letter?.createdAt]);
 
-  if (loading) return <Loader />;
+  if (loading) return <Loader isPageLoader />;
   if (error)
     return (
       <View className="flex-1 items-center justify-center bg-gray-50 p-7">
