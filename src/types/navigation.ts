@@ -33,8 +33,3 @@ export type IconMap = Record<
   keyof TabsParamList,
   { icon: keyof typeof Icons; name: string; title?: string }
 >;
-
-export interface LetterContextType {
-  showMyLetters: boolean;
-  setShowMyLetters: (value: boolean) => void;
-}
