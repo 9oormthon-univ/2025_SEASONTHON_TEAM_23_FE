@@ -320,6 +320,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <Pressable
                 onPress={closeImageModal}
+                accessibilityLabel="닫기 버튼"
+                accessibilityRole="button"
                 hitSlop={12}
                 style={{
                   position: 'absolute',
