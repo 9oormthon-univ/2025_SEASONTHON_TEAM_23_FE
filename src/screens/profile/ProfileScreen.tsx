@@ -8,7 +8,6 @@ import {
   Alert,
   Modal,
   TextInput,
-  ActivityIndicator,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,6 +25,7 @@ import { useUpsertNickname } from '@/hooks/mutations/useUpsertNickname';
 import Icon from '@common/Icon';
 import DefaultProfile from '@images/default-profile.png';
 import ProfileDog from '@images/profile-dog.png';
+import Loader from '@common/Loader';
 
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
@@ -171,39 +171,33 @@ const ProfileScreen = () => {
             <Text className="subHeading1B text-white" numberOfLines={1}>
               {user?.nickname ?? '익명'}
             </Text>
-            <View className="flex-row items-center">
-              <TouchableOpacity
-                hitSlop={8}
-                className="ml-2"
-                onPress={openNicknameModal}
-                disabled={isSavingNickname}
-              >
-                <Text className="captionSB text-gray-300 underline">닉네임 수정</Text>
+            <View className="flex-row items-center justify-end gap-3">
+              <TouchableOpacity hitSlop={8} onPress={openNicknameModal} disabled={isSavingNickname}>
+                <Text className="body3 text-gray-600 underline">{`닉네임 수정`}</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                hitSlop={8}
-                className="ml-3"
-                onPress={confirmLogout}
-                disabled={isLoggingOut}
-              >
-                <Text className="captionSB text-gray-300 underline">
-                  {isLoggingOut ? '처리중...' : '로그아웃'}
-                </Text>
+              <TouchableOpacity hitSlop={8} onPress={confirmLogout} disabled={isLoggingOut}>
+                {isLoggingOut ? (
+                  <View className="w-[43px]">
+                    <Loader size="small" />
+                  </View>
+                ) : (
+                  <Text className="body3 text-gray-600 underline">{`로그아웃`}</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
-          <View className="mt-4 flex-row gap-5">
-            <View className="flex-row items-center gap-1">
+          <View className="flex-row gap-2">
+            <View className="flex-row items-center py-1">
               <Icon name="IcCalendar" size={20} />
               <Text className="captionB text-yellow-200">{summary?.dailyLogCount ?? 0}</Text>
               <Text className="captionSB ml-0.5 text-gray-300">일기</Text>
             </View>
-            <View className="flex-row items-center gap-1">
+            <View className="flex-row items-center py-1">
               <Icon name="IcLetter" size={20} />
               <Text className="captionB text-yellow-200">{summary?.letterCount ?? 0}</Text>
               <Text className="captionSB ml-0.5 text-gray-300">편지</Text>
             </View>
-            <View className="flex-row items-center gap-1">
+            <View className="flex-row items-center py-1">
               {Platform.OS === 'ios' ? (
                 <Image
                   source={require('@images/mini-star.png')}
@@ -211,7 +205,9 @@ const ProfileScreen = () => {
                   resizeMode="contain"
                 />
               ) : (
-                <Icon name="IcStar" size={20} />
+                <View className="px-0.5 ">
+                  <Icon name="IcStar" size={14} />
+                </View>
               )}
               <Text className="captionB text-yellow-200">{summary?.tributeCount ?? 0}</Text>
               <Text className="captionSB ml-0.5 text-gray-300">위로의 별</Text>
@@ -393,18 +389,17 @@ const ProfileScreen = () => {
               }}
             />
             <Text className="caption mt-2 text-gray-400">최대 20자 • 공백 양끝 자동 제거</Text>
-            <View className="mt-6 flex-row justify-end gap-4">
+            <View className="mt-6 flex-row items-center justify-end gap-4">
               <TouchableOpacity
                 disabled={isSavingNickname}
                 onPress={() => setNicknameModalVisible(false)}
               >
-                <Text className="captionSB text-gray-300 underline">취소</Text>
+                <Text className="captionSB text-gray-300 underline">{`취소`}</Text>
               </TouchableOpacity>
               <TouchableOpacity disabled={isSavingNickname} onPress={onConfirmNickname}>
                 {isSavingNickname ? (
-                  <View className="flex-row items-center gap-2">
-                    <ActivityIndicator size="small" color="#F3DE77" />
-                    <Text className="captionSB text-gray-300 underline">저장중...</Text>
+                  <View className="w-5 flex-row items-center justify-center gap-2">
+                    <Loader size="small" />
                   </View>
                 ) : (
                   <Text className="captionSB text-yellow-200 underline">확인</Text>

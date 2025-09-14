@@ -15,6 +15,7 @@ const CustomHeader = ({
   hasButton,
   title,
   onPress,
+  isLoading,
   disabled,
 }: HeaderProps) => {
   const navigation = useNavigation();
@@ -28,7 +29,7 @@ const CustomHeader = ({
             </Pressable>
           )}
           {hasLogo && <Icon name="IcBrandLogo" width={74} height={28} />}
-          {title && <Text className="subHeading2B text-white">{title}</Text>}
+          {title && <Text className="subHeading2B justify-center text-white">{title}</Text>}
         </View>
         {hasButton &&
           (icon ? (
@@ -36,7 +37,7 @@ const CustomHeader = ({
               <Icon name={icon} size={iconSize} color={iconColor} />
             </Pressable>
           ) : (
-            <SaveButton onPress={onPress} disabled={disabled} />
+            <SaveButton onPress={onPress} isLoading={isLoading} disabled={disabled} />
           ))}
       </View>
     </SafeAreaView>

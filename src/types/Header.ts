@@ -11,6 +11,7 @@ export type HeaderProps = {
   title?: string;
   onBack?: () => void;
   onPress?: () => void;
+  isLoading?: boolean;
   disabled?: boolean;
 };
 

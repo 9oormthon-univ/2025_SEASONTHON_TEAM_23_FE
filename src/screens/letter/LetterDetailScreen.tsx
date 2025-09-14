@@ -194,7 +194,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     return d ? formatKoreanDate(d) : '';
   }, [letter?.createdAt]);
 
-  if (loading) return <Loader />;
+  if (loading) return <Loader isPageLoader />;
   if (error)
     return (
       <View className="flex-1 items-center justify-center bg-gray-50 p-7">

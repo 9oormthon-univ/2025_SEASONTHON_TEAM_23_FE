@@ -97,15 +97,15 @@ const DiaryByDateScreen = () => {
               value={data.content}
               minHeight={100}
               showCounter={false}
-              onChangeText={() => {}}
+              containerClassName="!border-[#2D3342]"
             />
           </View>
           {data?.aiReflection ? (
-            <View className="items-center gap-2.5 rounded-[20px] bg-bg-light p-5">
+            <View className="items-center gap-2.5 rounded-[20px] bg-[#2D3342] p-5">
               {Platform.OS === 'ios' ? (
                 <Image
                   source={require('@images/mini-star.png')}
-                  style={{ height: 28, aspectRatio: 1, marginTop: -3}}
+                  style={{ height: 28, aspectRatio: 1, marginTop: -3 }}
                   resizeMode="contain"
                 />
               ) : (
