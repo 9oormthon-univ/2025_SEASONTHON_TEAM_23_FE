@@ -3,7 +3,7 @@ import { Text } from 'react-native';
 import type { IconMap, RootStackParamList, TabsParamList } from '@/types/navigation';
 import HomeScreen from '@/screens/home/HomeScreen';
 import DiaryStackNavigator from '@/navigation/diary/DiaryStackNavigator';
-import ProfileScreen from '@/screens/profile/ProfileScreen';
+import ProfileStackNavigator from '@/navigation/profile/ProfileStackNavigator';
 import TabIcon from '@navigation/TabIcon';
 import CustomHeader from '@navigation/CustomHeader';
 import LetterStackNavigator from '@/navigation/letter/LetterStackNavigator';
@@ -78,10 +78,8 @@ const TabNavigator = () => {
       <Tab.Screen name="Letter" component={LetterStackNavigator} options={{ headerShown: false }} />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
-        options={{
-          header: () => <CustomHeader hasBack title="프로필" />, // 뒤로가기 버튼 추가
-        }}
+        component={ProfileStackNavigator}
+        options={{ headerShown: false }}
       />
     </Tab.Navigator>
   );
