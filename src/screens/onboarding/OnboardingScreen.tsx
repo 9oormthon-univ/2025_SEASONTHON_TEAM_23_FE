@@ -39,6 +39,7 @@ const OnboardingScreen = () => {
             />
             <OnboardingCarousel images={slides} interval={5000} />
           </View>
+          
           <View className="w-full flex-row overflow-hidden px-7">
             <Pressable
               onPress={onKakaoPress}
