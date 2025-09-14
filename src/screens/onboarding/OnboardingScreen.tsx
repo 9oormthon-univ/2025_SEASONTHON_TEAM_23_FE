@@ -1,33 +1,49 @@
-import { Pressable, View, Image, Text, ScrollView, Platform } from 'react-native';
+import { Pressable, View, Text, ScrollView, Platform, Image } from 'react-native';
 import IcKakaoLogo from '@icons/ic-kakao-logo.svg';
 import { useKakaoLogin } from '@/hooks/useKakaoLogin';
+import OnboardingCarousel from '@/components/onboarding/OnboardingCarousel';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const slides = [
+  require('@images/img-onboarding-1.png'),
+  require('@images/img-onboarding-2.png'),
+  require('@images/img-onboarding-3.png'),
+  require('@images/img-onboarding-4.png'),
+];
 
 const OnboardingScreen = () => {
   const { loading, onKakaoPress } = useKakaoLogin();
 
   return (
-    <ScrollView className="bg-bg">
-      <View
-        className="items-center gap-10 px-12 pb-[50px] pt-9"
-        style={Platform.OS === 'ios' ? { marginTop: 60 } : undefined}
-      >
-        <View className="gap-[80px]">
-          <Image source={require('@images/img-onboarding.png')} />
-          <View className="flex-row gap-3 overflow-hidden">
+    <SafeAreaView edges={['top']} className="bg-bg">
+      <ScrollView>
+        <View
+          className="items-center gap-[68px] pb-12 pt-8"
+          style={Platform.OS === 'ios' ? { marginTop: 60 } : undefined}
+        >
+          <View className="items-center gap-7">
+            <Image
+              source={require('@images/splash-logo.png')}
+              resizeMode="contain"
+              className="h-20 w-[136px]"
+            />
+            <OnboardingCarousel images={slides} interval={5000} />
+          </View>
+          <View className="flex-row overflow-hidden px-7">
             <Pressable
               onPress={onKakaoPress}
               disabled={loading}
               android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
-              className="w-full flex-row items-center justify-center gap-4 rounded-[20px] bg-[#FAE301] py-4 color-[#391B1B]"
+              className="w-full flex-row items-center justify-center gap-4 rounded-2xl bg-[#FAE301] py-4 color-[#391B1B]"
             >
               <IcKakaoLogo />
               <Text className="subHeading3 text-center">카카오 로그인</Text>
             </Pressable>
           </View>
+          <Text className="captionB color-gray-500">{`Developed By Team Petfarewell`}</Text>
         </View>
-        <Text className="captionB color-gray-500">{`Developed By Team Petfarewell`}</Text>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
