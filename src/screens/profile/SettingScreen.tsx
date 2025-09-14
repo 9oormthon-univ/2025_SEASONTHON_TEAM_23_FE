@@ -1,12 +1,203 @@
-import { View, Text } from 'react-native';
+import { useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Modal,
+  TextInput,
+  Platform,
+  ActivityIndicator,
+  ScrollView,
+  Pressable,
+  KeyboardAvoidingView,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '@/provider/AuthProvider';
+import { useUpsertNickname } from '@/hooks/mutations/useUpsertNickname';
+
+const SettingItem = ({ label, onPress }: { label: string; onPress: () => void }) => (
+  <TouchableOpacity
+    activeOpacity={0.7}
+    onPress={onPress}
+    className="flex-row items-center justify-between py-5"
+  >
+    <Text className="subHeading2B text-white">{label}</Text>
+    <Text className="subHeading2B text-white">›</Text>
+  </TouchableOpacity>
+);
+
+const Divider = () => <View className="h-px w-full bg-[#313A48]" />;
+
+const SectionTitle = ({ title }: { title: string }) => (
+  <Text className="subHeading3 mb-2 mt-8 text-gray-400">{title}</Text>
+);
 
 const SettingScreen = () => {
+  const { user, logout } = useAuth();
+  const [nicknameModal, setNicknameModal] = useState(false);
+  const [nickname, setNickname] = useState(user?.nickname ?? '');
+  const [touched, setTouched] = useState(false);
+  const { mutate: saveNickname, isPending } = useUpsertNickname();
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const MIN = 1;
+  const MAX = 12;
+  const VALID = /^[가-힣a-zA-Z0-9_]+$/;
+
+  const validation = (() => {
+    if (!touched) return '';
+    const v = nickname.trim();
+    if (!v) return '닉네임을 입력해주세요.';
+    if (v.length < MIN) return `최소 ${MIN}자 이상`;
+    if (v.length > MAX) return `최대 ${MAX}자까지`;
+    if (!VALID.test(v)) return '허용되지 않은 문자예요.';
+    return '';
+  })();
+
+  const submitNickname = useCallback(() => {
+    if (validation || nickname.trim() === user?.nickname) return;
+    const newNickname = nickname.trim();
+    saveNickname(newNickname, {
+      onSuccess: () => {
+        console.log('닉네임 변경 성공: ', newNickname);
+        setNicknameModal(false);
+      },
+      onError: (err) => {
+        Alert.alert('닉네임 변경', '변경에 실패했어요. 다시 시도해주세요.');
+        console.error('닉네임 변경 실패: ', err);
+      },
+    });
+  }, [validation, nickname, user?.nickname, saveNickname]);
+
+  const onChangePhoto = () => {};
+
+  const onManagePets = () => {};
+
+  const confirmLogout = () => {
+    Alert.alert('로그아웃', '정말 로그아웃 하시겠어요?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '확인',
+        style: 'destructive',
+        onPress: async () => {
+          if (loggingOut) return;
+          setLoggingOut(true);
+          try {
+            await logout();
+          } finally {
+            setLoggingOut(false);
+          }
+        },
+      },
+    ]);
+  };
+
+  const confirmWithdrawal = () => {};
+
   return (
-    <SafeAreaView className="flex-1 bg-bg px-6 py-6">
-      <View className="mt-4">
-        <Text className="subHeading2B text-white">설정</Text>
-      </View>
+    <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}>
+        <SectionTitle title="프로필 관리" />
+        <SettingItem label="프로필 사진 변경" onPress={onChangePhoto} />
+        <SettingItem label="닉네임 변경" onPress={() => setNicknameModal(true)} />
+        <SettingItem label="반려동물 관리" onPress={onManagePets} />
+        <Divider />
+        <SectionTitle title="계정 관리" />
+        <SettingItem label={loggingOut ? '로그아웃 중...' : '로그아웃'} onPress={confirmLogout} />
+        <SettingItem
+          label={withdrawing ? '탈퇴 진행 중...' : '탈퇴하기'}
+          onPress={confirmWithdrawal}
+        />
+      </ScrollView>
+
+      {/* 닉네임 변경 모달 */}
+      <Modal
+        visible={nicknameModal}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setNicknameModal(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/60"
+          onPress={() => !isPending && setNicknameModal(false)}
+        >
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            className="flex-1 justify-center px-6"
+          >
+            <Pressable
+              onPress={(e) => e.stopPropagation()}
+              className="rounded-2xl bg-bg-light px-5 py-6"
+            >
+              <Text className="subHeading1B text-white">닉네임 변경</Text>
+              <Text className="body3 mt-2 text-gray-500">
+                한글/영문/숫자/언더바 {MIN}~{MAX}자
+              </Text>
+              <View className="mt-5 rounded-xl bg-bg px-4 py-3">
+                <TextInput
+                  value={nickname}
+                  onChangeText={(t) => {
+                    setNickname(t);
+                    if (!touched) setTouched(true);
+                  }}
+                  placeholder="새 닉네임"
+                  placeholderTextColor="gray-500"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  maxLength={MAX}
+                  onBlur={() => setTouched(true)}
+                  className="body1 leading-[20px] text-white"
+                  style={{
+                    paddingVertical: 0,
+                    textAlignVertical: 'center',
+                    lineHeight: 16,
+                    height: 22,
+                  }}
+                  allowFontScaling={false}
+                />
+              </View>
+              {!!validation && <Text className="body3 mt-2 text-error">{validation}</Text>}
+              <View className="mt-6 flex-row gap-3">
+                <TouchableOpacity
+                  disabled={isPending}
+                  onPress={() => setNicknameModal(false)}
+                  className="flex-1 items-center justify-center rounded-xl bg-gray-700 py-3"
+                  activeOpacity={0.8}
+                >
+                  <Text className="subHeading2B text-white">취소</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  disabled={!!validation || nickname.trim() === user?.nickname || isPending}
+                  onPress={submitNickname}
+                  className={`flex-1 items-center justify-center rounded-xl py-3 ${
+                    !!validation || nickname.trim() === user?.nickname || isPending
+                      ? 'bg-yellow-200'
+                      : 'bg-yellow-300'
+                  }`}
+                  activeOpacity={0.85}
+                >
+                  {isPending ? (
+                    <ActivityIndicator color="#121826" />
+                  ) : (
+                    <Text
+                      className={`subHeading2B ${
+                        !!validation || nickname.trim() === user?.nickname
+                          ? 'text-gray-800/50'
+                          : 'text-gray-900'
+                      }`}
+                    >
+                      저장
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </Pressable>
+          </KeyboardAvoidingView>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };
