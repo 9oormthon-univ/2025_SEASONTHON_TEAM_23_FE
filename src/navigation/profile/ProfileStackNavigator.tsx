@@ -15,6 +15,7 @@ const ProfileStackNavigator = () => {
           const { navigation, options, back } = props;
           const { hasBack, hasLogo, hasButton, icon, iconSize, iconColor, title, onPress } =
             options as unknown as HeaderProps;
+
           return (
             <CustomHeader
               hasBack={hasBack ?? !!back}
@@ -24,7 +25,9 @@ const ProfileStackNavigator = () => {
               iconSize={iconSize}
               iconColor={iconColor}
               title={title}
-              onBack={() => navigation.goBack()}
+              onBack={() => {
+                navigation.getParent()?.navigate('Tabs', { screen: 'Home' });
+              }}
               onPress={onPress}
             />
           );
@@ -36,6 +39,7 @@ const ProfileStackNavigator = () => {
         component={ProfileScreen}
         options={({ navigation }) => ({
           title: '프로필',
+          hasBack: true,
           hasButton: true,
           icon: 'IcSetting',
           iconSize: 20,
