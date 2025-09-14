@@ -8,7 +8,6 @@ import {
   Alert,
   Modal,
   TextInput,
-  ActivityIndicator,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -151,21 +150,16 @@ const ProfileScreen = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#121826]">
+    <SafeAreaView className="flex-1 bg-[#121826] pt-[27px]">
       {/* 프로필 카드 */}
-      <View
-        className="mx-6 flex-row items-center gap-5 rounded-2xl bg-[#1F2A3C] px-6 py-6"
-        style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}
-      >
-        <View>
-          <Image source={DefaultProfile} className="h-20 w-20" />
-        </View>
-        <View className="flex-1">
+      <View className="flex-row gap-5 px-7" style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}>
+        <Image source={DefaultProfile} className="h-20 w-20 rounded-xl border border-gray-300" />
+        <View className="flex-1 justify-center gap-2">
           <View className="flex-row items-center justify-between">
             <Text className="subHeading1B text-white" numberOfLines={1}>
               {user?.nickname ?? '익명'}
             </Text>
-            <View className="flex-row items-center gap-3">
+            <View className="flex-row items-center justify-end gap-3">
               <TouchableOpacity hitSlop={8} onPress={openNicknameModal} disabled={isSavingNickname}>
                 <Text className="body3 text-gray-600 underline">{`닉네임 수정`}</Text>
               </TouchableOpacity>
@@ -180,18 +174,26 @@ const ProfileScreen = () => {
               </TouchableOpacity>
             </View>
           </View>
-          <View className="mt-4 flex-row gap-5">
-            <View className="flex-row items-center gap-1">
+          <View className="flex-row gap-2">
+            <View className="flex-row items-center py-1">
               <Icon name="IcCalendar" size={20} />
-              <Text className="captionB text-[#F3DE77]">{summary?.dailyLogCount ?? 0}</Text>
-              <Text className="captionSB ml-0.5 text-gray-300">일기</Text>
+              <View className="flex-row items-center gap-0.5">
+                <Text className="body1 !leading-6 text-yellow-200">
+                  {summary?.dailyLogCount ?? 0}
+                </Text>
+                <Text className="body1 !leading-6 text-gray-300">일기</Text>
+              </View>
             </View>
-            <View className="flex-row items-center gap-1">
+            <View className="flex-row items-center py-1">
               <Icon name="IcLetter" size={20} />
-              <Text className="captionB text-[#F3DE77]">{summary?.letterCount ?? 0}</Text>
-              <Text className="captionSB ml-0.5 text-gray-300">편지</Text>
+              <View className="flex-row items-center gap-0.5">
+                <Text className="body1 !leading-6 text-yellow-200">
+                  {summary?.letterCount ?? 0}
+                </Text>
+                <Text className="body1 !leading-6 text-gray-300">편지</Text>
+              </View>
             </View>
-            <View className="flex-row items-center gap-1">
+            <View className="flex-row items-center py-1">
               {Platform.OS === 'ios' ? (
                 <Image
                   source={require('@images/mini-star.png')}
@@ -199,10 +201,16 @@ const ProfileScreen = () => {
                   resizeMode="contain"
                 />
               ) : (
-                <Icon name="IcStar" size={14} />
+                <View className="px-0.5 ">
+                  <Icon name="IcStar" size={14} />
+                </View>
               )}
-              <Text className="captionB text-[#F3DE77]">{summary?.tributeCount ?? 0}</Text>
-              <Text className="captionSB ml-0.5 text-gray-300">위로의 별</Text>
+              <View className="flex-row items-center gap-0.5">
+                <Text className="body1 !leading-6 text-yellow-200">
+                  {summary?.tributeCount ?? 0}
+                </Text>
+                <Text className="body1 !leading-6 text-gray-300">위로의 별</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -375,21 +383,20 @@ const ProfileScreen = () => {
               className="body1 rounded-lg bg-[#273246] px-4 py-3 text-white"
             />
             <Text className="caption mt-2 text-gray-400">최대 20자 • 공백 양끝 자동 제거</Text>
-            <View className="mt-6 flex-row justify-end gap-4">
+            <View className="mt-6 flex-row items-center justify-end gap-4">
               <TouchableOpacity
                 disabled={isSavingNickname}
                 onPress={() => setNicknameModalVisible(false)}
               >
-                <Text className="captionSB text-gray-300 underline">취소</Text>
+                <Text className="captionSB text-gray-300 underline">{`취소`}</Text>
               </TouchableOpacity>
               <TouchableOpacity disabled={isSavingNickname} onPress={onConfirmNickname}>
                 {isSavingNickname ? (
-                  <View className="flex-row items-center gap-2">
-                    <ActivityIndicator size="small" color="#F3DE77" />
-                    <Text className="captionSB text-gray-300 underline">저장중...</Text>
+                  <View className="w-5 flex-row items-center justify-center gap-2">
+                    <Loader size="small" />
                   </View>
                 ) : (
-                  <Text className="captionSB text-[#F3DE77] underline">확인</Text>
+                  <Text className="captionSB text-[#F3DE77] underline">{`확인`}</Text>
                 )}
               </TouchableOpacity>
             </View>
