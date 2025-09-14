@@ -5,37 +5,31 @@ import {
   TouchableOpacity,
   FlatList,
   RefreshControl,
-  Alert,
-  Modal,
-  TextInput,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/provider/AuthProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
 import { fetchMyLetters } from '@/services/letters';
 import { EMOJIS } from '@/constants/diary/emoji';
 import { emojiKeyFromNumber } from '@/utils/calendar/mood';
 import { useMyPageSummary } from '@/hooks/queries/useMyPageSummary';
-import { useUpsertNickname } from '@/hooks/mutations/useUpsertNickname';
 import Icon from '@common/Icon';
 import DefaultProfile from '@images/default-profile.png';
 import ProfileDog from '@images/profile-dog.png';
 import Loader from '@common/Loader';
 
 const ProfileScreen = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
-  // Bottom tab & safe-area heights to keep last item above the tab bar
   const tabBarHeight = useBottomTabBarHeight();
   const { bottom: insetBottom } = useSafeAreaInsets();
   const bottomPadding = tabBarHeight + insetBottom;
 
-  // 탭 상태: 'diary' | 'letter'
   const [tab, setTab] = useState<'diary' | 'letter'>('diary');
 
   // 일기 데이터
@@ -66,11 +60,9 @@ const ProfileScreen = () => {
       setLettersLoading(false);
     }
   }, []);
-  useEffect(() => {
-    if (tab === 'letter') {
-      loadLetters();
-    }
-  }, [tab, loadLetters]);
+  if (tab === 'letter') {
+    // 최초 전환 시 가져오기 (focus effect 에서도 처리됨)
+  }
 
   const {
     data: summary,
@@ -78,54 +70,8 @@ const ProfileScreen = () => {
     isFetching: isFetchingSummary,
   } = useMyPageSummary(!!user);
 
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [nicknameModalVisible, setNicknameModalVisible] = useState(false);
-  const [nicknameInput, setNicknameInput] = useState(user?.nickname ?? '');
-  const { mutate: saveNickname, isPending: isSavingNickname } = useUpsertNickname();
+  // 로그아웃 로직 제거됨
 
-  useEffect(() => {
-    // 유저 정보 갱신 시 입력값 초기화
-    setNicknameInput(user?.nickname ?? '');
-  }, [user?.nickname]);
-
-  const openNicknameModal = useCallback(() => {
-    setNicknameInput(user?.nickname ?? '');
-    setNicknameModalVisible(true);
-  }, [user?.nickname]);
-
-  const onConfirmNickname = useCallback(() => {
-    const trimmed = nicknameInput.trim();
-    if (!trimmed) {
-      Alert.alert('닉네임', '닉네임을 입력해주세요.');
-      return;
-    }
-    saveNickname(trimmed, {
-      onSuccess: () => {
-        setNicknameModalVisible(false);
-      },
-      onError: () => {
-        Alert.alert('닉네임', '닉네임을 저장하지 못했어요. 다시 시도해주세요.');
-      },
-    });
-  }, [nicknameInput, saveNickname]);
-  const handleLogout = useCallback(async () => {
-    if (isLoggingOut) return;
-    setIsLoggingOut(true);
-    try {
-      await logout(); // 내부에서 /auth/logout 포함
-    } finally {
-      setIsLoggingOut(false);
-    }
-  }, [logout, isLoggingOut]);
-
-  const confirmLogout = useCallback(() => {
-    Alert.alert('로그아웃', '로그아웃하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      { text: '확인', style: 'destructive', onPress: handleLogout },
-    ]);
-  }, [handleLogout]);
-
-  // 스크린 포커스 시 최신 데이터 갱신
   useFocusEffect(
     useCallback(() => {
       if (user) {
@@ -138,7 +84,6 @@ const ProfileScreen = () => {
     }, [user, tab, refetchSummary, refetchDailyLogs, loadLetters])
   );
 
-  // Pull To Refresh 처리
   const onRefresh = useCallback(() => {
     refetchSummary();
     refetchDailyLogs();
@@ -146,6 +91,7 @@ const ProfileScreen = () => {
       loadLetters();
     }
   }, [refetchSummary, refetchDailyLogs, loadLetters, tab]);
+
   const refreshing =
     isFetchingSummary || isDailyLogsLoading || (tab === 'letter' && lettersLoading);
 
@@ -167,24 +113,7 @@ const ProfileScreen = () => {
               <Text className="subHeading1B text-white" numberOfLines={1}>
                 {user?.nickname ?? '익명'}
               </Text>
-              <View className="flex-row items-center justify-end gap-3">
-                <TouchableOpacity
-                  hitSlop={8}
-                  onPress={openNicknameModal}
-                  disabled={isSavingNickname}
-                >
-                  <Text className="body3 text-gray-600 underline">{`닉네임 수정`}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity hitSlop={8} onPress={confirmLogout} disabled={isLoggingOut}>
-                  {isLoggingOut ? (
-                    <View className="w-[43px]">
-                      <Loader size="small" />
-                    </View>
-                  ) : (
-                    <Text className="body3 text-gray-600 underline">{`로그아웃`}</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
+              <View className="flex-row items-center justify-end" />
             </View>
             <View className="flex-row gap-2">
               <View className="flex-row items-center py-1">
@@ -368,54 +297,6 @@ const ProfileScreen = () => {
           />
         )}
       </View>
-      {/* 닉네임 수정 모달 */}
-      <Modal
-        visible={nicknameModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => !isSavingNickname && setNicknameModalVisible(false)}
-      >
-        <View className="flex-1 items-center justify-center bg-black/60 px-8">
-          <View className="w-full rounded-2xl bg-[#1F2A3C] p-6">
-            <Text className="subHeading2B mb-4 text-white">
-              닉네임 {user?.nickname ? '수정' : '설정'}
-            </Text>
-            <TextInput
-              value={nicknameInput}
-              onChangeText={setNicknameInput}
-              placeholder="닉네임을 입력하세요"
-              placeholderTextColor="#7A8699"
-              maxLength={20}
-              autoFocus
-              className="body1 rounded-lg bg-[#273246] px-4 text-white"
-              style={{
-                lineHeight: 18,
-                height: 44,
-                paddingVertical: 10,
-                textAlignVertical: 'center',
-              }}
-            />
-            <Text className="caption mt-2 text-gray-400">최대 20자 • 공백 양끝 자동 제거</Text>
-            <View className="mt-6 flex-row items-center justify-end gap-4">
-              <TouchableOpacity
-                disabled={isSavingNickname}
-                onPress={() => setNicknameModalVisible(false)}
-              >
-                <Text className="captionSB text-gray-300 underline">{`취소`}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity disabled={isSavingNickname} onPress={onConfirmNickname}>
-                {isSavingNickname ? (
-                  <View className="w-5 flex-row items-center justify-center gap-2">
-                    <Loader size="small" />
-                  </View>
-                ) : (
-                  <Text className="captionSB text-yellow-200 underline">확인</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
