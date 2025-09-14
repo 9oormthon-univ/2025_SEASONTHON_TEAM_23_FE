@@ -30,11 +30,11 @@ const RootNavigator = ({ navigationRef }: RootNavigatorProps) => {
               options={{
                 header: (props) => {
                   const { navigation, options } = props;
-                  const { hasButton, icon, hasBack, iconSize, iconColor, title, onPress } =
+                  const { hasButton, icon, iconSize, iconColor, title, onPress } =
                     options as unknown as HeaderProps;
                   return (
                     <CustomHeader
-                      hasBack={hasBack}
+                      hasBack={true}
                       hasButton={!!hasButton}
                       icon={icon}
                       iconSize={iconSize}
