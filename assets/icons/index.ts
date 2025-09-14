@@ -20,3 +20,4 @@ export { default as IcPic } from './ic-pic.svg';
 export { default as IcClose } from './ic-close.svg';
 export { default as IcStar } from './ic-star.svg';
 export { default as IcStarSky } from './ic-starsky.svg';
+export { default as IcSetting } from './ic-setting.svg';
