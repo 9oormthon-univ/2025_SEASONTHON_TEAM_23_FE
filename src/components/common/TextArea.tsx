@@ -3,7 +3,7 @@ import { Pressable, Text, TextInput, type TextInputProps, View } from 'react-nat
 
 type TextAreaProps = {
   value: string;
-  onChangeText: (text: string) => void;
+  onChangeText?: (text: string) => void;
   placeholder?: string;
   maxLength?: number;
   disabled?: boolean;
@@ -51,7 +51,7 @@ const TextArea = forwardRef<TextInput, TextAreaProps>(
           if (!disabled) focusInput();
         }}
         className={`w-full rounded-[20px] bg-transparent p-5
-        ${focused ? 'border border-gray-600' : 'border border-[#2D3342]'}
+        ${focused ? 'border border-gray-200' : 'border border-gray-600'}
         ${containerClassName}`}
       >
         <TextInput
