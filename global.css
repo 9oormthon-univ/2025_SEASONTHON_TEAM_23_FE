@@ -22,10 +22,10 @@
     @apply font-pretendard text-[24px] font-bold;
   }
   .subHeading1B {
-    @apply font-pretendard text-[20px] font-bold leading-[20px];
+    @apply font-pretendard text-[20px] font-bold;
   }
   .subHeading1M {
-    @apply font-pretendard text-[20px] font-medium leading-[20px];
+    @apply font-pretendard text-[20px] font-medium;
   }
   .subHeading2B {
     @apply font-pretendard text-[18px] font-bold;
@@ -37,13 +37,13 @@
     @apply font-pretendard text-[16px] font-bold;
   }
   .body1 {
-    @apply font-pretendard text-[14px] font-medium leading-[14px];
+    @apply font-pretendard text-[14px] font-medium;
   }
   .body2 {
-    @apply font-pretendard text-[14px] font-semibold leading-[14px];
+    @apply font-pretendard text-[14px] font-semibold;
   }
   .body3 {
-    @apply font-pretendard text-[12px] font-medium leading-[12px];
+    @apply font-pretendard text-[12px] font-medium;
   }
   .captionB {
     @apply font-pretendard text-[11px] font-bold;
