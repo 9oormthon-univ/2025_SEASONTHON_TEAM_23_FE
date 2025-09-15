@@ -27,6 +27,13 @@ type Props = {
   closeOnSelect?: boolean; // 아이템 탭 시 즉시 닫기 (기본 false)
   maxSelected?: number; // 선택 개수 제한 (없으면 무제한)
   className?: string;
+
+  /** 서로 함께 선택되면 안 되는 조합 */
+  conflicts?: Partial<Record<Value, Value[]>>;
+  /** 충돌 시 동작: block = 선택을 막기, replace = 충돌값들 제거하고 새 값 선택 */
+  conflictStrategy?: 'block' | 'replace';
+  /** block일 때 UX 피드백 (토스트) */
+  onConflict?: (picked: Item, conflicted: Item[]) => void;
 };
 
 const ITEM_H = 52;
@@ -45,6 +52,9 @@ const SelectBox: React.FC<Props> = ({
   closeOnSelect = false,
   maxSelected,
   className,
+  conflicts,
+  conflictStrategy,
+  onConflict,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -110,6 +120,30 @@ const SelectBox: React.FC<Props> = ({
     if (willSelect && maxSelected != null && values.length >= maxSelected) {
       return; // 제한 초과 시 무시
     }
+
+    // ★ 충돌 체크
+    const conflictMap = conflicts ?? {};
+    const conflictList = willSelect ? (conflictMap[item.value] ?? []) : [];
+    const conflictedSelectedValues = conflictList.filter((v) => selectedSet.has(v));
+
+    if (willSelect && conflictedSelectedValues.length > 0) {
+      if (conflictStrategy === 'block' || !conflictStrategy) {
+        // 막기 + 콜백으로 사용자에게 피드백
+        onConflict?.(
+          item,
+          items.filter((i) => conflictedSelectedValues.includes(i.value))
+        );
+        return;
+      }
+
+      // replace: 충돌 중인 것들 제거하고 새 값 추가
+      const next = values.filter((v) => !conflictedSelectedValues.includes(v));
+      next.push(item.value);
+      onChange(next);
+      if (closeOnSelect) setOpen(false);
+      return;
+    }
+
     const next = toggleInArray(values, item.value);
     onChange(next);
     if (closeOnSelect) setOpen(false);

@@ -16,8 +16,22 @@ export const PERSONALITY_OPTIONS: { label: string; value: PersonalityValue }[] =
   { label: '똑똑함', value: 'smart' },
   { label: '친근함', value: 'friendly' },
   { label: '사나움', value: 'aggressive' },
-  { label: '순함', value: 'gentle' },
 ];
+
+export const PERSONALITY_CONFLICTS: Partial<Record<PersonalityValue, PersonalityValue[]>> = {
+  active: ['calm'],
+  calm: ['active'],
+
+  aggressive: ['gentle'],
+  gentle: ['aggressive'],
+
+  prickly: ['friendly'],
+  friendly: ['prickly'],
+
+  // 충성심/똑똑함은 상반 정의 없음
+  loyal: [],
+  smart: [],
+};
 
 type SpeciesValue =
   | 'dog'
