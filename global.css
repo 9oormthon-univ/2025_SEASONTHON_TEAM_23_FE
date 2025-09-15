@@ -46,9 +46,9 @@
     @apply font-pretendard text-[12px] font-medium leading-[12px];
   }
   .captionB {
-    @apply font-pretendard text-[11px] font-bold leading-[11px];
+    @apply font-pretendard text-[11px] font-bold;
   }
   .captionSB {
-    @apply font-pretendard text-[11px] font-semibold leading-[11px];
+    @apply font-pretendard text-[11px] font-semibold;
   }
 }

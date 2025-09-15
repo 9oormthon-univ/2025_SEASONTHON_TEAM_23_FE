@@ -48,7 +48,7 @@ const OnboardingScreen = () => {
             </Pressable>
           </View>
         </View>
-        <Text className="captionB absolute bottom-12 text-[#64696F]">{`Developed By Team 펫어웰`}</Text>
+        <Text className="captionB absolute bottom-12 w-full text-center text-[#64696F]">{`Developed By Team 펫어웰`}</Text>
       </ScrollView>
     </SafeAreaView>
   );
