@@ -106,6 +106,7 @@ const LetterWriteScreen = () => {
       disabled: !letter.trim() || isSaving || hasSubmitted,
       hasBack: true,
       hasButton: true,
+      onBack: () => navigation.goBack(),
       onPress: handleSave,
     });
   }, [navigation, handleSave, letter, isSaving, hasSubmitted, editingId]);

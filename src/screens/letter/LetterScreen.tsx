@@ -19,6 +19,10 @@ const LetterScreen = () => {
       icon: 'IcNotification',
       iconSize: 28,
       iconColor: 'white',
+      onBack: () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        navigation.getParent()?.navigate('Tabs', { screen: 'Home' });
+      },
       onPress: () => rootNavigation.navigate('NotificationList'),
     });
   }, [navigation]);
