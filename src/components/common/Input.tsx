@@ -31,7 +31,7 @@ const Input = ({
         editable={!disabled}
         placeholder={placeholder}
         placeholderTextColor="#808080"
-        className={`body1 rounded-2xl bg-gray-800 px-5 py-4 text-white ${error && 'border border-error'}`}
+        className={`body1 rounded-2xl bg-gray-800 px-5 py-4 leading-5 text-white ${error && 'border border-error'}`}
       />
       {helperText && (
         <Text className={`body3 ${error ? 'text-error' : 'text-gray-500'}`}>{helperText}</Text>
