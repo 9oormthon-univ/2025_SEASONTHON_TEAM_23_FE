@@ -14,8 +14,8 @@ const LetterStackNavigator = () => {
       initialRouteName="LetterScreen"
       screenOptions={{
         header: (props) => {
-          const { navigation, options, back } = props;
-          const { hasBack, hasLogo, hasButton, icon, iconSize, iconColor, title, onPress } =
+          const { options, back } = props;
+          const { hasBack, hasLogo, hasButton, icon, iconSize, iconColor, title, onPress, onBack } =
             options as unknown as HeaderProps;
           return (
             <CustomHeader
@@ -26,10 +26,7 @@ const LetterStackNavigator = () => {
               iconSize={iconSize}
               iconColor={iconColor}
               title={title}
-              onBack={() => {
-                if (navigation.canGoBack()) navigation.goBack();
-                navigation.getParent()?.navigate('Tabs', { screen: 'Home' });
-              }}
+              onBack={onBack}
               onPress={onPress}
             />
           );
