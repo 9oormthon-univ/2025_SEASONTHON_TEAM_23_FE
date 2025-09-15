@@ -12,6 +12,7 @@ import CustomHeader from '@navigation/CustomHeader';
 import { useNeedsPetProfile } from '@/hooks/queries/useNeedsPetProfile';
 import Loader from '@common/Loader';
 import PetRegistrationScreen from '@/screens/settings/PetRegistrationScreen';
+import { View } from 'react-native';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,7 +37,11 @@ const RootNavigator = ({ navigationRef }: RootNavigatorProps) => {
           <Stack.Screen
             name="Boot"
             options={{ headerShown: false }}
-            component={() => <Loader isPageLoader />}
+            component={() => (
+              <View className="flex-1 bg-bg">
+                <Loader />
+              </View>
+            )}
           />
         ) : needsPet ? (
           <Stack.Screen
