@@ -3,10 +3,12 @@ import * as Icons from '@icons';
 
 export type RootStackParamList = {
   Onboarding: undefined;
+  Boot: undefined;
   Tabs: NavigatorScreenParams<TabsParamList>;
   MyDailyLogs: undefined;
   MyLetters: undefined;
   NotificationList: undefined;
+  PetRegistration: undefined;
 };
 
 export type TabsParamList = {
