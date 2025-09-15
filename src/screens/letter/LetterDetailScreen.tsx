@@ -154,6 +154,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     setHeaderExtras(navigation, {
       title: '기억의 별자리',
       hasBack: true,
+      onBack: () => navigation.replace('LetterScreen'),
       ...(isOwner
         ? {
             hasButton: true,
