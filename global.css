@@ -10,45 +10,45 @@
 
 @layer utilities {
   .heading1 {
-    @apply font-pretendard text-[40px] font-semibold;
+    @apply font-pretendard text-[40px] font-semibold leading-[42px];
   }
   .heading2B {
-    @apply font-pretendard text-[28px] font-bold;
+    @apply font-pretendard text-[28px] font-bold leading-[30px];
   }
   .heading2SB {
-    @apply font-pretendard text-[28px] font-semibold;
+    @apply font-pretendard text-[28px] font-semibold leading-[30px];
   }
   .heading3 {
-    @apply font-pretendard text-[24px] font-bold;
+    @apply font-pretendard text-[24px] font-bold leading-[26px];
   }
   .subHeading1B {
-    @apply font-pretendard text-[20px] font-bold leading-[20px];
+    @apply font-pretendard text-[20px] font-bold leading-[26px];
   }
   .subHeading1M {
-    @apply font-pretendard text-[20px] font-medium leading-[20px];
+    @apply font-pretendard text-[20px] font-medium leading-[22px];
   }
   .subHeading2B {
-    @apply font-pretendard text-[18px] font-bold;
+    @apply font-pretendard text-[18px] font-bold leading-[20px];
   }
   .subHeading2M {
-    @apply font-pretendard text-lg font-medium;
+    @apply font-pretendard text-[18px] font-medium leading-[20px];
   }
   .subHeading3 {
-    @apply font-pretendard text-[16px] font-bold;
+    @apply font-pretendard text-[16px] font-bold leading-[18px];
   }
   .body1 {
-    @apply font-pretendard text-[14px] font-medium leading-[14px];
+    @apply font-pretendard text-[14px] font-medium leading-[16px];
   }
   .body2 {
-    @apply font-pretendard text-[14px] font-semibold leading-[14px];
+    @apply font-pretendard text-[14px] font-semibold leading-[16px];
   }
   .body3 {
-    @apply font-pretendard text-[12px] font-medium leading-[12px];
+    @apply font-pretendard text-[12px] font-medium leading-[14px];
   }
   .captionB {
-    @apply font-pretendard text-[11px] font-bold;
+    @apply font-pretendard text-[11px] font-bold leading-[14px];
   }
   .captionSB {
-    @apply font-pretendard text-[11px] font-semibold;
+    @apply font-pretendard text-[11px] font-semibold leading-[14px];
   }
 }

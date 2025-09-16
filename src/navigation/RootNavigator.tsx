@@ -9,6 +9,10 @@ import NotificationListScreen from '@/screens/notification/NotificationListScree
 import type { RefObject } from 'react';
 import type { HeaderProps } from '@/types/Header';
 import CustomHeader from '@navigation/CustomHeader';
+import { useMyPets } from '@/hooks/queries/useMyPets';
+import Loader from '@common/Loader';
+import PetRegistrationScreen from '@/screens/settings/PetRegistrationScreen';
+import { View } from 'react-native';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -18,10 +22,32 @@ type RootNavigatorProps = {
 
 const RootNavigator = ({ navigationRef }: RootNavigatorProps) => {
   const { user } = useAuth();
+  const { needsPet, loading } = useMyPets(!!user);
+
   return (
     <NavigationContainer linking={linking} ref={navigationRef}>
       <Stack.Navigator screenOptions={{ headerTitleAlign: 'center' }}>
-        {user ? (
+        {!user ? (
+          <Stack.Screen
+            name="Onboarding"
+            component={OnboardingScreen}
+            options={{ headerShown: false }}
+          />
+        ) : loading ? (
+          <Stack.Screen name="Boot" options={{ headerShown: false }}>
+            {() => (
+              <View className="flex-1 bg-bg">
+                <Loader />
+              </View>
+            )}
+          </Stack.Screen>
+        ) : needsPet ? (
+          <Stack.Screen
+            name="PetRegistration"
+            component={PetRegistrationScreen}
+            options={{ header: () => <CustomHeader hasLogo bgColor="#121826" /> }}
+          />
+        ) : (
           <>
             <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
             <Stack.Screen
@@ -48,12 +74,6 @@ const RootNavigator = ({ navigationRef }: RootNavigatorProps) => {
               }}
             />
           </>
-        ) : (
-          <Stack.Screen
-            name="Onboarding"
-            component={OnboardingScreen}
-            options={{ headerShown: false }}
-          />
         )}
       </Stack.Navigator>
     </NavigationContainer>
