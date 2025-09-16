@@ -45,6 +45,7 @@ const NotificationListScreen = () => {
                 });
               }
             }}
+            android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
             className="gap-1 rounded-[20px] bg-bg-light px-7 py-5"
           >
             <View className="flex-row items-center justify-between">
