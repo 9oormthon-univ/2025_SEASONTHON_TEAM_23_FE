@@ -9,7 +9,7 @@ import NotificationListScreen from '@/screens/notification/NotificationListScree
 import type { RefObject } from 'react';
 import type { HeaderProps } from '@/types/Header';
 import CustomHeader from '@navigation/CustomHeader';
-import { useNeedsPetProfile } from '@/hooks/queries/useNeedsPetProfile';
+import { useMyPets } from '@/hooks/queries/useMyPets';
 import Loader from '@common/Loader';
 import PetRegistrationScreen from '@/screens/settings/PetRegistrationScreen';
 import { View } from 'react-native';
@@ -22,7 +22,7 @@ type RootNavigatorProps = {
 
 const RootNavigator = ({ navigationRef }: RootNavigatorProps) => {
   const { user } = useAuth();
-  const { needsPet, loading } = useNeedsPetProfile(!!user);
+  const { needsPet, loading } = useMyPets(!!user);
 
   return (
     <NavigationContainer linking={linking} ref={navigationRef}>
