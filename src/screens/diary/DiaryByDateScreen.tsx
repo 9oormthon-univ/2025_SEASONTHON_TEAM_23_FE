@@ -38,6 +38,10 @@ const DiaryByDateScreen = () => {
       icon: 'IcVerticalDots',
       iconSize: 38,
       iconColor: 'white',
+      onBack: () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        navigation.replace('DiaryMain');
+      },
       onPress: openMenu,
     });
   }, [navigation, openMenu]);
@@ -84,9 +88,9 @@ const DiaryByDateScreen = () => {
   return (
     <>
       <ScrollView className="bg-bg">
-        <View className="gap-4 px-7 pb-[42px] pt-10">
-          <View className="items-center gap-4">
-            <View className="items-center gap-6">
+        <View className="gap-5 px-7 pb-5 pt-10">
+          <View className="items-center gap-10">
+            <View className="items-center gap-6 px-11">
               <Text className="body2 text-gray-600">{date}</Text>
               <Text className="subHeading3 text-center text-white">
                 {keepAllKorean(data.topic)}
@@ -101,7 +105,7 @@ const DiaryByDateScreen = () => {
             />
           </View>
           {data?.aiReflection ? (
-            <View className="items-center gap-2.5 rounded-[20px] bg-[#2D3342] p-5">
+            <View className="items-center gap-2.5 rounded-[20px] bg-bg-light px-11 py-5">
               {Platform.OS === 'ios' ? (
                 <Image
                   source={require('@images/mini-star.png')}

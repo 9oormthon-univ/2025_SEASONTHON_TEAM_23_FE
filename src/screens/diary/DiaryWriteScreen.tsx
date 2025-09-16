@@ -11,6 +11,9 @@ import type { DiaryStackParamList } from '@/types/navigation';
 import { setHeaderExtras } from '@/types/Header';
 import { localISODate, todayISO, withKoreanDOW } from '@/utils/calendar/date';
 import CustomSwitch from '@common/CustomSwitch';
+import { usePetSelect } from '@/hooks/diary/usePetSelect';
+import Loader from '@common/Loader';
+import SelectBox from '@common/SelectBox';
 
 const MAX = 500;
 
@@ -22,6 +25,7 @@ const DiaryWriteScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList, 'DiaryWrite'>>();
   const { user } = useAuth();
   const userId = Number(user?.userId);
+  const { items, values, onChange, loading, isError } = usePetSelect({ enabled: true });
 
   const [value, setValue] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState<EmojiKey | null>(null);
@@ -42,6 +46,10 @@ const DiaryWriteScreen = () => {
       onPress: submit,
       isLoading: isSubmitting,
       disabled: !value.trim(),
+      onBack: () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        navigation.replace('DiaryMain');
+      },
     });
   }, [navigation, submit]);
   const inputRef = useRef<TextInput>(null);
@@ -50,9 +58,10 @@ const DiaryWriteScreen = () => {
 
   return (
     <ScrollView className="bg-bg pt-10">
-      <View className="gap-7 px-7 pb-[72px]">
+      {loading && <Loader />}
+      <View className="gap-5 px-7 pb-[72px]">
         <View className="items-center gap-4">
-          <View className="items-center gap-6">
+          <View className="items-center gap-6 px-11">
             <Text className="body2 text-gray-600">{today}</Text>
             <Text className="subHeading3 text-center text-white">{topic}</Text>
           </View>
@@ -83,12 +92,28 @@ const DiaryWriteScreen = () => {
             })}
           </View>
         </View>
-        <View className="flex-row justify-between rounded-[20px] bg-bg-light px-8 py-5">
-          <View>
-            <Text className="captionSB text-white">{`이 글에 대한`}</Text>
-            <Text className="body1 !leading-6 text-white">{`공감문을 받을 수 있어요.`}</Text>
+        <View className="gap-3">
+          <View className="flex-row justify-between rounded-[20px] bg-bg-light px-8 py-5">
+            <View>
+              <Text className="captionSB text-white">{`이 글에 대한`}</Text>
+              <Text className="body1 !leading-6 text-white">{`공감문을 받을 수 있어요.`}</Text>
+            </View>
+            <CustomSwitch value={needAiReflection} onValueChange={setNeedAiReflection} />
           </View>
-          <CustomSwitch value={needAiReflection} onValueChange={setNeedAiReflection} />
+          <Text className="captionSB text-center text-gray-500">{`어떤 반려동물의 공감문을 받으시나요?`}</Text>
+          <SelectBox
+            items={items}
+            values={values}
+            onChange={onChange}
+            disabled={!needAiReflection}
+            error={isError}
+            errorMsg={
+              isError ? '반려동물 목록을 불러오지 못했습니다. 다시 시도해주세요.' : undefined
+            }
+            closeOnSelect
+            maxSelected={1}
+            triggerBgColor="#2F394E"
+          />
         </View>
       </View>
     </ScrollView>

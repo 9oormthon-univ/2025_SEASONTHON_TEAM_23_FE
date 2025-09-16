@@ -21,7 +21,7 @@ const CustomHeader = ({
   return (
     <SafeAreaView edges={['top']} style={{ backgroundColor: bgColor }}>
       <View className="h-[60px] flex-row items-center justify-between px-7 py-4">
-        <View className="flex-row gap-5">
+        <View className="flex-row items-center gap-5">
           {hasBack && (
             <Pressable onPress={onBack}>
               <Icon name="IcBack" size={28} color={'white'} />
