@@ -5,7 +5,6 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import type { LetterStackParamList } from 'src/types/navigation';
 import * as ImagePicker from 'expo-image-picker';
 import { fetchLetterById, createLetter, updateLetter } from '@/services/letters';
-import { formatKoreanDate } from '@/utils/formatDate';
 import Icon from '@common/Icon';
 import { useAuth } from '@/provider/AuthProvider';
 import { setHeaderExtras } from '@/types/Header';
@@ -138,9 +137,6 @@ const LetterWriteScreen = () => {
               ) : (
                 <Icon name="IcStarSky" width={123} height={88} />
               )}
-              <Text className="body2 text-gray-600">
-                {formatKoreanDate(new Date().toISOString())}
-              </Text>
             </View>
             <Text className="subHeading3 text-white">
               {`사랑하는 반려동물과의 소중한 추억을 함께 나눠요`}

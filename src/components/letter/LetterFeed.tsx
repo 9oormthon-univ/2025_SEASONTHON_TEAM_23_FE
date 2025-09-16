@@ -9,7 +9,7 @@ import { useTribute } from '@/provider/TributeProvider';
 import { fetchLetters } from '@/services/letters';
 import Loader from '../common/Loader';
 import Icon from '@common/Icon';
-import { formatRelativeKo } from '@/utils/formatRelativeKo';
+import { formatRelativeKo } from '@/utils/formatDate';
 
 type NavProp = NativeStackNavigationProp<LetterStackParamList>;
 

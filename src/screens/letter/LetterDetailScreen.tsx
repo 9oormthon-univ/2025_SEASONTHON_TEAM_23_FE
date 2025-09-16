@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, Image, Pressable, Platform } from 'react-native';
 import { Modal } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -18,27 +18,6 @@ import DropDownMenu from '@/components/common/DropDownMenu';
 import ConfirmDeleteModal from '@/components/common/ConfirmDeleteModal';
 
 type Props = NativeStackScreenProps<LetterStackParamList, 'LetterDetail'>;
-
-// createdAt이 타임존이 없는 UTC 문자열인 경우(마이크로초 포함) UTC로 해석 후 Date 반환
-const parseBackendUtc = (value: string | Date | null | undefined): Date | null => {
-  if (!value) return null;
-  if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
-  const str = String(value);
-  // 패턴: YYYY-MM-DDTHH:mm:ss[.fraction]
-  const m = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.(\d+))?$/);
-  if (m) {
-    const [, y, mo, d, h, mi, s, , frac] = m;
-    const ms = (frac ?? '000').slice(0, 3).padEnd(3, '0');
-    // 타임존 표기가 없으니 UTC 로 간주
-    return new Date(
-      Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), Number(s), Number(ms))
-    );
-  }
-  // 이미 Z 또는 +오프셋이 있다면 기본 파서 사용
-  const parsed = new Date(str);
-  return isNaN(parsed.getTime()) ? null : parsed;
-};
-
 const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const id = route?.params?.id;
   const [letter, setLetter] = useState<any | null>(null);
@@ -190,11 +169,6 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   }, [letter, navigation]);
 
-  const formattedCreatedAt = useMemo(() => {
-    const d = parseBackendUtc(letter?.createdAt ?? null);
-    return d ? formatKoreanDate(d) : '';
-  }, [letter?.createdAt]);
-
   if (loading) return <Loader isPageLoader />;
   if (error)
     return (
@@ -227,7 +201,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             <Icon name="IcStarSky" size={128} />
           )}
           <Text className="body2 mt-6" style={{ color: '#AAAAAA' }}>
-            {formattedCreatedAt}
+            {formatKoreanDate(letter.createdAt)}
           </Text>
           {(() => {
             const display = letter.nickname ?? '작성자 정보 없음';
