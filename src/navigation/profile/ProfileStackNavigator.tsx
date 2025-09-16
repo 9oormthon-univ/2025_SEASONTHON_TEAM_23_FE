@@ -27,7 +27,11 @@ const ProfileStackNavigator = () => {
               iconColor={iconColor}
               title={title}
               onBack={() => {
-                navigation.getParent()?.navigate('Tabs', { screen: 'Home' });
+                if (navigation.canGoBack()) {
+                  navigation.goBack();
+                } else {
+                  navigation.navigate('ProfileMain');
+                }
               }}
               onPress={onPress}
             />

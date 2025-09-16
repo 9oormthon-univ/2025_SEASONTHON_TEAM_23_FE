@@ -61,7 +61,28 @@ const ImageSettingScreen = () => {
                   selected ? 'border-[2px] border-yellow-300 bg-bg-light' : 'bg-bg-light'
                 }`}
               >
-                <Image source={img} className="h-[62px] w-[62px] rounded-xl" resizeMode="cover" />
+                <View className="h-[62px] w-[62px] overflow-hidden rounded-xl">
+                  <Image
+                    source={img}
+                    className="h-full w-full"
+                    resizeMode="cover"
+                    style={!selected ? { opacity: 0.35 } : undefined}
+                  />
+                  {!selected && (
+                    <View
+                      pointerEvents="none"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: '#555',
+                        opacity: 0.25,
+                      }}
+                    />
+                  )}
+                </View>
               </TouchableOpacity>
             );
           })}
