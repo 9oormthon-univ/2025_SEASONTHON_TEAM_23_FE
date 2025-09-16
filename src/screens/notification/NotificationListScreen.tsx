@@ -2,7 +2,7 @@ import { Image, View, Text, FlatList, Platform, Pressable } from 'react-native';
 import { useLayoutEffect } from 'react';
 import { setHeaderExtras } from '@/types/Header';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { formatRelativeKo } from '@/utils/formatRelativeKo';
+import { formatRelativeKo } from '@/utils/formatDate';
 import Icon from '@common/Icon';
 import { useNotify } from '@/provider/NotifyProvider';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
