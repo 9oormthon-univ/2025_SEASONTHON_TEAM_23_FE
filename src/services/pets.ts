@@ -1,12 +1,5 @@
 import { api } from '@/services/axiosInstance';
-import type { CreatePetDto } from '@/types/pets';
-
-export type Pet = {
-  id: number;
-  name: string;
-  breed: string;
-  personality: string;
-};
+import type { CreatePetDto, Pet } from '@/types/pets';
 
 export async function fetchMyPets(): Promise<Pet[]> {
   const res = await api.get('/pets');
