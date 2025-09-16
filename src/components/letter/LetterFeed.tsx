@@ -163,7 +163,7 @@ const LetterFeed: React.FC = () => {
             );
           }}
           ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-          contentContainerStyle={{ paddingTop: 12, paddingBottom: 32 }}
+          contentContainerStyle={{ paddingTop: 8, paddingBottom: 32 }}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
           // style 제거: 간격은 contentContainerStyle로 처리
         />
