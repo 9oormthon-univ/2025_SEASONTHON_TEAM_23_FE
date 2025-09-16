@@ -202,7 +202,11 @@ const SelectBox: React.FC<Props> = ({
               name="IcChevronUp"
               size={18}
               color={
-                error ? '#FF2E45' : disabled ? '#808080' : (triggerIconColor ?? triggerTextColor)
+                error
+                  ? '#FF2E45'
+                  : disabled || !selectedItems.length
+                    ? '#808080'
+                    : (triggerIconColor ?? triggerTextColor)
               }
             />
           </Animated.View>
