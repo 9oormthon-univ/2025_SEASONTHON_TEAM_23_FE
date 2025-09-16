@@ -14,7 +14,7 @@ type TextAreaProps = {
   containerClassName?: string;
   inputClassName?: string;
   counterClassName?: string;
-} & Omit<TextInputProps, 'value' | 'onChangeText' | 'placeholder' | 'maxLength'>;
+} & Omit<TextInputProps, 'value' | 'placeholder' | 'maxLength'>;
 
 const TextArea = forwardRef<TextInput, TextAreaProps>(
   (
