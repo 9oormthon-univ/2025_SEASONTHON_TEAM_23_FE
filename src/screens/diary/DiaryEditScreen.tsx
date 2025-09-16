@@ -73,6 +73,10 @@ const DiaryEditScreen = () => {
       onPress: submit,
       isLoading: isSubmitting,
       disabled: !value.trim(),
+      onBack: () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        navigation.replace('DiaryByDate', { logId });
+      },
     });
   }, [navigation, submit]);
 

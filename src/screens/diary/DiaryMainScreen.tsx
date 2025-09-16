@@ -36,6 +36,10 @@ const DiaryMainScreen = () => {
       hasBack: true,
       hasButton: true,
       icon: 'IcNotification',
+      onBack: () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        navigation.getParent()?.navigate('Tabs', { screen: 'Home' });
+      },
       onPress: () => rootNavigaton.navigate('NotificationList'),
     });
   }, [navigation]);

@@ -46,6 +46,10 @@ const DiaryWriteScreen = () => {
       onPress: submit,
       isLoading: isSubmitting,
       disabled: !value.trim(),
+      onBack: () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        navigation.replace('DiaryMain');
+      },
     });
   }, [navigation, submit]);
   const inputRef = useRef<TextInput>(null);
