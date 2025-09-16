@@ -1,3 +1,8 @@
+export type SelectItem = {
+  label: string;
+  value: string | number;
+};
+
 type PersonalityValue =
   | 'prickly' // 까칠함
   | 'active' // 활발함

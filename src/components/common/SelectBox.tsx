@@ -10,13 +10,13 @@ import {
 } from 'react-native';
 import Icon from '@common/Icon';
 import { toggleInArray } from '@/utils/array';
+import type { SelectItem } from '@/types/select';
 
 type Value = string | number;
-type Item = { label: string; value: Value };
 
 type Props = {
   label?: string;
-  items: Item[];
+  items: SelectItem[];
   values: Value[];
   onChange: (next: Value[]) => void;
   placeholder?: string;
@@ -33,7 +33,7 @@ type Props = {
   /** 충돌 시 동작: block = 선택을 막기, replace = 충돌값들 제거하고 새 값 선택 */
   conflictStrategy?: 'block' | 'replace';
   /** block일 때 UX 피드백 (토스트) */
-  onConflict?: (picked: Item, conflicted: Item[]) => void;
+  onConflict?: (picked: SelectItem, conflicted: SelectItem[]) => void;
 };
 
 const ITEM_H = 52;
@@ -98,7 +98,7 @@ const SelectBox: React.FC<Props> = ({
     outputRange: ['0deg', '180deg'],
   });
 
-  const handleToggle = (item: Item) => {
+  const handleToggle = (item: SelectItem) => {
     if (disabled) return;
 
     const isSingle = maxSelected === 1;
@@ -149,7 +149,7 @@ const SelectBox: React.FC<Props> = ({
     if (closeOnSelect) setOpen(false);
   };
 
-  const renderItem = ({ item }: ListRenderItemInfo<Item>) => {
+  const renderItem = ({ item }: ListRenderItemInfo<SelectItem>) => {
     const selected = selectedSet.has(item.value);
     return (
       <Pressable
