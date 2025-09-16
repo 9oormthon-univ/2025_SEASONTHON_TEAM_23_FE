@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '@/services/axiosInstance';
 import { tokenStore } from '@/services/auth/tokenStore';
 import type { AuthMeResponse } from '@/types/auth';
-import { signInWithKakao, signOutAll, unlinkAccount } from '@/services/auth/kakao';
+import { signInWithKakao, signOutAll, unlinkAccount, deleteAccount } from '@/services/auth/kakao';
 
 type AuthContextValue = {
   user: AuthMeResponse | null;
@@ -12,6 +12,7 @@ type AuthContextValue = {
   login: () => Promise<void>;
   logout: () => Promise<void>;
   unlink: () => Promise<void>;
+  withdraw: () => Promise<void>;
   refreshUser: () => Promise<void>;
   profileImageKey: string | null;
   setProfileImageKey: (key: string | null) => void;
@@ -45,6 +46,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const unlink = async () => {
     await unlinkAccount();
+    setUser(null);
+  };
+
+  const withdraw = async () => {
+    await deleteAccount();
     setUser(null);
   };
 
@@ -84,6 +90,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         login,
         logout,
         unlink,
+        withdraw,
         refreshUser,
         profileImageKey,
         setProfileImageKey,

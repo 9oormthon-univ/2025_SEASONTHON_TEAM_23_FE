@@ -38,13 +38,13 @@ const SectionTitle = ({ title }: { title: string }) => (
 );
 
 const SettingScreen = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, withdraw } = useAuth();
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const [nicknameModal, setNicknameModal] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname ?? '');
   const [touched, setTouched] = useState(false);
   const { mutate: saveNickname, isPending } = useUpsertNickname();
-  const [withdrawing] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
   const MIN = 1;
@@ -105,7 +105,28 @@ const SettingScreen = () => {
     Linking.openURL('https://pf.kakao.com/_xdRxgkn');
   };
 
-  const confirmWithdrawal = () => {};
+  const confirmWithdrawal = () => {
+    Alert.alert('회원 탈퇴', '탈퇴 시 모든 정보가 삭제됩니다. 정말 진행하시겠어요?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '탈퇴',
+        style: 'destructive',
+        onPress: async () => {
+          if (withdrawing) return;
+          setWithdrawing(true);
+          try {
+            await withdraw();
+          } catch (e) {
+            Alert.alert('탈퇴 실패', '잠시 후 다시 시도해주세요.');
+            console.error('withdraw error', e);
+          } finally {
+            console.log('탈퇴 완료, 온보딩으로 이동');
+            setWithdrawing(false);
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
