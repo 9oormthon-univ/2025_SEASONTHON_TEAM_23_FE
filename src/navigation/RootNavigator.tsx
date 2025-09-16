@@ -34,15 +34,13 @@ const RootNavigator = ({ navigationRef }: RootNavigatorProps) => {
             options={{ headerShown: false }}
           />
         ) : loading ? (
-          <Stack.Screen
-            name="Boot"
-            options={{ headerShown: false }}
-            component={() => (
+          <Stack.Screen name="Boot" options={{ headerShown: false }}>
+            {() => (
               <View className="flex-1 bg-bg">
                 <Loader />
               </View>
             )}
-          />
+          </Stack.Screen>
         ) : needsPet ? (
           <Stack.Screen
             name="PetRegistration"
