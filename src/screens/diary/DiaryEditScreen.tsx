@@ -15,6 +15,8 @@ import { withKoreanDOW } from '@/utils/calendar/date';
 import { useDiaryUpdate } from '@/hooks/diary/useDiaryUpdate';
 import { keepAllKorean } from '@/utils/keepAll';
 import CustomSwitch from '@common/CustomSwitch';
+import SelectBox from '@common/SelectBox';
+import { usePetSelect } from '@/hooks/diary/usePetSelect';
 
 type EditRoute = RouteProp<DiaryStackParamList, 'DiaryEdit'>;
 
@@ -27,6 +29,14 @@ const DiaryEditScreen = () => {
 
   const { user } = useAuth();
   const userId = Number(user?.userId);
+
+  const {
+    items,
+    values,
+    onChange,
+    loading: petLoading,
+    isError: isPetError,
+  } = usePetSelect({ enabled: true });
 
   const { data, isLoading, isError, refetch } = useDailyLogDetail(logId);
 
@@ -66,8 +76,8 @@ const DiaryEditScreen = () => {
     });
   }, [navigation, submit]);
 
-  if (isLoading) return <Loader isPageLoader />;
-  if (isError || !data)
+  if (isLoading || petLoading) return <Loader isPageLoader />;
+  if (isError || !data || isPetError)
     return (
       <View className="flex-1 items-center justify-center bg-bg p-7">
         <Text className="body1 pb-4 text-error">{`일기 정보를 불러오지 못했어요.`}</Text>
@@ -77,7 +87,7 @@ const DiaryEditScreen = () => {
             android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
             className="p-1"
           >
-            <Text className="subHeading3 px-9 py-2 text-center text-error">⚠️ 다시 시도</Text>
+            <Text className="subHeading3 px-9 py-2 text-center text-error">{`⚠️ 다시 시도`}</Text>
           </Pressable>
         </View>
       </View>
@@ -87,9 +97,9 @@ const DiaryEditScreen = () => {
 
   return (
     <ScrollView className="bg-bg pt-10">
-      <View className="gap-7 px-7 pb-[72px]">
+      <View className="gap-5 px-7 pb-[72px]">
         <View className="items-center gap-4">
-          <View className="items-center gap-6">
+          <View className="items-center gap-6 px-11">
             <Text className="body2 text-gray-600">{dateLabel}</Text>
             <Text className="subHeading3 text-center text-white">{keepAllKorean(data.topic)}</Text>
           </View>
@@ -121,12 +131,28 @@ const DiaryEditScreen = () => {
             })}
           </View>
         </View>
-        <View className="flex-row justify-between rounded-[20px] bg-bg-light px-8 py-5">
-          <View>
-            <Text className="captionSB text-white">{`이 글에 대한`}</Text>
-            <Text className="body1 !leading-6 text-white">{`공감문을 다시 받을 수 있어요.`}</Text>
+        <View className="gap-3">
+          <View className="flex-row justify-between rounded-[20px] bg-bg-light px-8 py-5">
+            <View>
+              <Text className="captionSB text-white">{`이 글에 대한`}</Text>
+              <Text className="body1 !leading-6 text-white">{`공감문을 받을 수 있어요.`}</Text>
+            </View>
+            <CustomSwitch value={needAiReflection} onValueChange={setNeedAiReflection} />
           </View>
-          <CustomSwitch value={needAiReflection} onValueChange={setNeedAiReflection} />
+          <Text className="captionSB text-center text-gray-500">{`어떤 반려동물의 공감문을 받으시나요?`}</Text>
+          <SelectBox
+            items={items}
+            values={values}
+            onChange={onChange}
+            disabled={!needAiReflection}
+            error={isError}
+            errorMsg={
+              isError ? '반려동물 목록을 불러오지 못했습니다. 다시 시도해주세요.' : undefined
+            }
+            closeOnSelect
+            maxSelected={1}
+            triggerBgColor="#2F394E"
+          />
         </View>
       </View>
     </ScrollView>
