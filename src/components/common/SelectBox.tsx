@@ -22,11 +22,15 @@ type Props = {
   placeholder?: string;
   disabled?: boolean;
   error?: boolean;
+  errorMsg?: string;
   noScrollMaxCount?: number; // 이 개수 이하면 전체 노출 (기본 5)
   scrollVisibleRows?: number; // 초과 시 보이는 행수 (기본 3)
   closeOnSelect?: boolean; // 아이템 탭 시 즉시 닫기 (기본 false)
   maxSelected?: number; // 선택 개수 제한 (없으면 무제한)
   className?: string;
+  triggerBgColor?: string;
+  triggerTextColor?: string;
+  triggerIconColor?: string;
 
   /** 서로 함께 선택되면 안 되는 조합 */
   conflicts?: Partial<Record<Value, Value[]>>;
@@ -47,11 +51,15 @@ const SelectBox: React.FC<Props> = ({
   placeholder = '선택하세요',
   disabled,
   error,
+  errorMsg,
   noScrollMaxCount = 5,
   scrollVisibleRows = 3,
   closeOnSelect = false,
   maxSelected,
   className,
+  triggerBgColor = '#313131',
+  triggerTextColor = '#FFFFFF',
+  triggerIconColor,
   conflicts,
   conflictStrategy,
   onConflict,
@@ -169,22 +177,34 @@ const SelectBox: React.FC<Props> = ({
       {!!label && <Text className="body2 text-gray-200">{label}</Text>}
 
       {/* 트리거 + 드롭다운을 한 박스로 */}
-      <View className="overflow-hidden rounded-2xl bg-gray-800">
+      <View className={`overflow-hidden rounded-2xl ${error && 'border border-error'}`}>
         {/* 트리거 */}
         <Pressable
           onPress={() => !disabled && setOpen((v) => !v)}
           disabled={disabled || error}
-          className={`w-full flex-row items-center justify-between bg-gray-800 px-5 py-4 ${
-            error && 'border border-error'
-          } ${disabled ? 'opacity-60' : ''}`}
+          className={`w-full flex-row items-center justify-between px-5 py-4 ${disabled ? 'opacity-60' : ''}`}
+          style={{ backgroundColor: triggerBgColor }}
         >
           <Text
-            className={`body1 ${error ? 'text-error' : selectedItems.length ? 'text-white' : 'text-gray-600'}`}
+            className="body1"
+            style={{
+              color: error
+                ? '#FF2E45'
+                : disabled || !selectedItems.length
+                  ? '#808080'
+                  : triggerTextColor,
+            }}
           >
-            {displayText}
+            {error ? errorMsg : displayText}
           </Text>
           <Animated.View style={{ transform: [{ rotate }] }}>
-            <Icon name="IcChevronUp" size={18} color="#6F717C" />
+            <Icon
+              name="IcChevronUp"
+              size={18}
+              color={
+                error ? '#FF2E45' : disabled ? '#808080' : (triggerIconColor ?? triggerTextColor)
+              }
+            />
           </Animated.View>
         </Pressable>
 
