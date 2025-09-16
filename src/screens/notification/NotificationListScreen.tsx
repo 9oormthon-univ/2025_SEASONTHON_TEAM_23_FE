@@ -7,6 +7,7 @@ import Icon from '@common/Icon';
 import { useNotify } from '@/provider/NotifyProvider';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/types/navigation';
+import { keepAllKorean } from '@/utils/keepAll';
 
 const NotificationListScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -44,9 +45,10 @@ const NotificationListScreen = () => {
                 });
               }
             }}
-            className="flex-row justify-between gap-3 rounded-[20px] bg-bg-light px-7 py-5"
+            android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
+            className="gap-1 rounded-[20px] bg-bg-light px-7 py-5"
           >
-            <View className="gap-1">
+            <View className="flex-row items-center justify-between">
               <View className="flex-row items-center gap-0.5">
                 {Platform.OS === 'ios' ? (
                   <Image
@@ -59,15 +61,17 @@ const NotificationListScreen = () => {
                 )}
                 <Text className="body2 text-gray-300">{`${item.count}명의 사람들이 위로의 별을 보냈어요.`}</Text>
               </View>
-              <Text className="subHeading3 text-white">
-                {item.preview ? (
-                  <Text className="body2 text-gray-300" numberOfLines={2}>
-                    {item.preview}
-                  </Text>
-                ) : null}
+              <Text className="captionSB text-gray-300">
+                {formatRelativeKo(item.receivedAtIso)}
               </Text>
             </View>
-            <Text className="captionSB text-gray-300">{formatRelativeKo(item.receivedAtIso)}</Text>
+            <Text className="subHeading3 text-white">
+              {item.preview ? (
+                <Text className="body2 text-gray-300" numberOfLines={2}>
+                  {keepAllKorean(item.preview)}
+                </Text>
+              ) : null}
+            </Text>
           </Pressable>
         )}
         ListEmptyComponent={() => (
