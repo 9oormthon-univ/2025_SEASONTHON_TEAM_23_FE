@@ -1,13 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Animated,
-  FlatList,
-  Pressable,
-  Text,
-  View,
-  type ListRenderItemInfo,
-  Platform,
-} from 'react-native';
+import { Animated, Pressable, Text, View, Platform, ScrollView } from 'react-native';
 import Icon from '@common/Icon';
 import { toggleInArray } from '@/utils/array';
 import type { SelectItem } from '@/types/select';
@@ -75,14 +67,13 @@ const SelectBox: React.FC<Props> = ({
   // 트리거에 표시할 텍스트
   const displayText = useMemo(() => {
     if (selectedItems.length === 0) return placeholder;
-    // 기본: 2개까지는 그대로, 3개 이상이면 "라벨1, 라벨2 외 N"
     const labels = selectedItems.map((i) => i.label);
     if (labels.length <= 2) return labels.join(', ');
     return `${labels[0]}, ${labels[1]} 외 ${labels.length - 2}`;
   }, [placeholder, selectedItems]);
 
   // 노출 행 수 & 스크롤 여부 & 목표 높이
-  const { visibleRows, scrollEnabled, targetHeight } = useMemo(() => {
+  const { scrollEnabled, targetHeight } = useMemo(() => {
     const count = items.length;
     const showAll = count <= noScrollMaxCount;
     const rows = showAll ? count : Math.max(1, scrollVisibleRows);
@@ -100,7 +91,7 @@ const SelectBox: React.FC<Props> = ({
     }).start();
   }, [open, targetHeight, heightAnim]);
 
-  // 화살표 회전(0deg ↔ 180deg)
+  // 화살표 회전
   const rotate = heightAnim.interpolate({
     inputRange: [0, Math.max(1, targetHeight)],
     outputRange: ['0deg', '180deg'],
@@ -117,26 +108,24 @@ const SelectBox: React.FC<Props> = ({
         setOpen(false);
         return;
       }
-      // 다른 값을 누르면 기존 값 대체
       onChange([item.value]);
       setOpen(false);
       return;
     }
 
-    // 다중 선택 모드
+    // 다중 선택
     const willSelect = !alreadySelected;
     if (willSelect && maxSelected != null && values.length >= maxSelected) {
-      return; // 제한 초과 시 무시
+      return; // 제한 초과
     }
 
-    // ★ 충돌 체크
+    // 충돌 체크
     const conflictMap = conflicts ?? {};
     const conflictList = willSelect ? (conflictMap[item.value] ?? []) : [];
     const conflictedSelectedValues = conflictList.filter((v) => selectedSet.has(v));
 
     if (willSelect && conflictedSelectedValues.length > 0) {
       if (conflictStrategy === 'block' || !conflictStrategy) {
-        // 막기 + 콜백으로 사용자에게 피드백
         onConflict?.(
           item,
           items.filter((i) => conflictedSelectedValues.includes(i.value))
@@ -144,7 +133,7 @@ const SelectBox: React.FC<Props> = ({
         return;
       }
 
-      // replace: 충돌 중인 것들 제거하고 새 값 추가
+      // replace
       const next = values.filter((v) => !conflictedSelectedValues.includes(v));
       next.push(item.value);
       onChange(next);
@@ -157,10 +146,11 @@ const SelectBox: React.FC<Props> = ({
     if (closeOnSelect) setOpen(false);
   };
 
-  const renderItem = ({ item }: ListRenderItemInfo<SelectItem>) => {
+  const renderRow = (item: SelectItem) => {
     const selected = selectedSet.has(item.value);
     return (
       <Pressable
+        key={`${typeof item.value === 'string' ? item.value : String(item.value)}`}
         onPress={() => handleToggle(item)}
         android_ripple={{ color: 'rgba(255,255,255,0.06)' }}
         className="flex-row items-center justify-between bg-gray-700 px-5 py-4"
@@ -212,32 +202,25 @@ const SelectBox: React.FC<Props> = ({
           </Animated.View>
         </Pressable>
 
-        {/* 드롭다운 영역 */}
+        {/* 드롭다운 영역: ScrollView로 전환 */}
         <Animated.View style={{ height: heightAnim }}>
-          <FlatList
-            data={items}
-            keyExtractor={(it, idx) =>
-              `${typeof it.value === 'string' ? it.value : String(it.value)}-${idx}`
-            }
-            renderItem={renderItem}
-            ItemSeparatorComponent={() => (
-              <View style={{ height: SEP_H }} className="bg-gray-800" />
-            )}
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
             scrollEnabled={scrollEnabled}
             style={{ height: targetHeight }}
-            keyboardShouldPersistTaps="handled"
-            // 성능
-            initialNumToRender={Math.max(visibleRows, 6)}
-            maxToRenderPerBatch={Math.max(visibleRows, 6)}
-            windowSize={5}
-            removeClippedSubviews
-            getItemLayout={(_, index) => ({
-              length: ITEM_H + SEP_H,
-              offset: (ITEM_H + SEP_H) * index,
-              index,
-            })}
             nestedScrollEnabled
-          />
+            removeClippedSubviews
+            showsVerticalScrollIndicator={false}
+          >
+            {items.map((it, idx) => (
+              <View key={`${typeof it.value === 'string' ? it.value : String(it.value)}-${idx}`}>
+                {renderRow(it)}
+                {idx < items.length - 1 && (
+                  <View style={{ height: SEP_H }} className="bg-gray-800" />
+                )}
+              </View>
+            ))}
+          </ScrollView>
         </Animated.View>
       </View>
 
