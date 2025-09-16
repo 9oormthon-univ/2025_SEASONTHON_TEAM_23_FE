@@ -44,7 +44,7 @@ export const signOutAll = async (): Promise<void> => {
       await api.post('/auth/logout', { refreshToken });
     }
   } catch (e) {
-    // ignore logout error
+    console.error('로그아웃 실패:', e);
   }
   try {
     await kakaoLogout();
@@ -54,6 +54,22 @@ export const signOutAll = async (): Promise<void> => {
 
 export const unlinkAccount = async (): Promise<void> => {
   await api.post('/auth/unlink');
+  try {
+    await kakaoLogout();
+  } catch {}
+  await tokenStore.clear();
+};
+
+export const deleteAccount = async (): Promise<void> => {
+  try {
+    await api.delete('/auth/me');
+  } catch (e: any) {
+    const status = e?.response?.status;
+    if (![401, 403, 404].includes(status)) {
+      console.error('계정 삭제 실패:', e);
+      throw e;
+    }
+  }
   try {
     await kakaoLogout();
   } catch {}
