@@ -5,11 +5,9 @@ import { useMemo, useState } from 'react';
 import { PERSONALITY_CONFLICTS, PERSONALITY_OPTIONS, SPECIES_OPTIONS } from '@/types/select';
 import Input from '@common/Input';
 import { useCreatePet } from '@/hooks/mutations/useCreatePet';
-import { useNavigation } from '@react-navigation/native';
 import Loader from '@common/Loader';
 
 const PetRegistrationScreen = () => {
-  const nav = useNavigation<any>();
   const [petName, setPetName] = useState('');
   const [selectSpecies, setSelectSpecies] = useState<string[]>([]);
   const [selectPersonality, setSelectPersonality] = useState<string[]>([]);
@@ -32,15 +30,7 @@ const PetRegistrationScreen = () => {
 
     registerPet(payload, {
       onSuccess: () => {
-        Alert.alert('등록 완료', '반려동물 등록이 완료되었습니다.', [
-          {
-            text: '확인',
-            onPress: () => {
-              // 루트로 리셋 → 뒤로가기로 등록 화면 못 돌아오게
-              nav.reset({ index: 0, routes: [{ name: 'Tabs' }] });
-            },
-          },
-        ]);
+        Alert.alert('등록 완료', '반려동물 등록이 완료되었습니다.', [{ text: '확인' }]);
       },
       onError: () => {
         Alert.alert('실패', '등록 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');

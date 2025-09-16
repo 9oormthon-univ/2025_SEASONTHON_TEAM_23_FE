@@ -7,8 +7,19 @@ export const useCreatePet = () => {
 
   return useMutation({
     mutationFn: (dto: CreatePetDto) => createPet(dto),
-    onSuccess: () => {
-      // 펫 목록 캐시 리프레시 → Root에서 /pets 기반 gate 쓰면 바로 반영됨
+    onSuccess: (res) => {
+      const newPet = (res as any)?.data ?? res;
+
+      qc.setQueryData(['pets'], (prev: any) => {
+        const arr = Array.isArray(prev) ? prev : [];
+        // 중복 방지
+        if (newPet && !arr.find((p: any) => p.id === newPet.id)) {
+          return [...arr, newPet];
+        }
+        return arr.length ? arr : newPet ? [newPet] : arr;
+      });
+
+      // 안전하게 서버와 동기화
       qc.invalidateQueries({ queryKey: ['pets'] });
     },
   });
