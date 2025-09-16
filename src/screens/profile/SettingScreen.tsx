@@ -11,6 +11,7 @@ import {
   ScrollView,
   Pressable,
   KeyboardAvoidingView,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/provider/AuthProvider';
@@ -100,6 +101,10 @@ const SettingScreen = () => {
     ]);
   };
 
+  const openChannel = () => {
+    Linking.openURL('https://pf.kakao.com/_xdRxgkn');
+  };
+
   const confirmWithdrawal = () => {};
 
   return (
@@ -116,6 +121,9 @@ const SettingScreen = () => {
           label={withdrawing ? '탈퇴 진행 중...' : '탈퇴하기'}
           onPress={confirmWithdrawal}
         />
+        <Divider />
+        <SectionTitle title="고객센터" />
+        <SettingItem label="카카오톡 채널로 이동" onPress={openChannel} />
       </ScrollView>
 
       {/* 닉네임 변경 모달 */}
