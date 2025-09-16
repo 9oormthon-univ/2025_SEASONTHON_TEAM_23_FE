@@ -12,7 +12,7 @@ import { useAuth } from '@/provider/AuthProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useState, useMemo, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useDailyLogs } from '@/hooks/queries/useDailyLog';
 import { fetchMyLetters } from '@/services/letters';
 import { EMOJIS } from '@/constants/diary/emoji';
@@ -26,6 +26,7 @@ import Loader from '@common/Loader';
 
 const ProfileScreen = () => {
   const { user } = useAuth();
+  const navigation = useNavigation<any>();
 
   const tabBarHeight = useBottomTabBarHeight();
   const { bottom: insetBottom } = useSafeAreaInsets();
@@ -223,7 +224,14 @@ const ProfileScreen = () => {
                   bad: '#808080',
                 };
                 return (
-                  <View
+                  <TouchableOpacity
+                    activeOpacity={0.85}
+                    onPress={() =>
+                      navigation.navigate('Diary', {
+                        screen: 'DiaryByDate',
+                        params: { logId: item.id },
+                      })
+                    }
                     className={`gap-2 bg-bg-light px-7 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
                     style={{ borderColor: 'black' }}
                   >
@@ -253,7 +261,7 @@ const ProfileScreen = () => {
                     <Text className="body1 text-white" style={{ lineHeight: 20 }}>
                       {item.preview}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 );
               }}
               contentContainerStyle={{ paddingBottom: bottomPadding }}
@@ -272,7 +280,14 @@ const ProfileScreen = () => {
             data={letters}
             keyExtractor={(item, idx) => `${item.id}-${idx}`}
             renderItem={({ item, index }) => (
-              <View
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() =>
+                  navigation.navigate('Letter', {
+                    screen: 'LetterDetail',
+                    params: { id: String(item.id) },
+                  })
+                }
                 className={`gap-2 bg-bg-light px-7 py-5 ${index === 0 ? 'border-t' : ''} border-b`}
                 style={{ borderColor: 'black' }}
               >
@@ -296,7 +311,7 @@ const ProfileScreen = () => {
                 <Text className="body1 text-white" style={{ lineHeight: 20 }}>
                   {item.content}
                 </Text>
-              </View>
+              </TouchableOpacity>
             )}
             contentContainerStyle={{ paddingBottom: bottomPadding }}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
