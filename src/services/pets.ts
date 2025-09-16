@@ -9,3 +9,8 @@ export async function fetchMyPets(): Promise<Pet[]> {
 export const createPet = (body: CreatePetDto) => {
   return api.post('/pets', body);
 };
+
+export const activatePet = async (petId: number): Promise<string> => {
+  const { data } = await api.patch(`/pets/${petId}/activate`);
+  return data as string; // 스펙상 */* string
+};
