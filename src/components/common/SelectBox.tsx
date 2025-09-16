@@ -173,12 +173,14 @@ const SelectBox: React.FC<Props> = ({
         {/* 트리거 */}
         <Pressable
           onPress={() => !disabled && setOpen((v) => !v)}
-          disabled={disabled}
+          disabled={disabled || error}
           className={`w-full flex-row items-center justify-between bg-gray-800 px-5 py-4 ${
             error && 'border border-error'
           } ${disabled ? 'opacity-60' : ''}`}
         >
-          <Text className={`body1 ${selectedItems.length ? 'text-white' : 'text-gray-600'}`}>
+          <Text
+            className={`body1 ${error ? 'text-error' : selectedItems.length ? 'text-white' : 'text-gray-600'}`}
+          >
             {displayText}
           </Text>
           <Animated.View style={{ transform: [{ rotate }] }}>
