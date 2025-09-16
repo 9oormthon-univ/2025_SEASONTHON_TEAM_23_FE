@@ -52,14 +52,6 @@ export const signOutAll = async (): Promise<void> => {
   await tokenStore.clear();
 };
 
-export const unlinkAccount = async (): Promise<void> => {
-  await api.post('/auth/unlink');
-  try {
-    await kakaoLogout();
-  } catch {}
-  await tokenStore.clear();
-};
-
 export const deleteAccount = async (): Promise<void> => {
   try {
     await api.delete('/auth/me');
