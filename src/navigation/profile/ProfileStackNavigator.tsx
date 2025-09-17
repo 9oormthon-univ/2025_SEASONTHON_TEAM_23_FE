@@ -3,6 +3,7 @@ import type { ProfileStackParamList } from '@/types/navigation';
 import ProfileScreen from '@/screens/profile/ProfileScreen';
 import SettingScreen from '@/screens/settings/SettingScreen';
 import ImageSettingScreen from '@/screens/settings/ImageSettingScreen';
+import PetManageScreen from '@/screens/settings/PetManageScreen';
 import CustomHeader from '@navigation/CustomHeader';
 import type { HeaderProps } from '@/types/Header';
 
@@ -63,6 +64,13 @@ const ProfileStackNavigator = () => {
         component={ImageSettingScreen}
         options={{
           title: '프로필 사진 변경',
+        }}
+      />
+      <Stack.Screen
+        name="PetManage"
+        component={PetManageScreen}
+        options={{
+          title: '반려동물 관리',
         }}
       />
     </Stack.Navigator>

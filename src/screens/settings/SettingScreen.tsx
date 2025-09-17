@@ -80,7 +80,9 @@ const SettingScreen = () => {
     navigation.navigate('ImageSetting');
   };
 
-  const onManagePets = () => {};
+  const onManagePets = () => {
+    navigation.navigate('PetManage');
+  };
 
   const confirmLogout = () => {
     Alert.alert('로그아웃', '정말 로그아웃 하시겠어요?', [
