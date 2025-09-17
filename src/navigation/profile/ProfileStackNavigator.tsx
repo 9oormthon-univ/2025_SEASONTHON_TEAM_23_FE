@@ -6,6 +6,7 @@ import ImageSettingScreen from '@/screens/settings/ImageSettingScreen';
 import PetManageScreen from '@/screens/settings/PetManageScreen';
 import CustomHeader from '@navigation/CustomHeader';
 import type { HeaderProps } from '@/types/Header';
+import PetRegistrationScreen from '@/screens/settings/PetRegistrationScreen';
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
@@ -71,6 +72,13 @@ const ProfileStackNavigator = () => {
         component={PetManageScreen}
         options={{
           title: '반려동물 관리',
+        }}
+      />
+      <Stack.Screen
+        name="PetRegistration"
+        component={PetRegistrationScreen}
+        options={{
+          title: '반려동물 등록',
         }}
       />
     </Stack.Navigator>
