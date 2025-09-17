@@ -13,7 +13,6 @@ import {
   KeyboardAvoidingView,
   Linking,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/provider/AuthProvider';
 import { useUpsertNickname } from '@/hooks/mutations/useUpsertNickname';
 import { useNavigation } from '@react-navigation/native';
@@ -23,6 +22,7 @@ import SettingItem from '@/components/settings/SettingItem';
 import SectionTitle from '@/components/settings/SectionTitle';
 import Divider from '@/components/settings/Divider';
 import { setHeaderExtras } from '@/types/Header';
+import ScreenHeader from '@/components/settings/ScreenHeader';
 
 const SettingScreen = () => {
   const { user, logout, withdraw } = useAuth();
@@ -129,9 +129,10 @@ const SettingScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
-      <ScrollView>
-        <View className="gap-6 px-7 pb-10 pt-6">
+    <>
+      <ScrollView className="flex-1 bg-bg">
+        <ScreenHeader title="설정" />
+        <View className="gap-6 px-7 pb-24 pt-6">
           <View className="gap-5">
             <SectionTitle title="프로필 관리" />
             <View className="gap-4">
@@ -250,7 +251,7 @@ const SettingScreen = () => {
           </KeyboardAvoidingView>
         </Pressable>
       </Modal>
-    </SafeAreaView>
+    </>
   );
 };
 
