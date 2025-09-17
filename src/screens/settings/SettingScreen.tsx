@@ -19,22 +19,23 @@ import { useUpsertNickname } from '@/hooks/mutations/useUpsertNickname';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ProfileStackParamList } from '@/types/navigation';
+import Icon from '@common/Icon';
 
 const SettingItem = ({ label, onPress }: { label: string; onPress: () => void }) => (
   <TouchableOpacity
     activeOpacity={0.7}
     onPress={onPress}
-    className="flex-row items-center justify-between py-5"
+    className="flex-row items-center justify-between"
   >
-    <Text className="subHeading2B text-white">{label}</Text>
-    <Text className="subHeading2B text-white">›</Text>
+    <Text className="subHeading2M !leading-7 text-white">{label}</Text>
+    <Icon name="IcNext" size={20} color="white" />
   </TouchableOpacity>
 );
 
 const Divider = () => <View className="h-px w-full bg-[#313A48]" />;
 
 const SectionTitle = ({ title }: { title: string }) => (
-  <Text className="subHeading3 mb-2 mt-8 text-gray-400">{title}</Text>
+  <Text className="subHeading3 !leading-7 text-gray-500">{title}</Text>
 );
 
 const SettingScreen = () => {
@@ -132,21 +133,38 @@ const SettingScreen = () => {
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}>
-        <SectionTitle title="프로필 관리" />
-        <SettingItem label="프로필 사진 변경" onPress={onChangePhoto} />
-        <SettingItem label="닉네임 변경" onPress={() => setNicknameModal(true)} />
-        <SettingItem label="반려동물 관리" onPress={onManagePets} />
-        <Divider />
-        <SectionTitle title="계정 관리" />
-        <SettingItem label={loggingOut ? '로그아웃 중...' : '로그아웃'} onPress={confirmLogout} />
-        <SettingItem
-          label={withdrawing ? '탈퇴 진행 중...' : '탈퇴하기'}
-          onPress={confirmWithdrawal}
-        />
-        <Divider />
-        <SectionTitle title="고객센터" />
-        <SettingItem label="카카오톡 채널로 이동" onPress={openChannel} />
+      <ScrollView>
+        <View className="gap-6 px-7 pb-10 pt-6">
+          <View className="gap-5">
+            <SectionTitle title="프로필 관리" />
+            <View className="gap-4">
+              <SettingItem label="프로필 사진 변경" onPress={onChangePhoto} />
+              <SettingItem label="닉네임 변경" onPress={() => setNicknameModal(true)} />
+              <SettingItem label="반려동물 관리" onPress={onManagePets} />
+            </View>
+          </View>
+          <Divider />
+          <View className="gap-5">
+            <SectionTitle title="계정 관리" />
+            <View className="gap-4">
+              <SettingItem
+                label={loggingOut ? '로그아웃 중...' : '로그아웃'}
+                onPress={confirmLogout}
+              />
+              <SettingItem
+                label={withdrawing ? '탈퇴 진행 중...' : '탈퇴하기'}
+                onPress={confirmWithdrawal}
+              />
+            </View>
+          </View>
+          <Divider />
+          <View className="gap-5">
+            <SectionTitle title="고객센터" />
+            <View className="gap-4">
+              <SettingItem label="카카오톡 채널로 이동" onPress={openChannel} />
+            </View>
+          </View>
+        </View>
       </ScrollView>
 
       {/* 닉네임 변경 모달 */}
