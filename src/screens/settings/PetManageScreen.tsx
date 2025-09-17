@@ -67,8 +67,8 @@ const PetManageScreen = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => onDelete(item)}
-                  className="flex-1 items-center justify-center rounded-xl bg-gray-700 py-2"
-                  activeOpacity={0.85}
+                  className="flex-1 items-center justify-center rounded-xl bg-gray-500 py-2"
+                  activeOpacity={0.8}
                 >
                   <Text className="subHeading2B text-white">삭제</Text>
                 </TouchableOpacity>
@@ -120,7 +120,7 @@ const PetManageScreen = () => {
                 <TouchableOpacity
                   disabled={saving}
                   onPress={closeEdit}
-                  className="flex-1 items-center justify-center rounded-xl bg-gray-700 py-3"
+                  className="flex-1 items-center justify-center rounded-xl bg-gray-500 py-3"
                   activeOpacity={0.8}
                 >
                   <Text className="subHeading2B text-white">취소</Text>
