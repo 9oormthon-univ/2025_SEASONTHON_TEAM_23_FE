@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -8,10 +8,13 @@ import {
 } from '@/constants/profileImages';
 import { useAuth } from '@/provider/AuthProvider';
 import { useNavigation } from '@react-navigation/native';
+import { setHeaderExtras } from '@/types/Header';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { ProfileStackParamList } from '@/types/navigation';
 
 const ImageSettingScreen = () => {
   const { profileImageKey, setProfileImageKey } = useAuth();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const initialIndex = profileImageKey ? PROFILE_IMAGE_ORDER.indexOf(profileImageKey as any) : 0;
   const [selectedIndex, setSelectedIndex] = useState<number | null>(
     initialIndex >= 0 ? initialIndex : 0
@@ -24,91 +27,85 @@ const ImageSettingScreen = () => {
     }
   }, [profileImageKey]);
 
+  useLayoutEffect(() => {
+    setHeaderExtras(navigation, {
+      hasBack: true,
+      bgColor: '#121826',
+      hasButton: true,
+      label: '저장',
+      onBack: () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        navigation.replace('Setting');
+      },
+      onPress: () => {
+        if (selectedIndex === null) return;
+        const key = PROFILE_IMAGE_ORDER[selectedIndex];
+        setProfileImageKey(key);
+        console.log('로컬 프로필 이미지 키 저장:', key);
+        navigation.goBack();
+      },
+      disabled: selectedIndex === null,
+    });
+  }, [navigation]);
+
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 28, paddingBottom: 48 }}>
-        <View className="mt-6 items-center">
-          <View className="h-[140px] w-[140px] items-center justify-center rounded-3xl bg-bg-light">
-            {selectedIndex !== null && (
-              <Image
-                source={PROFILE_IMAGE_PRESETS[PROFILE_IMAGE_ORDER[selectedIndex]]}
-                className="h-[132px] w-[132px] rounded-2xl"
-                resizeMode="cover"
-              />
-            )}
+      <ScrollView>
+        <View className="gap-7 pt-5">
+          <Text className="heading2B px-7 !leading-[42px] text-white">{`프로필 사진 변경`}</Text>
+          <View className="h-2 border border-[#4A5263] bg-[#303A4F]"></View>
+        </View>
+        <View className="gap-12 px-7 pb-14 pt-11">
+          <View className="items-center">
+            <View className="h-[120px] w-[120px] rounded-[18px] border-[1.5px] border-gray-300">
+              {selectedIndex !== null && (
+                <Image
+                  source={PROFILE_IMAGE_PRESETS[PROFILE_IMAGE_ORDER[selectedIndex]]}
+                  className="h-[132px] w-[132px] rounded-[18px]"
+                  resizeMode="cover"
+                />
+              )}
+            </View>
           </View>
-        </View>
 
-        <View className="mt-10 flex-row items-center justify-between">
-          <Text className="subHeading2B text-white">기본 프로필 사진 선택</Text>
-          {selectedIndex !== null && (
-            <TouchableOpacity onPress={() => setSelectedIndex(null)} activeOpacity={0.7}>
-              <Text className="body2 text-gray-400">선택해제</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+          <View className="gap-3">
+            <View className="flex-row items-center justify-between">
+              <Text className="subHeading2M !leading-7 text-white">{`기본 프로필 사진 선택`}</Text>
+              {selectedIndex !== null && (
+                <TouchableOpacity onPress={() => setSelectedIndex(null)} activeOpacity={0.7}>
+                  <Text className="body1 text-gray-500">{`선택해제`}</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
-        <View className="mt-4 flex-row gap-4">
-          {PROFILE_IMAGE_ORDER.map((key, idx) => {
-            const selected = selectedIndex === idx;
-            const img = PROFILE_IMAGE_PRESETS[key];
-            return (
-              <TouchableOpacity
-                key={key}
-                activeOpacity={0.85}
-                onPress={() => setSelectedIndex(idx)}
-                className={`h-[70px] w-[70px] items-center justify-center rounded-2xl ${
-                  selected ? 'border-[2px] border-yellow-300 bg-bg-light' : 'bg-bg-light'
-                }`}
-              >
-                <View className="h-[62px] w-[62px] overflow-hidden rounded-xl">
-                  <Image
-                    source={img}
-                    className="h-full w-full"
-                    resizeMode="cover"
-                    style={!selected ? { opacity: 0.35 } : undefined}
-                  />
-                  {!selected && (
+            <View className="flex-row justify-evenly">
+              {PROFILE_IMAGE_ORDER.map((key, idx) => {
+                const selected = selectedIndex === idx;
+                const img = PROFILE_IMAGE_PRESETS[key];
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    onPress={() => setSelectedIndex(idx)}
+                    style={!selected ? { opacity: 0.4 } : undefined}
+                  >
                     <View
-                      pointerEvents="none"
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: '#555',
-                        opacity: 0.25,
-                      }}
-                    />
-                  )}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <View className="mt-10">
-          <TouchableOpacity
-            disabled={selectedIndex === null}
-            activeOpacity={0.85}
-            className={`h-[52px] items-center justify-center rounded-xl ${
-              selectedIndex === null ? 'bg-gray-600' : 'bg-yellow-300'
-            }`}
-            onPress={() => {
-              if (selectedIndex === null) return;
-              const key = PROFILE_IMAGE_ORDER[selectedIndex];
-              setProfileImageKey(key);
-              console.log('로컬 프로필 이미지 키 저장:', key);
-              navigation.goBack();
-            }}
-          >
-            <Text
-              className={`subHeading2B ${selectedIndex === null ? 'text-gray-300' : 'text-gray-900'}`}
-            >
-              저장하기
-            </Text>
-          </TouchableOpacity>
+                      className={`h-[62px] w-[62px] items-center justify-center overflow-hidden rounded-xl border-2 bg-[#464646] ${
+                        selected ? 'border-yellow-200' : 'border-gray-300'
+                      }`}
+                    >
+                      <Image source={img} className="h-full w-full" resizeMode="cover" />
+                      {!selected && (
+                        <View
+                          pointerEvents="none"
+                          className="absolute bottom-0 left-0 right-0 top-0 rounded-[10px] bg-black/5"
+                        />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

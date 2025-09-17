@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -22,6 +22,7 @@ import type { ProfileStackParamList } from '@/types/navigation';
 import SettingItem from '@/components/settings/SettingItem';
 import SectionTitle from '@/components/settings/SectionTitle';
 import Divider from '@/components/settings/Divider';
+import { setHeaderExtras } from '@/types/Header';
 
 const SettingScreen = () => {
   const { user, logout, withdraw } = useAuth();
@@ -32,6 +33,17 @@ const SettingScreen = () => {
   const { mutate: saveNickname, isPending } = useUpsertNickname();
   const [withdrawing, setWithdrawing] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+
+  useLayoutEffect(() => {
+    setHeaderExtras(navigation, {
+      hasBack: true,
+      bgColor: '#121826',
+      onBack: () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        navigation.replace('Setting');
+      },
+    });
+  }, [navigation]);
 
   const MIN = 1;
   const MAX = 12;
