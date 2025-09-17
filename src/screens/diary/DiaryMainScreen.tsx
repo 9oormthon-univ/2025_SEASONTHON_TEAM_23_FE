@@ -14,6 +14,7 @@ import { setHeaderExtras } from '@/types/Header';
 import { useQueryClient } from '@tanstack/react-query';
 import { localISODate, todayISO } from '@/utils/calendar/date';
 import type { StackNavigationProp } from '@react-navigation/stack';
+import WriteButton from '@common/WriteButton';
 
 const DiaryMainScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DiaryStackParamList>>();
@@ -84,20 +85,14 @@ const DiaryMainScreen = () => {
               <Text className="subHeading3 text-center text-white">{keepAllKorean(topicText)}</Text>
             )}
           </View>
-          <View className="overflow-hidden rounded-xl">
-            <Pressable
-              onPress={() => {
-                todayLog
-                  ? navigation.navigate('DiaryByDate', { logId: todayLog.id })
-                  : navigation.navigate('DiaryWrite', { topic: topicText });
-              }}
-              android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
-              className="flex-row items-center gap-1 bg-yellow-200 px-9 py-2"
-            >
-              <Icon name="IcEdit" size={24} fill="#121826" />
-              <Text className="body1 leading-[1.6] text-bg">{`일기 쓰러가기`}</Text>
-            </Pressable>
-          </View>
+          <WriteButton
+            label={'일기 쓰러가기'}
+            onPress={() => {
+              todayLog
+                ? navigation.navigate('DiaryByDate', { logId: todayLog.id })
+                : navigation.navigate('DiaryWrite', { topic: topicText });
+            }}
+          />
         </View>
         <View>
           {logIsLoading && <Loader />}

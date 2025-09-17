@@ -8,7 +8,7 @@ import { fetchLetterById, createLetter, updateLetter } from '@/services/letters'
 import Icon from '@common/Icon';
 import { useAuth } from '@/provider/AuthProvider';
 import { setHeaderExtras } from '@/types/Header';
-import CustomSwitch from '@common/CustomSwitch';
+import ToggleCard from '@common/ToggleCard';
 
 const LetterWriteScreen = () => {
   const [focused, setFocused] = useState(false);
@@ -199,19 +199,13 @@ const LetterWriteScreen = () => {
           </View>
         </View>
 
-        {/* 안내 문구 */}
-        <View className="items-center gap-4">
-          <Text className="subHeading3 text-white">{`글을 함께 보며 위로의 별을 주고받아보세요`}</Text>
-
-          {/* 공개 토글 카드 */}
-          <View className="w-full flex-row items-center justify-between rounded-[20px] bg-bg-light px-8 py-5">
-            <View>
-              <Text className="captionSB text-white">{`이 글을 전체공개 하면`}</Text>
-              <Text className="body1 !leading-6 text-white">{`위로의 별을 받을 수 있어요.`}</Text>
-            </View>
-            <CustomSwitch value={isPublic} onValueChange={setIsPublic} />
-          </View>
-        </View>
+        <ToggleCard
+          value={isPublic}
+          onChange={setIsPublic}
+          label="글을 함께 보며 위로의 별을 주고받아보세요"
+          smallText="이 글을 전체공개 하면"
+          mainText="위로의 별을 받을 수 있어요"
+        />
       </View>
     </ScrollView>
   );

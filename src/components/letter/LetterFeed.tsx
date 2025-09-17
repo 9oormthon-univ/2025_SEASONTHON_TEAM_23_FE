@@ -113,57 +113,50 @@ const LetterFeed: React.FC = () => {
               <Pressable
                 className="rounded-[20px] bg-bg-light px-6 py-4"
                 onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
+                android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
               >
-                {photoUri ? (
-                  <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
-                    <Image
-                      source={{ uri: String(photoUri) }}
-                      style={{
-                        width: 84,
-                        height: 84,
-                        borderRadius: 12,
-                        backgroundColor: '#1F2A3C',
-                      }}
-                      resizeMode="cover"
-                    />
-                    <Text
-                      className="body1 !leading-6"
-                      style={{ color: '#F2F2F2', flex: 1 }}
-                      numberOfLines={6}
-                    >
+                <View className="gap-2">
+                  <View className="flex-row gap-2">
+                    {photoUri && (
+                      <Image
+                        source={{ uri: String(photoUri) }}
+                        className="h-20 w-20 rounded-xl bg-[#464646]"
+                        resizeMode="cover"
+                      />
+                    )}
+                    <Text className="body1 !leading-6 text-white" numberOfLines={6}>
                       {item.content}
                     </Text>
                   </View>
-                ) : (
-                  <Text className="body1 !leading-6" style={{ color: '#F2F2F2' }}>
-                    {item.content}
-                  </Text>
-                )}
-                <View className="mt-3 flex-row items-center justify-between">
-                  <Text style={{ color: '#F2F2F2', fontSize: 12 }}>
-                    {display}
-                    {timeText ? ` · ${formatRelativeKo(timeText)}` : ''}
-                  </Text>
-                  <View className="flex-row items-center gap-1">
-                    {Platform.OS === 'ios' ? (
-                      <Image
-                        source={require('@images/mini-star.png')}
-                        style={{ width: 20, height: 20 }}
-                        resizeMode="contain"
-                      />
-                    ) : (
-                      <Icon name="IcStar" size={20} color="#F2F2F2" />
-                    )}
-                    <Text style={{ color: '#F2F2F2', fontSize: 14, fontWeight: '300' }}>
-                      {item.tributeCount ?? 0}
-                    </Text>
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center gap-1">
+                      <Text className="body3 text-gray-300">{display}</Text>
+                      <View className="h-0.5 w-0.5 rounded-full bg-gray-100" />
+                      <Text className="captionSB text-gray-100">
+                        {timeText ? `${formatRelativeKo(timeText)}` : ''}
+                      </Text>
+                    </View>
+                    <View className="min-w-14 flex-row items-center gap-1">
+                      {Platform.OS === 'ios' ? (
+                        <Image
+                          source={require('@images/mini-star.png')}
+                          style={{ width: 20, height: 20 }}
+                          resizeMode="contain"
+                        />
+                      ) : (
+                        <Icon name="IcStar" size={20} />
+                      )}
+                      <Text className="body3 flex-1 text-center text-gray-100">
+                        {item.tributeCount ?? 0}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </Pressable>
             );
           }}
           ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-          contentContainerStyle={{ paddingTop: 12, paddingBottom: 32 }}
+          contentContainerStyle={{ paddingTop: 8, paddingBottom: 32 }}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
           // style 제거: 간격은 contentContainerStyle로 처리
         />

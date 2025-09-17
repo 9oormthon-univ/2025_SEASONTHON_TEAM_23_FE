@@ -185,67 +185,63 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#121826' }}>
-      <ScrollView
-        style={{ backgroundColor: '#121826' }}
-        contentContainerStyle={{ paddingHorizontal: 28, paddingBottom: 100 }}
-      >
-        <View className="items-center">
-          {Platform.OS === 'ios' ? (
-            <Image
-              source={require('@images/star-sky.png')}
-              style={{ width: 128, aspectRatio: 124 / 88 }}
-              resizeMode="contain"
-            />
-          ) : (
-            <Icon name="IcStarSky" size={128} />
-          )}
-          <Text className="body2 mt-6" style={{ color: '#AAAAAA' }}>
-            {formatKoreanDate(letter.createdAt)}
-          </Text>
-          {(() => {
-            const display = letter.nickname ?? '작성자 정보 없음';
-            return (
-              <Text
-                className="mt-6 text-center text-white"
-                style={{ fontSize: 14, fontWeight: '600', lineHeight: 20 }}
-              >
-                {`${display}님의 추억이에요.`}
-              </Text>
-            );
-          })()}
-          <View className="mt-10 w-full rounded-2xl border border-white/10 bg-[#121826] p-6">
-            {letter.photoUrl ? (
-              <Pressable onPress={openImageModal} className="mb-5">
-                <Image
-                  source={{ uri: String(letter.photoUrl) }}
-                  className="h-[220px] rounded-lg"
-                  resizeMode="cover"
-                />
-              </Pressable>
-            ) : null}
-            <Text className="body1 leading-6" style={{ color: '#F2F2F2' }}>
-              {letter.content}
-            </Text>
+    <>
+      <ScrollView className="bg-bg">
+        <View className="gap-7 px-7 pb-[60px] pt-10">
+          <View className="gap-4">
+            <View className="items-center gap-6">
+              <View className="items-center gap-2">
+                {Platform.OS === 'ios' ? (
+                  <Image
+                    source={require('@images/star-sky.png')}
+                    style={{ width: 128, aspectRatio: 124 / 88 }}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <Icon name="IcStarSky" width={123} height={88} />
+                )}
+                <Text className="body2 text-gray-600">{formatKoreanDate(letter.createdAt)}</Text>
+              </View>
+              {(() => {
+                const display = letter.nickname ?? '작성자 정보 없음';
+                return (
+                  <Text className="subHeading3 text-center !leading-7 text-white">
+                    {`${display}님의 추억이에요.`}
+                  </Text>
+                );
+              })()}
+            </View>
+            <View
+              className={`gap-4 rounded-[20px] border border-[#2D3342] bg-bg px-5 ${letter.photoUrl ? 'py-5' : 'py-10'}`}
+            >
+              {letter.photoUrl ? (
+                <Pressable onPress={openImageModal} className="self-center">
+                  <Image
+                    source={{ uri: String(letter.photoUrl) }}
+                    className="aspect-square w-[225px] rounded-[20px] bg-[#464646]"
+                    resizeMode="cover"
+                  />
+                </Pressable>
+              ) : null}
+              <Text className="body1 !leading-6 text-white">{letter.content}</Text>
+            </View>
           </View>
-          <View className="mt-14 items-center">
-            <View className="flex-row items-center gap-2">
+          <View className="items-center gap-2">
+            <View className="flex-row items-center gap-2 p-1">
               {Platform.OS === 'ios' ? (
                 <Image
                   source={require('@images/mini-star.png')}
-                  style={{ width: 20, height: 20 }}
+                  style={{ width: 24, height: 24 }}
                   resizeMode="contain"
                 />
               ) : (
-                <Icon name="IcStar" size={20} color="#F2F2F2" />
+                <Icon name="IcStar" size={24} />
               )}
               {Number(letter?.tributeCount ?? 0) === 0 ? (
-                <Text className="body2" style={{ color: '#F2F2F2' }}>
-                  첫 위로의 별을 전달해 보세요.
-                </Text>
+                <Text className="body2 text-gray-400">첫 위로의 별을 전달해 보세요.</Text>
               ) : (
-                <Text className="body2" style={{ color: '#F2F2F2' }}>
-                  <Text style={{ color: '#F2F2F2', fontWeight: '600' }}>{letter.tributeCount}</Text>
+                <Text className="body2 gap-1 text-gray-400">
+                  <Text className="text-white">{letter.tributeCount}</Text>
                   {` 개의 위로의 별을 받았어요.`}
                 </Text>
               )}
@@ -255,13 +251,13 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             <Pressable
               disabled={isTributing}
               onPress={handleTribute}
-              className="mt-8 w-full rounded-2xl py-4"
-              style={{
-                backgroundColor: hasMyTribute ? '#E6D08F' : '#FFD86F',
-                opacity: isTributing ? 0.7 : 1,
-              }}
+              className="rounded-[20px] py-4"
+              style={{ backgroundColor: hasMyTribute ? '#FFEBB5' : '#FFD86F' }}
             >
-              <Text className="subHeading2B text-center text-black">
+              <Text
+                className="subHeading2B text-center !leading-8"
+                style={{ color: hasMyTribute ? '#585858' : '#060C1A' }}
+              >
                 {hasMyTribute ? '취소하기' : '위로의 별 전달'}
               </Text>
             </Pressable>
@@ -317,7 +313,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           </Pressable>
         </View>
       </Modal>
-    </View>
+    </>
   );
 };
 
