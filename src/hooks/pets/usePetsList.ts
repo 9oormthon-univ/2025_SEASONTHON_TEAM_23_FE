@@ -3,7 +3,12 @@ import { Alert } from 'react-native';
 import { fetchMyPets, deletePet } from '@/services/pets';
 import type { Pet } from '@/types/pets';
 
-export const usePetsList = () => {
+type Options = {
+  onEmpty?: () => void; // 삭제 후 0마리일 때 호출
+};
+
+export const usePetsList = (opts: Options = {}) => {
+  const { onEmpty } = opts;
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,7 +35,11 @@ export const usePetsList = () => {
         onPress: async () => {
           try {
             await deletePet(pet.id);
-            setPets((prev) => prev.filter((p) => p.id !== pet.id));
+            setPets((prev) => {
+              const next = prev.filter((p) => p.id !== pet.id);
+              if (next.length === 0) onEmpty?.(); // 0마리면 콜백
+              return next;
+            });
           } catch (e: any) {
             const msg =
               e?.response?.data?.message || e?.message || '반려동물 정보를 삭제하지 못했습니다.';
