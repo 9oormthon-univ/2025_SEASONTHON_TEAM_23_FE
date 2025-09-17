@@ -208,7 +208,7 @@ const PetManageScreen = () => {
                   activeOpacity={0.85}
                 >
                   {saving ? (
-                    <Loader size="small" />
+                    <Loader size="small" color="#121826" />
                   ) : (
                     <Text
                       className={`subHeading2B ${saving ? 'text-gray-800/50' : 'text-gray-900'}`}
