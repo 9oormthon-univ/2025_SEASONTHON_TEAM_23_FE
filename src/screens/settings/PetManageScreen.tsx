@@ -20,16 +20,23 @@ import { usePetsList } from '@/hooks/pets/usePetsList';
 import { toKoreanPersonalities, toKoreanSpecies } from '@/utils/petLabels';
 import { useCallback, useLayoutEffect, useState } from 'react';
 import { setHeaderExtras } from '@/types/Header';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ProfileStackParamList } from '@/types/navigation';
 
 const PetManageScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const [showEmptyModal, setShowEmptyModal] = useState(false);
-  const { pets, setPets, loading, onDelete } = usePetsList({
+  const { pets, setPets, loading, reload, onDelete } = usePetsList({
     onEmpty: () => setShowEmptyModal(true), // 삭제 후 0마리 → 모달
   });
+
+  // 돌아왔을 때(포커스 재획득) 바로 최신 목록 반영
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload])
+  );
 
   // 수정 모달 훅 (성공 시 리스트 갱신)
   const {
