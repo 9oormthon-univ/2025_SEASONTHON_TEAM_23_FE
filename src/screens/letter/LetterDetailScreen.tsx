@@ -185,10 +185,10 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     );
 
   return (
-    <View className="flex-1 bg-bg">
-      <ScrollView className="px-7 pt-10">
-        <View className="gap-7">
-          <View className="items-center gap-4">
+    <>
+      <ScrollView className="bg-bg">
+        <View className="gap-7 px-7 pb-[60px] pt-10">
+          <View className="gap-4">
             <View className="items-center gap-6">
               <View className="items-center gap-2">
                 {Platform.OS === 'ios' ? (
@@ -211,12 +211,14 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 );
               })()}
             </View>
-            <View className="rounded-[20px] border border-[#2D3342] bg-bg px-5 py-10">
+            <View
+              className={`gap-4 rounded-[20px] border border-[#2D3342] bg-bg px-5 ${letter.photoUrl ? 'py-5' : 'py-10'}`}
+            >
               {letter.photoUrl ? (
-                <Pressable onPress={openImageModal} className="mb-5">
+                <Pressable onPress={openImageModal} className="self-center">
                   <Image
                     source={{ uri: String(letter.photoUrl) }}
-                    className="h-[220px] rounded-xl"
+                    className="aspect-square w-[225px] rounded-[20px] bg-[#464646]"
                     resizeMode="cover"
                   />
                 </Pressable>
@@ -311,7 +313,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           </Pressable>
         </View>
       </Modal>
-    </View>
+    </>
   );
 };
 
