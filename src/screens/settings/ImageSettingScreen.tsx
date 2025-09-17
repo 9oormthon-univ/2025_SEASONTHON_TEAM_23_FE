@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { setHeaderExtras } from '@/types/Header';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ProfileStackParamList } from '@/types/navigation';
+import ScreenHeader from '@/components/settings/ScreenHeader';
 
 const ImageSettingScreen = () => {
   const { profileImageKey, setProfileImageKey } = useAuth();
@@ -51,17 +52,14 @@ const ImageSettingScreen = () => {
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
       <ScrollView>
-        <View className="gap-7 pt-5">
-          <Text className="heading2B px-7 !leading-[42px] text-white">{`프로필 사진 변경`}</Text>
-          <View className="h-2 border border-[#4A5263] bg-[#303A4F]"></View>
-        </View>
+        <ScreenHeader title="프로필 사진 변경" />
         <View className="gap-12 px-7 pb-14 pt-11">
           <View className="items-center">
-            <View className="h-[120px] w-[120px] rounded-[18px] border-[1.5px] border-gray-300">
+            <View className="h-[120px] w-[120px] items-center justify-center rounded-[18px] border-[1.5px] border-gray-300">
               {selectedIndex !== null && (
                 <Image
                   source={PROFILE_IMAGE_PRESETS[PROFILE_IMAGE_ORDER[selectedIndex]]}
-                  className="h-[132px] w-[132px] rounded-[18px]"
+                  className="h-[120px] w-[120px] rounded-[18px]"
                   resizeMode="cover"
                 />
               )}
