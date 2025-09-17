@@ -47,7 +47,7 @@ const PetManageScreen = () => {
       hasBack: true,
       hasButton: true,
       icon: 'IcPlus',
-      onPress: () => navigation.navigate('PetRegistration'),
+      onPress: () => navigation.navigate('PetRegistrationInProfile'),
       onBack: () => {
         if (navigation.canGoBack()) navigation.goBack();
         navigation.replace('PetManage');

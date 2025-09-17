@@ -36,7 +36,7 @@ export type ProfileStackParamList = {
   Setting: undefined;
   ImageSetting: undefined;
   PetManage: undefined;
-  PetRegistration: undefined;
+  PetRegistrationInProfile: undefined;
 };
 
 export type IconMap = Record<

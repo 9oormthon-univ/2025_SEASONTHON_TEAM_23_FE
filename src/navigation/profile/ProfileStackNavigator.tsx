@@ -75,7 +75,7 @@ const ProfileStackNavigator = () => {
         }}
       />
       <Stack.Screen
-        name="PetRegistration"
+        name="PetRegistrationInProfile"
         component={PetRegistrationScreen}
         options={{
           title: '반려동물 등록',
