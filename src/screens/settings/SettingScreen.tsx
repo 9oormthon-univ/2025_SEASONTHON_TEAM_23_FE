@@ -19,24 +19,9 @@ import { useUpsertNickname } from '@/hooks/mutations/useUpsertNickname';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ProfileStackParamList } from '@/types/navigation';
-import Icon from '@common/Icon';
-
-const SettingItem = ({ label, onPress }: { label: string; onPress: () => void }) => (
-  <TouchableOpacity
-    activeOpacity={0.7}
-    onPress={onPress}
-    className="flex-row items-center justify-between"
-  >
-    <Text className="subHeading2M !leading-7 text-white">{label}</Text>
-    <Icon name="IcNext" size={20} color="white" />
-  </TouchableOpacity>
-);
-
-const Divider = () => <View className="h-px w-full bg-[#313A48]" />;
-
-const SectionTitle = ({ title }: { title: string }) => (
-  <Text className="subHeading3 !leading-7 text-gray-500">{title}</Text>
-);
+import SettingItem from '@/components/settings/SettingItem';
+import SectionTitle from '@/components/settings/SectionTitle';
+import Divider from '@/components/settings/Divider';
 
 const SettingScreen = () => {
   const { user, logout, withdraw } = useAuth();
