@@ -1,6 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   FlatList,
   Text,
   TouchableOpacity,
@@ -11,125 +9,32 @@ import {
   Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { fetchMyPets, updatePet, deletePet } from '@/services/pets';
 import type { Pet } from '@/types/pets';
 import SelectBox from '@common/SelectBox';
 import { PERSONALITY_CONFLICTS, PERSONALITY_OPTIONS, SPECIES_OPTIONS } from '@/types/select';
 import { showConflictAlert } from '@/utils/selectConflict';
-import { toCSV } from '@/utils/payload';
 import Input from '@common/Input';
 import Loader from '@common/Loader';
+import { usePetEditModal } from '@/hooks/pets/usePetEditModal';
+import { usePetsList } from '@/hooks/pets/usePetsList';
+import { toKoreanPersonalities, toKoreanSpecies } from '@/utils/petLabels';
 
 const PetManageScreen = () => {
-  const [pets, setPets] = useState<Pet[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState<{
-    pet: Pet;
-    name: string;
-    selectSpecies: Array<string | number>;
-    selectPersonality: Array<string | number>;
-  } | null>(null);
-  const [saving, setSaving] = useState(false);
+  const { pets, setPets, loading, onDelete } = usePetsList();
 
-  // value -> label 매핑 (종 / 성격)
-  const SPECIES_LABEL_MAP = useMemo(() => {
-    const m: Record<string, string> = {};
-    SPECIES_OPTIONS.forEach((o) => (m[o.value] = o.label));
-    return m;
-  }, []);
-  const PERSONALITY_LABEL_MAP = useMemo(() => {
-    const m: Record<string, string> = {};
-    PERSONALITY_OPTIONS.forEach((o) => (m[o.value] = o.label));
-    return m;
-  }, []);
-
-  const toKoreanSpecies = (value?: string | null) =>
-    value ? (SPECIES_LABEL_MAP[String(value)] ?? String(value)) : '';
-
-  const toKoreanPersonalities = (csv?: string | null) => {
-    if (!csv) return '';
-    return csv
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .map((v) => PERSONALITY_LABEL_MAP[v] ?? v)
-      .join(', ');
-  };
-
-  const load = async () => {
-    setLoading(true);
-    try {
-      const list = await fetchMyPets();
-      setPets(list);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void load();
-  }, []);
-
-  const openEdit = (pet: Pet) => {
-    const parsedPers = String(pet.personality ?? '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-
-    setEditing({
-      pet,
-      name: pet.name,
-      selectSpecies: pet.breed ? [String(pet.breed)] : [],
-      selectPersonality: parsedPers,
-    });
-  };
-
-  const submitEdit = async () => {
-    if (!editing) return;
-    const name = editing.name.trim();
-    const species = editing.selectSpecies;
-    const personalities = editing.selectPersonality;
-    if (!name || species.length !== 1 || personalities.length < 1) {
-      Alert.alert('입력 확인', '이름을 입력하고, 종/성격을 선택해 주세요.');
-      return;
-    }
-    setSaving(true);
-    try {
-      const updated = await updatePet(editing.pet.id, {
-        name,
-        breed: String(species[0]),
-        personality: toCSV(personalities),
-      });
-      setPets((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-      setEditing(null);
-    } catch (e: any) {
-      const msg =
-        e?.response?.data?.message || e?.message || '반려동물 정보를 수정하지 못했습니다.';
-      Alert.alert('수정 실패', msg);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const onDelete = async (pet: Pet) => {
-    Alert.alert('삭제 확인', `${pet.name} 정보를 삭제할까요?`, [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deletePet(pet.id);
-            setPets((prev) => prev.filter((p) => p.id !== pet.id));
-          } catch (e: any) {
-            const msg =
-              e?.response?.data?.message || e?.message || '반려동물 정보를 삭제하지 못했습니다.';
-            Alert.alert('삭제 실패', msg);
-          }
-        },
-      },
-    ]);
-  };
+  // 수정 모달 훅 (성공 시 리스트 갱신)
+  const {
+    editing,
+    saving,
+    openEdit,
+    closeEdit,
+    setName,
+    handleSpeciesChange,
+    handlePersonalityChange,
+    submitEdit,
+  } = usePetEditModal((updated: Pet) => {
+    setPets((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+  });
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
@@ -174,7 +79,7 @@ const PetManageScreen = () => {
       )}
       {/* 수정 모달 */}
       <Modal visible={!!editing} transparent animationType="fade" statusBarTranslucent>
-        <Pressable className="flex-1 bg-black/60" onPress={() => !saving && setEditing(null)}>
+        <Pressable className="flex-1 bg-black/60" onPress={() => !saving && closeEdit()}>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             className="flex-1 justify-center px-6"
@@ -188,16 +93,14 @@ const PetManageScreen = () => {
                 <Input
                   label="이름"
                   value={editing?.name ?? ''}
-                  onChange={(t) => setEditing((s) => (s ? { ...s, name: t } : s))}
+                  onChange={(t) => setName(t)}
                   placeholder="이름을 입력해주세요."
                 />
                 <SelectBox
                   label="종"
                   items={SPECIES_OPTIONS}
                   values={editing?.selectSpecies ?? []}
-                  onChange={(next) =>
-                    setEditing((s) => (s ? { ...s, selectSpecies: next.map(String) } : s))
-                  }
+                  onChange={handleSpeciesChange}
                   placeholder="종을 선택해주세요."
                   maxSelected={1}
                   closeOnSelect
@@ -206,9 +109,7 @@ const PetManageScreen = () => {
                   label="성격"
                   items={PERSONALITY_OPTIONS}
                   values={editing?.selectPersonality ?? []}
-                  onChange={(next) =>
-                    setEditing((s) => (s ? { ...s, selectPersonality: next.map(String) } : s))
-                  }
+                  onChange={handlePersonalityChange}
                   placeholder="성격을 선택해주세요."
                   conflicts={PERSONALITY_CONFLICTS}
                   conflictStrategy="block"
@@ -218,7 +119,7 @@ const PetManageScreen = () => {
               <View className="mt-6 flex-row gap-3">
                 <TouchableOpacity
                   disabled={saving}
-                  onPress={() => setEditing(null)}
+                  onPress={closeEdit}
                   className="flex-1 items-center justify-center rounded-xl bg-gray-700 py-3"
                   activeOpacity={0.8}
                 >
