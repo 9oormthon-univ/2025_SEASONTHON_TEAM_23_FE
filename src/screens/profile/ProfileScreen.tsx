@@ -108,7 +108,7 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg py-2">
-      <View className="gap-4 px-7">
+      <View className="gap-7 px-7">
         <Text className="heading2B text-white">프로필</Text>
         {/* 프로필 카드 */}
         <View className="flex-row gap-5">
