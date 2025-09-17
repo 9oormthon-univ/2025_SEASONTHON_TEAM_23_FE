@@ -18,8 +18,14 @@ import Loader from '@common/Loader';
 import { usePetEditModal } from '@/hooks/pets/usePetEditModal';
 import { usePetsList } from '@/hooks/pets/usePetsList';
 import { toKoreanPersonalities, toKoreanSpecies } from '@/utils/petLabels';
+import { useLayoutEffect } from 'react';
+import { setHeaderExtras } from '@/types/Header';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { ProfileStackParamList } from '@/types/navigation';
 
 const PetManageScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const { pets, setPets, loading, onDelete } = usePetsList();
 
   // 수정 모달 훅 (성공 시 리스트 갱신)
@@ -35,6 +41,19 @@ const PetManageScreen = () => {
   } = usePetEditModal((updated: Pet) => {
     setPets((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
   });
+
+  useLayoutEffect(() => {
+    setHeaderExtras(navigation, {
+      hasBack: true,
+      hasButton: true,
+      icon: 'IcPlus',
+      onPress: () => navigation.navigate('PetRegistration'),
+      onBack: () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        navigation.replace('PetManage');
+      },
+    });
+  }, [navigation]);
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
