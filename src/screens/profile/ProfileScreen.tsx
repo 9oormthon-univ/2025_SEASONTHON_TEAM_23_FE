@@ -107,10 +107,11 @@ const ProfileScreen = () => {
     : DefaultProfile;
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-bg pt-[27px]">
+    <SafeAreaView edges={['bottom']} className="flex-1 bg-bg py-2">
       <View className="gap-4 px-7">
+        <Text className="heading2B text-white">프로필</Text>
         {/* 프로필 카드 */}
-        <View className="flex-row gap-5" style={{ marginTop: Platform.OS === 'ios' ? -30 : 0 }}>
+        <View className="flex-row gap-5">
           <Image
             source={finalProfileImage}
             className="h-20 w-20 rounded-xl border border-gray-300"
