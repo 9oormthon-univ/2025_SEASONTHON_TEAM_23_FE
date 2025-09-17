@@ -124,7 +124,7 @@ const LetterFeed: React.FC = () => {
                         resizeMode="cover"
                       />
                     )}
-                    <Text className="body1 !leading-6 text-white" numberOfLines={6}>
+                    <Text className="body1 py-2 !leading-6 text-white" numberOfLines={6}>
                       {item.content}
                     </Text>
                   </View>
