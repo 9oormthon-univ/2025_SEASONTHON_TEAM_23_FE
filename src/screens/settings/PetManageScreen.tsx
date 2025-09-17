@@ -6,8 +6,6 @@ import {
   TouchableOpacity,
   View,
   Modal,
-  TextInput,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -19,6 +17,8 @@ import SelectBox from '@common/SelectBox';
 import { PERSONALITY_CONFLICTS, PERSONALITY_OPTIONS, SPECIES_OPTIONS } from '@/types/select';
 import { showConflictAlert } from '@/utils/selectConflict';
 import { toCSV } from '@/utils/payload';
+import Input from '@common/Input';
+import Loader from '@common/Loader';
 
 const PetManageScreen = () => {
   const [pets, setPets] = useState<Pet[]>([]);
@@ -160,25 +160,12 @@ const PetManageScreen = () => {
             >
               <Text className="subHeading1B text-white">반려동물 정보 수정</Text>
               <View className="mt-5 gap-3">
-                <View className="rounded-xl bg-bg px-4 py-3">
-                  <Text className="body3 mb-1 text-gray-500">이름</Text>
-                  <TextInput
-                    value={editing?.name ?? ''}
-                    onChangeText={(t) => setEditing((s) => (s ? { ...s, name: t } : s))}
-                    placeholder="이름"
-                    placeholderTextColor="#808080"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    className="body1 leading-[20px] text-white"
-                    style={{
-                      paddingVertical: 0,
-                      textAlignVertical: 'center',
-                      lineHeight: 16,
-                      height: 22,
-                    }}
-                    allowFontScaling={false}
-                  />
-                </View>
+                <Input
+                  label="이름"
+                  value={editing?.name ?? ''}
+                  onChange={(t) => setEditing((s) => (s ? { ...s, name: t } : s))}
+                  placeholder="이름을 입력해주세요."
+                />
                 <SelectBox
                   label="종"
                   items={SPECIES_OPTIONS}
@@ -221,7 +208,7 @@ const PetManageScreen = () => {
                   activeOpacity={0.85}
                 >
                   {saving ? (
-                    <ActivityIndicator color="#121826" />
+                    <Loader size="small" />
                   ) : (
                     <Text
                       className={`subHeading2B ${saving ? 'text-gray-800/50' : 'text-gray-900'}`}
