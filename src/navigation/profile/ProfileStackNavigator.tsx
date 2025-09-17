@@ -1,8 +1,8 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { ProfileStackParamList } from '@/types/navigation';
 import ProfileScreen from '@/screens/profile/ProfileScreen';
-import SettingScreen from '@/screens/profile/SettingScreen';
-import ImageSettingScreen from '@/screens/profile/ImageSettingScreen';
+import SettingScreen from '@/screens/settings/SettingScreen';
+import ImageSettingScreen from '@/screens/settings/ImageSettingScreen';
 import CustomHeader from '@navigation/CustomHeader';
 import type { HeaderProps } from '@/types/Header';
 
