@@ -6,8 +6,13 @@ import Input from '@common/Input';
 import Loader from '@common/Loader';
 import { usePetRegistration } from '@/hooks/pets/usePetRegistration';
 import { showConflictAlert } from '@/utils/selectConflict';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { ProfileStackParamList, RootStackParamList } from '@/types/navigation';
 
 const PetRegistrationScreen = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ProfileStackParamList & RootStackParamList>>();
   const {
     fields: { petName, selectSpecies, selectPersonality },
     setPetName,
@@ -16,7 +21,15 @@ const PetRegistrationScreen = () => {
     disabled,
     isPending,
     onSubmit,
-  } = usePetRegistration();
+  } = usePetRegistration({
+    onSuccessNav: () => {
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      } else {
+        navigation.reset({ index: 0, routes: [{ name: 'Tabs' as never }] });
+      }
+    },
+  });
 
   return (
     <ScrollView className="bg-bg">
