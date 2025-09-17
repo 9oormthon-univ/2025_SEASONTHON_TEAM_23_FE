@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -30,6 +30,31 @@ const PetManageScreen = () => {
     selectPersonality: Array<string | number>;
   } | null>(null);
   const [saving, setSaving] = useState(false);
+
+  // value -> label 매핑 (종 / 성격)
+  const SPECIES_LABEL_MAP = useMemo(() => {
+    const m: Record<string, string> = {};
+    SPECIES_OPTIONS.forEach((o) => (m[o.value] = o.label));
+    return m;
+  }, []);
+  const PERSONALITY_LABEL_MAP = useMemo(() => {
+    const m: Record<string, string> = {};
+    PERSONALITY_OPTIONS.forEach((o) => (m[o.value] = o.label));
+    return m;
+  }, []);
+
+  const toKoreanSpecies = (value?: string | null) =>
+    value ? (SPECIES_LABEL_MAP[String(value)] ?? String(value)) : '';
+
+  const toKoreanPersonalities = (csv?: string | null) => {
+    if (!csv) return '';
+    return csv
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((v) => PERSONALITY_LABEL_MAP[v] ?? v)
+      .join(', ');
+  };
 
   const load = async () => {
     setLoading(true);
@@ -125,8 +150,8 @@ const PetManageScreen = () => {
           renderItem={({ item }) => (
             <View className="mb-3 rounded-2xl bg-bg-light p-4">
               <Text className="subHeading2B text-white">{item.name}</Text>
-              <Text className="body2 mt-1 text-gray-400">{item.breed}</Text>
-              <Text className="body2 text-gray-400">{item.personality}</Text>
+              <Text className="body2 mt-1 text-gray-400">{toKoreanSpecies(item.breed)}</Text>
+              <Text className="body2 text-gray-400">{toKoreanPersonalities(item.personality)}</Text>
               <View className="mt-3 flex-row gap-2">
                 <TouchableOpacity
                   onPress={() => openEdit(item)}
