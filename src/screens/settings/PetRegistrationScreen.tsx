@@ -6,7 +6,7 @@ import Input from '@common/Input';
 import Loader from '@common/Loader';
 import { usePetRegistration } from '@/hooks/pets/usePetRegistration';
 import { showConflictAlert } from '@/utils/selectConflict';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ProfileStackParamList, RootStackParamList } from '@/types/navigation';
 
@@ -31,9 +31,13 @@ const PetRegistrationScreen = () => {
     },
   });
 
+  const route = useRoute<any>();
+  const isFromProfile = route.name === 'PetRegistrationInProfile';
+  const padding = isFromProfile ? 'pb-16 pt-10' : 'pb-[90px] pt-5';
+
   return (
     <ScrollView className="bg-bg">
-      <View className="gap-32 px-7 pb-[90px] pt-5">
+      <View className={`gap-32 px-7 ${padding}`}>
         <View className="gap-[52px]">
           <Text className="heading2SB text-white">
             {keepAllKorean('반려동물의\n이름을 입력해주세요.')}
