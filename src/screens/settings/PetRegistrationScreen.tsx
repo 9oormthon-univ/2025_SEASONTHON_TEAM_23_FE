@@ -56,11 +56,11 @@ const PetRegistrationScreen = () => {
         <Pressable
           disabled={disabled}
           onPress={onSubmit}
-          className={`${disabled ? 'bg-[#FFEBB5]' : 'bg-yellow-200'} items-center justify-center rounded-[20px] py-5`}
+          className={`${disabled ? 'bg-gray-500' : 'bg-yellow-200'} items-center justify-center rounded-[20px] py-5`}
         >
           {isPending && <Loader />}
           <Text
-            className={`subHeading3 ${disabled ? 'text-gray-700' : 'text-gray-900'}`}
+            className={`subHeading3 ${disabled ? 'text-white' : 'text-gray-900'}`}
           >{`확인`}</Text>
         </Pressable>
       </View>
