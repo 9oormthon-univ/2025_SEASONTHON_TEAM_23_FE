@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { useLayoutEffect, useMemo, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { DiaryStackParamList } from '@/types/navigation';
@@ -17,6 +17,7 @@ import { keepAllKorean } from '@/utils/keepAll';
 import CustomSwitch from '@common/CustomSwitch';
 import SelectBox from '@common/SelectBox';
 import { usePetSelect } from '@/hooks/diary/usePetSelect';
+import ToggleCard from '@common/ToggleCard';
 
 type EditRoute = RouteProp<DiaryStackParamList, 'DiaryEdit'>;
 
@@ -136,13 +137,12 @@ const DiaryEditScreen = () => {
           </View>
         </View>
         <View className="gap-3">
-          <View className="flex-row justify-between rounded-[20px] bg-bg-light px-8 py-5">
-            <View>
-              <Text className="captionSB text-white">{`이 글에 대한`}</Text>
-              <Text className="body1 !leading-6 text-white">{`공감문을 받을 수 있어요.`}</Text>
-            </View>
-            <CustomSwitch value={needAiReflection} onValueChange={setNeedAiReflection} />
-          </View>
+          <ToggleCard
+            value={needAiReflection}
+            onChange={setNeedAiReflection}
+            smallText="이 글에 대한"
+            mainText="공감문을 받을 수 있어요"
+          />
           <Text className="captionSB text-center text-gray-500">{`어떤 반려동물의 공감문을 받으시나요?`}</Text>
           <SelectBox
             items={items}
