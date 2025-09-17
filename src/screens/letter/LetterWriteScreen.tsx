@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { View, TextInput, Alert, Image, Text, Pressable, ScrollView, Platform } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
@@ -8,7 +8,6 @@ import { fetchLetterById, createLetter, updateLetter } from '@/services/letters'
 import Icon from '@common/Icon';
 import { useAuth } from '@/provider/AuthProvider';
 import { setHeaderExtras } from '@/types/Header';
-import CustomSwitch from '@common/CustomSwitch';
 import ToggleCard from '@common/ToggleCard';
 
 const LetterWriteScreen = () => {

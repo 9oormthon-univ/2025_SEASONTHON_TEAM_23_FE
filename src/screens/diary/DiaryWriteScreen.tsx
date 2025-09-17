@@ -1,5 +1,5 @@
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import Icon from '@common/Icon';
 import { ACTIVE_UI, type EmojiKey, EMOJIS } from '@/constants/diary/emoji';
 import TextArea from '@common/TextArea';
@@ -10,7 +10,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { DiaryStackParamList } from '@/types/navigation';
 import { setHeaderExtras } from '@/types/Header';
 import { localISODate, todayISO, withKoreanDOW } from '@/utils/calendar/date';
-import CustomSwitch from '@common/CustomSwitch';
 import { usePetSelect } from '@/hooks/diary/usePetSelect';
 import Loader from '@common/Loader';
 import SelectBox from '@common/SelectBox';

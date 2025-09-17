@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import React, { useLayoutEffect, useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { DiaryStackParamList } from '@/types/navigation';
@@ -14,7 +14,6 @@ import { emojiKeyFromNumber } from '@/utils/calendar/mood';
 import { withKoreanDOW } from '@/utils/calendar/date';
 import { useDiaryUpdate } from '@/hooks/diary/useDiaryUpdate';
 import { keepAllKorean } from '@/utils/keepAll';
-import CustomSwitch from '@common/CustomSwitch';
 import SelectBox from '@common/SelectBox';
 import { usePetSelect } from '@/hooks/diary/usePetSelect';
 import ToggleCard from '@common/ToggleCard';
