@@ -20,7 +20,8 @@ const PetRegistrationScreen = () => {
   const route = useRoute<any>();
   const pet: Pet | undefined = route?.params?.pet; // 편집용 초기값
   const isFromProfile = route.name === 'PetRegistrationInProfile';
-  const padding = isFromProfile ? 'pb-16 pt-10' : 'pb-[90px] pt-5';
+  const padding = isFromProfile ? 'pb-16' : 'pb-[90px]';
+  const buttonIsAbsolute = isFromProfile ? '' : 'absolute inset-x-7';
 
   const {
     fields: { petName, selectSpecies, selectPersonality },
@@ -65,49 +66,51 @@ const PetRegistrationScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-bg">
+    <SafeAreaView edges={['top']} className="flex-1 bg-bg">
       <ScrollView className="flex-1 px-7">
         <ProgressBar step={step} total={2} />
-        <View className={`flex-1 gap-[52px] pb-16 ${padding}`}>
-          <Text className="heading2SB !leading-[42px] text-white">{keepAllKorean(title)}</Text>
+        <View className="gap-16">
+          <View className={`flex-1 gap-[52px] pb-16 pt-5 ${padding}`}>
+            <Text className="heading2SB !leading-[42px] text-white">{keepAllKorean(title)}</Text>
 
-          {step === 1 ? (
-            <PetInfoStep
-              petName={petName}
-              setPetName={setPetName}
-              selectSpecies={selectSpecies}
-              handleSpeciesChange={handleSpeciesChange}
-            />
-          ) : (
-            <PetPersonalityStep
-              selectPersonality={selectPersonality}
-              handlePersonalityChange={handlePersonalityChange}
-            />
-          )}
+            {step === 1 ? (
+              <PetInfoStep
+                petName={petName}
+                setPetName={setPetName}
+                selectSpecies={selectSpecies}
+                handleSpeciesChange={handleSpeciesChange}
+              />
+            ) : (
+              <PetPersonalityStep
+                selectPersonality={selectPersonality}
+                handlePersonalityChange={handlePersonalityChange}
+              />
+            )}
+          </View>
+          <View className={`${buttonIsAbsolute} bottom-14 flex-row items-center gap-3`}>
+            {step === 2 && (
+              <TouchableOpacity
+                onPress={() => setStep(1)}
+                activeOpacity={0.8}
+                className="w-full flex-1 items-center justify-center rounded-[20px] bg-gray-500 py-5"
+              >
+                <Text className="subHeading3 text-white">{`이전`}</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              disabled={ctaDisabled}
+              onPress={handlePrimary}
+              activeOpacity={0.8}
+              className={`${ctaDisabled ? 'bg-gray-500' : 'bg-yellow-200'} w-full flex-1 items-center justify-center rounded-[20px] py-5`}
+            >
+              {isPending && <Loader />}
+              <Text
+                className={`subHeading3 ${ctaDisabled ? 'text-white' : 'text-gray-900'}`}
+              >{`확인`}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
-      <View className="absolute inset-x-7 bottom-20 flex-row items-center gap-3">
-        {step === 2 && (
-          <TouchableOpacity
-            onPress={() => setStep(1)}
-            activeOpacity={0.8}
-            className="w-full flex-1 items-center justify-center rounded-[20px] bg-gray-500 py-5"
-          >
-            <Text className="subHeading3 text-white">{`이전`}</Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          disabled={ctaDisabled}
-          onPress={handlePrimary}
-          activeOpacity={0.8}
-          className={`${ctaDisabled ? 'bg-gray-500' : 'bg-yellow-200'} w-full flex-1 items-center justify-center rounded-[20px] py-5`}
-        >
-          {isPending && <Loader />}
-          <Text
-            className={`subHeading3 ${ctaDisabled ? 'text-white' : 'text-gray-900'}`}
-          >{`확인`}</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 };
