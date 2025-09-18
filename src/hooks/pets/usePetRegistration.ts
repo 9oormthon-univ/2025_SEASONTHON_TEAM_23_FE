@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert } from 'react-native';
 import { buildCreatePetPayload } from '@/utils/payload';
+import { useToast } from '@/provider/ToastProvider';
 import type { Pet } from '@/types/pets';
 import { createPet, updatePet } from '@/services/pets';
 
@@ -26,6 +26,7 @@ type LastRequest =
 
 export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
   const { onSuccessNav, initialPet, debug = __DEV__ } = opts;
+  const { showToast } = useToast();
 
   const log = (...args: any[]) => {
     if (debug) console.log('[usePetRegistration]', ...args);
@@ -137,9 +138,8 @@ export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
         log('create success', { ms: Date.now() - t0 });
       }
 
-      Alert.alert('저장 완료', '반려동물 정보가 저장되었습니다.', [
-        { text: '확인', onPress: () => onSuccessNav?.() },
-      ]);
+      showToast('반려동물 정보가 저장되었습니다.', 'info');
+      onSuccessNav?.();
     } catch (e: any) {
       const info = extractError(e);
       setLastError(info);
@@ -155,7 +155,7 @@ export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
           ? `\n\n[디버그]\nstatus: ${String(info.status ?? '-')}\nmessage: ${String(info.message)}`
           : '';
 
-      Alert.alert('실패', `저장 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.`);
+      showToast('저장 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.', 'delete');
       console.error(devDetails);
     } finally {
       setIsSaving(false);
@@ -168,6 +168,7 @@ export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
     selectSpecies,
     selectPersonality,
     onSuccessNav,
+    showToast,
   ]);
 
   return {
