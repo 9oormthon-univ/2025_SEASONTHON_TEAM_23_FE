@@ -1,21 +1,21 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import { keepAllKorean } from '@/utils/keepAll';
-import SelectBox from '@common/SelectBox';
-import { PERSONALITY_CONFLICTS, PERSONALITY_OPTIONS, SPECIES_OPTIONS } from '@/types/select';
-import Input from '@common/Input';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Loader from '@common/Loader';
 import { usePetRegistration } from '@/hooks/pets/usePetRegistration';
-import { showConflictAlert } from '@/utils/selectConflict';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ProfileStackParamList, RootStackParamList } from '@/types/navigation';
-import { useQueryClient } from '@tanstack/react-query';
 import type { Pet } from '@/types/pets';
+import PetInfoStep from '@/components/settings/PetInfoStep';
+import { useMemo, useState } from 'react';
+import PetPersonalityStep from '@/components/settings/PetPersonalityStep';
+import ProgressBar from '@/components/settings/ProgressBar';
+import { keepAllKorean } from '@/utils/keepAll';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PetRegistrationScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList & RootStackParamList>>();
-  const qc = useQueryClient();
+  const [step, setStep] = useState<1 | 2>(1);
 
   const route = useRoute<any>();
   const pet: Pet | undefined = route?.params?.pet; // 편집용 초기값
@@ -37,61 +37,78 @@ const PetRegistrationScreen = () => {
         // 설정에서 온 경우: 뒤로 가기
         navigation.goBack();
       } else {
-        // 루트(최초 등록) 플로우: Tabs는 아직 네비게이터에 없음
-        // -> myPets를 최신화해 needsPet=false가 되면 RootNavigator가 Tabs로 재구성됨
-        await qc.invalidateQueries({ queryKey: ['myPets'] });
-        // 여기서 navigate/reset 하지 않음!
+        navigation.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'Tabs' as never }] }));
       }
     },
   });
 
+  // 타이틀
+  const title =
+    step === 1 ? '반려동물의\n기본정보를 입력해주세요.' : '반려동물\n성격을 알려주세요.';
+
+  // 1단계(이름+종) 완료 가능 조건
+  const canNext = useMemo(
+    () => petName.trim().length > 0 && selectSpecies.length === 1,
+    [petName, selectSpecies]
+  );
+
+  const ctaDisabled = step === 1 ? !canNext || isPending : disabled;
+
+  const handlePrimary = () => {
+    if (step === 1) {
+      if (!canNext) return;
+      setStep(2);
+      return;
+    }
+    // step2: 최종 제출
+    onSubmit();
+  };
+
   return (
-    <ScrollView className="bg-bg">
-      <View className={`gap-32 px-7 ${padding}`}>
-        <View className="gap-[52px]">
-          <Text className="heading2SB text-white">
-            {keepAllKorean('반려동물의\n이름을 입력해주세요.')}
-          </Text>
-          <View className="gap-8">
-            <Input
-              label="이름"
-              value={petName}
-              onChange={(val) => setPetName(val)}
-              placeholder="이름을 입력해주세요."
+    <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-bg">
+      <ScrollView className="flex-1 px-7">
+        <ProgressBar step={step} total={2} />
+        <View className={`flex-1 gap-[52px] pb-16 ${padding}`}>
+          <Text className="heading2SB !leading-[42px] text-white">{keepAllKorean(title)}</Text>
+
+          {step === 1 ? (
+            <PetInfoStep
+              petName={petName}
+              setPetName={setPetName}
+              selectSpecies={selectSpecies}
+              handleSpeciesChange={handleSpeciesChange}
             />
-            <SelectBox
-              label="종"
-              items={SPECIES_OPTIONS}
-              values={selectSpecies}
-              onChange={handleSpeciesChange}
-              placeholder="종을 선택해주세요."
-              maxSelected={1}
-              closeOnSelect
+          ) : (
+            <PetPersonalityStep
+              selectPersonality={selectPersonality}
+              handlePersonalityChange={handlePersonalityChange}
             />
-            <SelectBox
-              label="성격"
-              items={PERSONALITY_OPTIONS}
-              values={selectPersonality}
-              onChange={handlePersonalityChange}
-              placeholder="성격을 선택해주세요."
-              conflicts={PERSONALITY_CONFLICTS}
-              conflictStrategy="block"
-              onConflict={showConflictAlert}
-            />
-          </View>
+          )}
         </View>
-        <Pressable
-          disabled={disabled}
-          onPress={onSubmit}
-          className={`${disabled ? 'bg-gray-500' : 'bg-yellow-200'} items-center justify-center rounded-[20px] py-5`}
+      </ScrollView>
+      <View className="absolute inset-x-7 bottom-20 flex-row items-center gap-3">
+        {step === 2 && (
+          <TouchableOpacity
+            onPress={() => setStep(1)}
+            activeOpacity={0.8}
+            className="w-full flex-1 items-center justify-center rounded-[20px] bg-gray-500 py-5"
+          >
+            <Text className="subHeading3 text-white">{`이전`}</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          disabled={ctaDisabled}
+          onPress={handlePrimary}
+          activeOpacity={0.8}
+          className={`${ctaDisabled ? 'bg-gray-500' : 'bg-yellow-200'} w-full flex-1 items-center justify-center rounded-[20px] py-5`}
         >
           {isPending && <Loader />}
           <Text
-            className={`subHeading3 ${disabled ? 'text-white' : 'text-gray-900'}`}
+            className={`subHeading3 ${ctaDisabled ? 'text-white' : 'text-gray-900'}`}
           >{`확인`}</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
