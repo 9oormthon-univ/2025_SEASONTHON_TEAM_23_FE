@@ -33,7 +33,7 @@ const ConfirmDeleteModal = ({
           <View className="items-center gap-2">
             <Icon name="IcWarning" size={40} color="#FF2E45" />
             <View className="items-center gap-3">
-              <Text className="heading3 text-center !leading-10 leading-9 text-gray-900">
+              <Text className="heading3 text-center !leading-10 text-gray-900">
                 {keepAllKorean(mainText)}
               </Text>
               <Text className="body1 text-center !leading-6 text-[#343434]">
