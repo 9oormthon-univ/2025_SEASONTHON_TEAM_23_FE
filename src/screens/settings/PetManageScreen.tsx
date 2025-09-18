@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Pet } from '@/types/pets';
 import Loader from '@common/Loader';
 import { usePetsList } from '@/hooks/pets/usePetsList';
-import { useCallback, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { setHeaderExtras } from '@/types/Header';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -24,6 +24,7 @@ const PetManageScreen = () => {
 
   const { pets, loading, reload, onDelete } = usePetsList({
     onEmpty: goToRegistration,
+    onDeleteBlocked: () => setShowDeleteBlocked(true), // 1마리 삭제 시 모달 열기
   });
 
   // 돌아왔을 때(포커스 재획득) 바로 최신 목록 반영
@@ -42,6 +43,11 @@ const PetManageScreen = () => {
       },
     });
   }, [navigation]);
+
+  // 목록이 1마리가 되면 삭제모드 자동 해제 (아이콘 숨김)
+  useEffect(() => {
+    if (isDeleting && pets.length <= 1) setIsDeleting(false);
+  }, [isDeleting, pets.length]);
 
   if (loading) {
     return <Loader isPageLoader />;
