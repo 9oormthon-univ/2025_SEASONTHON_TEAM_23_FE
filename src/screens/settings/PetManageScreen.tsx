@@ -17,8 +17,13 @@ const PetManageScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteBlocked, setShowDeleteBlocked] = useState(false);
+
+  const goToRegistration = useCallback(() => {
+    navigation.navigate('PetRegistrationInProfile');
+  }, [navigation]);
+
   const { pets, loading, reload, onDelete } = usePetsList({
-    onEmpty: () => navigation.navigate('PetRegistrationInProfile'),
+    onEmpty: goToRegistration,
   });
 
   // 돌아왔을 때(포커스 재획득) 바로 최신 목록 반영
