@@ -54,6 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await refreshUser();
       try {
         const savedKey = await AsyncStorage.getItem('profileImageKey');
+        console.log('AsyncStorage에서 프로필 이미지 키 로드:', savedKey);
         if (savedKey) setProfileImageKey(savedKey);
       } catch (e) {
         console.warn('프로필 이미지 키 로드 실패', e);
@@ -67,8 +68,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         if (profileImageKey) {
           await AsyncStorage.setItem('profileImageKey', profileImageKey);
+          console.log('AsyncStorage에 프로필 이미지 키 저장:', profileImageKey);
         } else {
           await AsyncStorage.removeItem('profileImageKey');
+          console.log('AsyncStorage에서 프로필 이미지 키 제거');
         }
       } catch (e) {
         console.warn('프로필 이미지 키 저장 실패', e);
