@@ -5,7 +5,7 @@ interface ToastItem {
   id: string;
   message: string;
   title?: string;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'delete' | 'info';
   duration?: number;
   onPress?: () => void;
   actionLabel?: string;
@@ -16,7 +16,7 @@ interface ToastContextType {
   toasts: ToastItem[];
   showToast: (
     message: string,
-    type?: 'success' | 'error' | 'info',
+    type?: 'success' | 'delete' | 'info',
     duration?: number,
     options?: {
       title?: string;
@@ -48,7 +48,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const showToast = useCallback(
     (
       message: string,
-      type: 'success' | 'error' | 'info' = 'info',
+      type: 'success' | 'delete' | 'info' = 'info',
       duration = 3000,
       options?: {
         title?: string;

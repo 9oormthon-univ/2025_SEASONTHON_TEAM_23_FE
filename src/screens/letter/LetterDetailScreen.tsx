@@ -6,6 +6,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { LetterStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
 import { useAuth } from '@/provider/AuthProvider';
+import { useToast } from '@/provider/ToastProvider';
 import { formatKoreanDate } from '@/utils/formatDate';
 import { useLetterDetail } from '@/hooks/queries/useLetterDetail';
 import { useDeleteLetter } from '@/hooks/mutations/useDeleteLetter';
@@ -20,6 +21,7 @@ type Props = NativeStackScreenProps<LetterStackParamList, 'LetterDetail'>;
 const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const id = route?.params?.id;
   const { toggleTribute } = useTribute();
+  const { showToast } = useToast();
   const [isTributing, setIsTributing] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
@@ -63,7 +65,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         await toggleTribute(letterId, currentUserId);
         qc.invalidateQueries({ queryKey: ['letter-detail', letterId] });
         qc.invalidateQueries({ queryKey: ['letter-tributes', letterId] });
-        Alert.alert('위로의 별 전달이 취소되었습니다');
+        showToast('위로의 별 전달이 취소되었어요', 'info');
       } finally {
         setIsTributing(false);
       }
@@ -75,6 +77,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       await toggleTribute(letterId, currentUserId);
       qc.invalidateQueries({ queryKey: ['letter-detail', letterId] });
       qc.invalidateQueries({ queryKey: ['letter-tributes', letterId] });
+      showToast('위로의 별이 전달되었어요', 'success');
     } finally {
       setIsTributing(false);
     }
@@ -117,6 +120,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       if (!rawId) throw new Error('invalid_letter_id');
       await deleteLetterAsync(rawId);
       setConfirmVisible(false);
+      showToast('삭제가 완료되었어요', 'delete');
       navigation.goBack();
     } catch (e) {
       Alert.alert('삭제 실패', '편지를 삭제하는 중 오류가 발생했습니다.');
