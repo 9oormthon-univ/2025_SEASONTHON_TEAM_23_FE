@@ -4,7 +4,7 @@ import type { Pet } from '@/types/pets';
 
 export type RootStackParamList = {
   Onboarding: undefined;
-  Boot: undefined;
+  Gate: undefined;
   Tabs: NavigatorScreenParams<TabsParamList>;
   MyDailyLogs: undefined;
   MyLetters: undefined;

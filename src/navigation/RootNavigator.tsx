@@ -9,10 +9,8 @@ import NotificationListScreen from '@/screens/notification/NotificationListScree
 import type { RefObject } from 'react';
 import type { HeaderProps } from '@/types/Header';
 import CustomHeader from '@navigation/CustomHeader';
-import { useMyPets } from '@/hooks/queries/useMyPets';
-import Loader from '@common/Loader';
 import PetRegistrationScreen from '@/screens/settings/PetRegistrationScreen';
-import { View } from 'react-native';
+import PetsGate from '@/components/init/PetsGate';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -22,7 +20,6 @@ type RootNavigatorProps = {
 
 const RootNavigator = ({ navigationRef }: RootNavigatorProps) => {
   const { user } = useAuth();
-  const { needsPet, loading } = useMyPets(!!user);
 
   return (
     <NavigationContainer linking={linking} ref={navigationRef}>
@@ -33,22 +30,9 @@ const RootNavigator = ({ navigationRef }: RootNavigatorProps) => {
             component={OnboardingScreen}
             options={{ headerShown: false }}
           />
-        ) : loading ? (
-          <Stack.Screen name="Boot" options={{ headerShown: false }}>
-            {() => (
-              <View className="flex-1 bg-bg">
-                <Loader />
-              </View>
-            )}
-          </Stack.Screen>
-        ) : needsPet ? (
-          <Stack.Screen
-            name="PetRegistration"
-            component={PetRegistrationScreen}
-            options={{ headerShown: false }}
-          />
         ) : (
           <>
+            <Stack.Screen name="Gate" component={PetsGate} options={{ headerShown: false }} />
             <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
             <Stack.Screen
               name="NotificationList"
