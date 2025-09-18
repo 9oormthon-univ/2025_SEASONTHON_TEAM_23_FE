@@ -95,7 +95,7 @@ const App = () => {
     <AppProvider>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <RootNavigator navigationRef={navRef} />
-      <ToastContainer position="bottom" />
+      <ToastContainer position="above-tab" />
     </AppProvider>
   );
 };
