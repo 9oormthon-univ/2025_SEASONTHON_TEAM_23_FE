@@ -16,7 +16,7 @@ const SaveButton = ({ label = '완료', onPress, disabled, isLoading }: SaveButt
       disabled={disabled || isLoading}
     >
       {isLoading ? (
-        <Loader />
+        <Loader color="#121826" />
       ) : (
         <Text className={`body2 ${disabled ? 'bg-gray-500' : 'text-gray-900'}`}>{label}</Text>
       )}
