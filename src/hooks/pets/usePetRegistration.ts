@@ -10,10 +10,48 @@ type Value = string | number;
 type UsePetRegistrationOptions = {
   onSuccessNav?: () => void;
   initialPet?: Pet | null;
+  debug?: boolean; // 디버깅 로그 강제 on/off (기본: __DEV__)
 };
 
+{
+  /*디버깅 코드*/
+}
+type LastRequest =
+  | { mode: 'create'; payload: { name: string; species: string; personalities: string[] } }
+  | {
+      mode: 'update';
+      id: number;
+      body: { name: string; breed: string; personality: string };
+    };
+
 export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
-  const { onSuccessNav, initialPet } = opts;
+  const { onSuccessNav, initialPet, debug = __DEV__ } = opts;
+
+  const log = (...args: any[]) => {
+    if (debug) console.log('[usePetRegistration]', ...args);
+  };
+  const logErr = (...args: any[]) => {
+    if (debug) console.error('[usePetRegistration:ERROR]', ...args);
+  };
+  // 디버깅용 상태: 마지막 요청/에러
+  const [lastRequest, setLastRequest] = useState<LastRequest | null>(null);
+  const [lastError, setLastError] = useState<{
+    message: string;
+    status?: number;
+    data?: any;
+    raw?: any;
+  } | null>(null);
+
+  const extractError = (e: any) => {
+    const status = e?.response?.status;
+    const data = e?.response?.data;
+    const message =
+      data?.message ||
+      e?.message ||
+      (typeof data === 'string' ? data : 'Unknown error (no message)');
+    return { message, status, data, raw: e };
+  };
+
   const [petName, setPetName] = useState(initialPet?.name ?? '');
   const [selectSpecies, setSelectSpecies] = useState<string[]>(
     initialPet?.breed ? [String(initialPet.breed)] : []
@@ -63,31 +101,62 @@ export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
 
   // 제출
   const onSubmit = useCallback(async () => {
-    if (!canSubmit || isSaving) return;
+    if (!canSubmit || isSaving) {
+      log('submit blocked', { canSubmit, isSaving });
+      return;
+    }
     setIsSaving(true);
+    setLastError(null);
+
+    const t0 = Date.now();
 
     try {
       // 편집 모드면 update, 아니면 create
       if (initialPet?.id != null) {
-        await updatePet(initialPet.id, {
+        // 업데이트
+        const body = {
           name: petName.trim(),
           breed: String(selectSpecies[0]),
           personality: selectPersonality.join(','),
-        });
+        };
+        setLastRequest({ mode: 'update', id: initialPet.id, body });
+        log('update start', { id: initialPet.id, body });
+        await updatePet(initialPet.id, body);
+        log('update success', { ms: Date.now() - t0 });
       } else {
-        const payload = buildCreatePetPayload({
+        // 생성
+        const req = {
           name: petName,
           species: selectSpecies[0],
           personalities: selectPersonality,
-        });
+        };
+        setLastRequest({ mode: 'create', payload: req });
+        const payload = buildCreatePetPayload(req);
+        log('create start', { payload });
         await createPet(payload);
+        log('create success', { ms: Date.now() - t0 });
       }
 
       Alert.alert('저장 완료', '반려동물 정보가 저장되었습니다.', [
         { text: '확인', onPress: () => onSuccessNav?.() },
       ]);
-    } catch (e) {
-      Alert.alert('실패', '저장 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+    } catch (e: any) {
+      const info = extractError(e);
+      setLastError(info);
+      logErr('submit failed', {
+        ...info,
+        ms: Date.now() - t0,
+        lastRequest,
+      });
+
+      // DEV에선 에러 상세를 좀 더 보여주면 디버깅에 유리
+      const devDetails =
+        debug && (info.status || info.message)
+          ? `\n\n[디버그]\nstatus: ${String(info.status ?? '-')}\nmessage: ${String(info.message)}`
+          : '';
+
+      Alert.alert('실패', `저장 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.`);
+      console.error(devDetails);
     } finally {
       setIsSaving(false);
     }
@@ -114,5 +183,9 @@ export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
     disabled,
     isPending: isSaving,
     onSubmit,
+
+    // 디버깅용
+    lastRequest,
+    lastError,
   };
 };
