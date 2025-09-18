@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useCreateDailyLog } from '@/hooks/mutations/useCreateDailyLog';
+import { useToast } from '@/provider/ToastProvider';
 import { emojiKeyToMood } from '@/utils/calendar/mood';
 import type { EmojiKey } from '@/constants/diary/emoji';
 import { localISODate, todayISO } from '@/utils/calendar/date';
@@ -21,6 +22,7 @@ export const useDiarySubmit = ({
   onSuccess,
 }: UseDiarySubmitOptions) => {
   const { mutateAsync, isPending } = useCreateDailyLog(Number(userId));
+  const { showToast } = useToast();
 
   const submit = useCallback(async () => {
     try {
@@ -49,7 +51,7 @@ export const useDiarySubmit = ({
         onSuccess?.(res.id);
       }
 
-      Alert.alert('완료', '일기가 저장되었습니다.');
+      showToast('일기가 저장되었습니다.', 'info');
     } catch (e: any) {
       const msg =
         e?.response?.data?.message ??
@@ -57,7 +59,7 @@ export const useDiarySubmit = ({
         '일기 저장에 실패했어요. 잠시 후 다시 시도해 주세요.';
       Alert.alert('오류', msg);
     }
-  }, [userId, selectedEmoji, content, needAiReflection, mutateAsync, onSuccess]);
+  }, [userId, selectedEmoji, content, needAiReflection, mutateAsync, onSuccess, showToast]);
 
   return { submit, isSubmitting: isPending };
 };

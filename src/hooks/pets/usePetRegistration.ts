@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Alert } from 'react-native';
 import { useCreatePet } from '@/hooks/mutations/useCreatePet';
+import { useToast } from '@/provider/ToastProvider';
 import { buildCreatePetPayload } from '@/utils/payload';
 
 // 화면에서 SelectBox가 string | number를 줄 수 있으니 타입 유연하게
@@ -13,6 +13,7 @@ export const usePetRegistration = () => {
 
   // 서버 요청 훅
   const { mutate: registerPet, isPending } = useCreatePet();
+  const { showToast } = useToast();
 
   // 검증
   const canSubmit = useMemo(
@@ -44,10 +45,10 @@ export const usePetRegistration = () => {
 
     registerPet(payload, {
       onSuccess: () => {
-        Alert.alert('등록 완료', '반려동물 등록이 완료되었습니다.', [{ text: '확인' }]);
+        showToast('반려동물 등록이 완료되었습니다.', 'info');
       },
       onError: () => {
-        Alert.alert('실패', '등록 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+        showToast('등록 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.', 'delete');
       },
     });
   }, [canSubmit, isPending, petName, selectSpecies, selectPersonality, registerPet]);

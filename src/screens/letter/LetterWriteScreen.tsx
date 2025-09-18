@@ -9,6 +9,7 @@ import { useCreateLetter } from '@/hooks/mutations/useCreateLetter';
 import { useUpdateLetter } from '@/hooks/mutations/useUpdateLetter';
 import Icon from '@common/Icon';
 import { useAuth } from '@/provider/AuthProvider';
+import { useToast } from '@/provider/ToastProvider';
 import { setHeaderExtras } from '@/types/Header';
 import ToggleCard from '@common/ToggleCard';
 
@@ -19,6 +20,7 @@ const LetterWriteScreen = () => {
   const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const { user } = useAuth();
+  const { showToast } = useToast();
   const navigation = useNavigation<StackNavigationProp<LetterStackParamList>>();
   const route = useRoute<any>();
   const editingId = route?.params?.id ?? null;
@@ -76,15 +78,13 @@ const LetterWriteScreen = () => {
         });
       }
 
-      Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
-        { text: '확인', onPress: () => navigation.navigate('LetterScreen') },
-      ]);
+      showToast('편지가 서버에 저장되었습니다.', 'success');
       console.log('편지 저장 완료');
       setLetter('');
       setImageUri(null);
-      setHasSubmitted(true); // 첫 성공 후 영구 비활성
+      setHasSubmitted(true);
+      navigation.navigate('LetterScreen');
     } catch (error) {
-      Alert.alert('저장 실패', '서버에 저장하는 중 오류가 발생했습니다.');
       console.error('편지 저장 실패:', error);
     } finally {
       setIsSaving(false);
@@ -99,6 +99,7 @@ const LetterWriteScreen = () => {
     originalHasPhoto,
     isSaving,
     hasSubmitted,
+    showToast,
   ]);
 
   // 헤더 구성 (완료 버튼)
