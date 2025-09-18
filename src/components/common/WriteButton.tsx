@@ -10,11 +10,11 @@ const WriteButton = ({ label, onPress }: WriteButtonProps) => {
   return (
     <Pressable
       onPress={onPress}
-      className="flex-row items-center gap-1 rounded-xl px-9 py-3"
-      style={{ backgroundColor: '#FFD86F' }}
+      android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
+      className="flex-row items-center gap-1 rounded-xl bg-yellow-200 px-9 py-2"
     >
-      <Icon name="IcEdit" size={20} fill="#1F2A3C" />
-      <Text className="body1 leading-[1.6]" style={{ color: '#1F2A3C' }}>{label}</Text>
+      <Icon name="IcEdit" size={24} color="#121826" />
+      <Text className="body1 !leading-[1.6] text-bg">{label}</Text>
     </Pressable>
   );
 };

@@ -4,11 +4,14 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { LetterStackParamList } from 'src/types/navigation';
 import * as ImagePicker from 'expo-image-picker';
-import { fetchLetterById, createLetter, updateLetter } from '@/services/letters';
+import { useLetterDetail } from '@/hooks/queries/useLetterDetail';
+import { useCreateLetter } from '@/hooks/mutations/useCreateLetter';
+import { useUpdateLetter } from '@/hooks/mutations/useUpdateLetter';
 import Icon from '@common/Icon';
 import { useAuth } from '@/provider/AuthProvider';
+import { useToast } from '@/provider/ToastProvider';
 import { setHeaderExtras } from '@/types/Header';
-import CustomSwitch from '@common/CustomSwitch';
+import ToggleCard from '@common/ToggleCard';
 
 const LetterWriteScreen = () => {
   const [focused, setFocused] = useState(false);
@@ -17,26 +20,25 @@ const LetterWriteScreen = () => {
   const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const { user } = useAuth();
+  const { showToast } = useToast();
   const navigation = useNavigation<StackNavigationProp<LetterStackParamList>>();
   const route = useRoute<any>();
   const editingId = route?.params?.id ?? null;
 
+  const { data: editingLetter } = useLetterDetail(editingId);
+  const { mutateAsync: createLetterAsync } = useCreateLetter();
+  const { mutateAsync: updateLetterAsync } = useUpdateLetter();
+
+  // 편집 모드일 때 데이터 설정
   useEffect(() => {
-    if (!editingId) return;
-    (async () => {
-      try {
-        const res = await fetchLetterById(editingId);
-        const data = (res as any)?.data ?? res;
-        setLetter(data?.content ?? '');
-        setIsPublic(data?.isPublic ?? true);
-        const photo = data?.photoUrl ?? null;
-        setImageUri(photo);
-        setOriginalHasPhoto(!!photo);
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-  }, [editingId]);
+    if (editingLetter) {
+      setLetter(editingLetter.content ?? '');
+      setIsPublic(editingLetter.isPublic ?? true);
+      const photo = editingLetter.photoUrl ?? null;
+      setImageUri(photo);
+      setOriginalHasPhoto(!!photo);
+    }
+  }, [editingLetter]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -55,16 +57,19 @@ const LetterWriteScreen = () => {
 
       if (editingId) {
         const willRemoveImage = originalHasPhoto && normalizedImageUri === null;
-        await updateLetter(editingId, {
-          content: letter,
-          isPublic,
-          image: normalizedImageUri
-            ? { uri: normalizedImageUri, name: 'photo.jpg', type: 'image/jpeg' }
-            : undefined,
-          removeImage: !!willRemoveImage,
+        await updateLetterAsync({
+          letterId: editingId,
+          params: {
+            content: letter,
+            isPublic,
+            image: normalizedImageUri
+              ? { uri: normalizedImageUri, name: 'photo.jpg', type: 'image/jpeg' }
+              : undefined,
+            removeImage: !!willRemoveImage,
+          },
         });
       } else {
-        await createLetter({
+        await createLetterAsync({
           content: letter,
           isPublic,
           image: normalizedImageUri
@@ -73,15 +78,13 @@ const LetterWriteScreen = () => {
         });
       }
 
-      Alert.alert('저장 완료', '편지가 서버에 저장되었습니다.', [
-        { text: '확인', onPress: () => navigation.navigate('LetterScreen') },
-      ]);
+      showToast('편지가 서버에 저장되었습니다.', 'success');
       console.log('편지 저장 완료');
       setLetter('');
       setImageUri(null);
-      setHasSubmitted(true); // 첫 성공 후 영구 비활성
+      setHasSubmitted(true);
+      navigation.navigate('LetterScreen');
     } catch (error) {
-      Alert.alert('저장 실패', '서버에 저장하는 중 오류가 발생했습니다.');
       console.error('편지 저장 실패:', error);
     } finally {
       setIsSaving(false);
@@ -96,6 +99,7 @@ const LetterWriteScreen = () => {
     originalHasPhoto,
     isSaving,
     hasSubmitted,
+    showToast,
   ]);
 
   // 헤더 구성 (완료 버튼)
@@ -199,19 +203,13 @@ const LetterWriteScreen = () => {
           </View>
         </View>
 
-        {/* 안내 문구 */}
-        <View className="items-center gap-4">
-          <Text className="subHeading3 text-white">{`글을 함께 보며 위로의 별을 주고받아보세요`}</Text>
-
-          {/* 공개 토글 카드 */}
-          <View className="w-full flex-row items-center justify-between rounded-[20px] bg-bg-light px-8 py-5">
-            <View>
-              <Text className="captionSB text-white">{`이 글을 전체공개 하면`}</Text>
-              <Text className="body1 !leading-6 text-white">{`위로의 별을 받을 수 있어요.`}</Text>
-            </View>
-            <CustomSwitch value={isPublic} onValueChange={setIsPublic} />
-          </View>
-        </View>
+        <ToggleCard
+          value={isPublic}
+          onChange={setIsPublic}
+          label="글을 함께 보며 위로의 별을 주고받아보세요"
+          smallText="이 글을 전체공개 하면"
+          mainText="위로의 별을 받을 수 있어요"
+        />
       </View>
     </ScrollView>
   );

@@ -5,6 +5,7 @@ import { queryClient } from './queryClient';
 import { AuthProvider } from './AuthProvider';
 import { NotifyProvider } from './NotifyProvider';
 import { TributeProvider } from './TributeProvider';
+import { ToastProvider } from './ToastProvider';
 
 const AppProvider = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -12,7 +13,9 @@ const AppProvider = ({ children }: { children: React.ReactNode }) => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <NotifyProvider>
-            <TributeProvider>{children}</TributeProvider>
+            <TributeProvider>
+              <ToastProvider>{children}</ToastProvider>
+            </TributeProvider>
           </NotifyProvider>
         </AuthProvider>
       </QueryClientProvider>

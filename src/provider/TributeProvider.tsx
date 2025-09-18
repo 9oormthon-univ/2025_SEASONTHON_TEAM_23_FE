@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   fetchTributes as apiFetchTributes, // GET /letters/{letterId}/tributes — swagger
-  createTribute,                    // POST /letters/{letterId}/tributes — swagger
-  deleteTributeById,                // DELETE /tributes/{tributeId} — swagger
+  createTribute, // POST /letters/{letterId}/tributes — swagger
+  deleteTributeById, // DELETE /tributes/{tributeId} — swagger
 } from '@/services/letters';
 
 interface TributeContextType {
@@ -15,6 +16,23 @@ const TributeContext = createContext<TributeContextType | undefined>(undefined);
 
 export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tributedIds, setTributedIds] = useState<Set<string>>(new Set());
+  const qc = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: (letterId: string | number) => createTribute(letterId),
+    onSuccess: (_data, letterId) => {
+      qc.invalidateQueries({ queryKey: ['letter-tributes', String(letterId)] });
+      qc.invalidateQueries({ queryKey: ['letter-detail', letterId] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (tributeId: string | number) => deleteTributeById(tributeId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['letter-tributes'] });
+      qc.invalidateQueries({ queryKey: ['letter-detail'] });
+    },
+  });
 
   const fetchTributes = useCallback(async (_currentUserId?: number) => {
     // Backend removed /tributes/messages; no server-side list available.
@@ -25,8 +43,13 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const toggleTribute = useCallback(
     async (letterId: string, userId: number, _messageKey?: string) => {
       try {
-        // Query server for existing tributes on this letter
-        const list = await apiFetchTributes(String(letterId));
+        // 캐시된 데이터 먼저 확인
+        let list = qc.getQueryData(['letter-tributes', letterId]);
+        if (!list) {
+          // 캐시 없으면 직접 호출
+          list = await apiFetchTributes(String(letterId));
+          qc.setQueryData(['letter-tributes', letterId], list);
+        }
         const arr = (list as any)?.data ?? list ?? [];
         const mine = Array.isArray(arr)
           ? arr.find((t: any) => String(t?.fromUserId ?? t?.userId) === String(userId))
@@ -34,10 +57,10 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         if (mine?.id != null) {
           // If server already has my tribute, delete it
-          await deleteTributeById(mine.id);
+          await deleteMutation.mutateAsync(mine.id);
         } else {
           // Otherwise create tribute (no body)
-          await createTribute(String(letterId));
+          await createMutation.mutateAsync(letterId);
         }
 
         // Update local state after confirmed server success
@@ -51,11 +74,11 @@ export const TributeProvider: React.FC<{ children: React.ReactNode }> = ({ child
           return next;
         });
       } catch (e: any) {
-    // On failure, keep existing state; surface errors upstream if needed
-    return;
+        // On failure, keep existing state; surface errors upstream if needed
+        return;
       }
     },
-  []
+    [qc]
   );
 
   return (

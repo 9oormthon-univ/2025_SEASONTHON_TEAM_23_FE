@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { View, Text, FlatList, Pressable, Image, Platform } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -6,7 +6,7 @@ import type { LetterStackParamList } from '@/types/navigation';
 import { useAuth } from '@/provider/AuthProvider';
 import { useTribute } from '@/provider/TributeProvider';
 
-import { fetchLetters } from '@/services/letters';
+import { useLetters } from '@/hooks/queries/useLetters';
 import Loader from '../common/Loader';
 import Icon from '@common/Icon';
 import { formatRelativeKo } from '@/utils/formatDate';
@@ -15,59 +15,18 @@ type NavProp = NativeStackNavigationProp<LetterStackParamList>;
 
 const LetterFeed: React.FC = () => {
   const navigation = useNavigation<NavProp>();
-  const [letters, setLetters] = useState<any[]>([]);
   const { fetchTributes } = useTribute();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
-  // 타임아웃 헬퍼: 주어진 Promise에 ms 밀리초 이후 타임아웃 적용
-  const withTimeout = useCallback(<T,>(p: Promise<T>, ms = 3000) => {
-    return new Promise<T>((resolve, reject) => {
-      const id = setTimeout(() => {
-        reject(new Error('timeout'));
-      }, ms);
-      p.then((res) => {
-        clearTimeout(id);
-        resolve(res);
-      }).catch((err) => {
-        clearTimeout(id);
-        reject(err);
-      });
-    });
-  }, []);
-
-  // 실제 데이터 로드 함수 (타임아웃 적용)
-  const loadLetters = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await withTimeout(fetchLetters(), 3000);
-      const lettersData = (res as any)?.data ?? res;
-      const arr = Array.isArray(lettersData) ? lettersData : (lettersData?.content ?? []);
-      const visible = arr.filter((l: any) => l.isPublic === true);
-      setLetters(visible);
-    } catch (e: any) {
-      if (e?.message === 'timeout') {
-        setError('요청이 너무 오래 걸립니다. 잠시 후 다시 시도하세요.');
-      } else {
-        setError('편지 데이터를 불러오지 못했습니다.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchLetters, withTimeout]);
-
-  // 처음에 받아오는 편지
-  useEffect(() => {
-    void loadLetters();
-  }, [loadLetters]);
+  const { data: lettersData, isLoading, error, refetch } = useLetters();
+  const letters = lettersData?.data ?? lettersData ?? [];
+  const visibleLetters = letters.filter((l: any) => l.isPublic === true);
 
   // 상세에서 돌아올때 새로고침 (refetch)
   useFocusEffect(
     useCallback(() => {
-      void loadLetters();
-    }, [loadLetters])
+      void refetch();
+    }, [refetch])
   );
 
   // 헌화 상태를 Provider에서 동기화
@@ -79,15 +38,15 @@ const LetterFeed: React.FC = () => {
 
   return (
     <View className="flex-1 gap-1">
-      {loading ? (
+      {isLoading ? (
         <Loader />
       ) : error ? (
         <View className="flex-1 items-center justify-center p-7">
-          <Text className="body1 pb-4 text-error">{error}</Text>
+          <Text className="body1 pb-4 text-error">{String(error)}</Text>
         </View>
       ) : (
         <FlatList
-          data={letters}
+          data={visibleLetters}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={({ item }) => {
             const authorObj = item.author ?? item.user ?? null;
@@ -113,57 +72,50 @@ const LetterFeed: React.FC = () => {
               <Pressable
                 className="rounded-[20px] bg-bg-light px-6 py-4"
                 onPress={() => navigation.navigate('LetterDetail', { id: String(item.id) })}
+                android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
               >
-                {photoUri ? (
-                  <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
-                    <Image
-                      source={{ uri: String(photoUri) }}
-                      style={{
-                        width: 84,
-                        height: 84,
-                        borderRadius: 12,
-                        backgroundColor: '#1F2A3C',
-                      }}
-                      resizeMode="cover"
-                    />
-                    <Text
-                      className="body1 !leading-6"
-                      style={{ color: '#F2F2F2', flex: 1 }}
-                      numberOfLines={6}
-                    >
+                <View className="gap-2">
+                  <View className="flex-row gap-2">
+                    {photoUri && (
+                      <Image
+                        source={{ uri: String(photoUri) }}
+                        className="h-20 w-20 rounded-xl bg-[#464646]"
+                        resizeMode="cover"
+                      />
+                    )}
+                    <Text className="body1 py-2 !leading-6 text-white" numberOfLines={6}>
                       {item.content}
                     </Text>
                   </View>
-                ) : (
-                  <Text className="body1 !leading-6" style={{ color: '#F2F2F2' }}>
-                    {item.content}
-                  </Text>
-                )}
-                <View className="mt-3 flex-row items-center justify-between">
-                  <Text style={{ color: '#F2F2F2', fontSize: 12 }}>
-                    {display}
-                    {timeText ? ` · ${formatRelativeKo(timeText)}` : ''}
-                  </Text>
-                  <View className="flex-row items-center gap-1">
-                    {Platform.OS === 'ios' ? (
-                      <Image
-                        source={require('@images/mini-star.png')}
-                        style={{ width: 20, height: 20 }}
-                        resizeMode="contain"
-                      />
-                    ) : (
-                      <Icon name="IcStar" size={20} color="#F2F2F2" />
-                    )}
-                    <Text style={{ color: '#F2F2F2', fontSize: 14, fontWeight: '300' }}>
-                      {item.tributeCount ?? 0}
-                    </Text>
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center gap-1">
+                      <Text className="body3 text-gray-300">{display}</Text>
+                      <View className="h-0.5 w-0.5 rounded-full bg-gray-100" />
+                      <Text className="captionSB text-gray-100">
+                        {timeText ? `${formatRelativeKo(timeText)}` : ''}
+                      </Text>
+                    </View>
+                    <View className="min-w-14 flex-row items-center gap-1">
+                      {Platform.OS === 'ios' ? (
+                        <Image
+                          source={require('@images/mini-star.png')}
+                          style={{ width: 20, height: 20 }}
+                          resizeMode="contain"
+                        />
+                      ) : (
+                        <Icon name="IcStar" size={20} />
+                      )}
+                      <Text className="body3 flex-1 text-center text-gray-100">
+                        {item.tributeCount ?? 0}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </Pressable>
             );
           }}
           ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-          contentContainerStyle={{ paddingTop: 12, paddingBottom: 32 }}
+          contentContainerStyle={{ paddingTop: 8, paddingBottom: 32 }}
           ListEmptyComponent={<Text>편지가 없습니다.</Text>}
           // style 제거: 간격은 contentContainerStyle로 처리
         />
