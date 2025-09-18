@@ -106,6 +106,13 @@ const ProfileScreen = () => {
     ? (PROFILE_IMAGE_PRESETS[profileImageKey] ?? DefaultProfile)
     : DefaultProfile;
 
+  console.log(
+    'ProfileScreen - 프로필 이미지 키:',
+    profileImageKey,
+    '최종 이미지:',
+    finalProfileImage
+  );
+
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg py-2">
       <View className="gap-7 px-7">

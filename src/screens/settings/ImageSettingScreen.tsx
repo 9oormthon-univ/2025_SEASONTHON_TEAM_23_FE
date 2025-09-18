@@ -16,38 +16,55 @@ import ScreenHeader from '@/components/settings/ScreenHeader';
 const ImageSettingScreen = () => {
   const { profileImageKey, setProfileImageKey } = useAuth();
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
-  const initialIndex = profileImageKey ? PROFILE_IMAGE_ORDER.indexOf(profileImageKey as any) : 0;
+  const initialIndex = profileImageKey
+    ? PROFILE_IMAGE_ORDER.indexOf(profileImageKey as ProfileImageKey)
+    : -1;
   const [selectedIndex, setSelectedIndex] = useState<number | null>(
-    initialIndex >= 0 ? initialIndex : 0
+    initialIndex >= 0 ? initialIndex : null
   );
 
   useEffect(() => {
     if (profileImageKey) {
       const i = PROFILE_IMAGE_ORDER.indexOf(profileImageKey as ProfileImageKey);
       if (i >= 0) setSelectedIndex(i);
+    } else {
+      setSelectedIndex(null);
     }
   }, [profileImageKey]);
 
   useLayoutEffect(() => {
+    console.log('ImageSettingScreen - 헤더 설정:', {
+      selectedIndex,
+      disabled: selectedIndex === null,
+    });
     setHeaderExtras(navigation, {
       hasBack: true,
       bgColor: '#121826',
       hasButton: true,
       label: '저장',
       onBack: () => {
-        if (navigation.canGoBack()) navigation.goBack();
-        navigation.replace('Setting');
+        console.log('뒤로가기 버튼 클릭됨');
+        if (navigation.canGoBack()) {
+          navigation.goBack();
+        } else {
+          navigation.replace('Setting');
+        }
       },
       onPress: () => {
-        if (selectedIndex === null) return;
+        console.log('저장 버튼 클릭됨, selectedIndex:', selectedIndex);
+        if (selectedIndex === null) {
+          console.log('selectedIndex가 null이므로 저장 취소');
+          return;
+        }
         const key = PROFILE_IMAGE_ORDER[selectedIndex];
+        console.log('프로필 이미지 변경 시도:', { selectedIndex, key });
         setProfileImageKey(key);
-        console.log('로컬 프로필 이미지 키 저장:', key);
+        console.log('로컬 프로필 이미지 키 저장 완료:', key);
         navigation.goBack();
       },
       disabled: selectedIndex === null,
     });
-  }, [navigation]);
+  }, [navigation, selectedIndex]);
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
