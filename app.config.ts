@@ -6,6 +6,9 @@ export default {
     slug: 'PetFarewell',
     scheme: 'petfarewell',
     version: '1.0.0',
+    updates: {
+      url: 'https://u.expo.dev/a2951c35-3011-49d9-a5c1-a4b9d04d8ae6',
+    },
     orientation: 'portrait',
     icon: './assets/images/icon.png',
     userInterfaceStyle: 'light',
@@ -18,7 +21,7 @@ export default {
     ios: {
       supportsTablet: true,
       runtimeVersion: {
-        policy: 'appVersion',
+        policy: '1.0.0',
       },
       bundleIdentifier: 'org.name.PetFarewell',
     },
