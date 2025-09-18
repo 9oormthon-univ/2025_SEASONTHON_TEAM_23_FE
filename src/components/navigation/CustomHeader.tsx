@@ -1,0 +1,47 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Pressable, Text, View } from 'react-native';
+import type { HeaderProps } from '@/types/Header';
+import Icon from '@common/Icon';
+import SaveButton from '@common/SaveButton';
+
+const CustomHeader = ({
+  hasBack,
+  hasLogo,
+  bgColor = '#2D3342',
+  icon,
+  iconSize = 32,
+  iconColor = 'white',
+  hasButton,
+  label,
+  title,
+  onBack,
+  onPress,
+  isLoading,
+  disabled,
+}: HeaderProps) => {
+  return (
+    <SafeAreaView edges={['top']} style={{ backgroundColor: bgColor }}>
+      <View className="h-[60px] flex-row items-center justify-between px-7 py-4">
+        <View className="flex-row items-center gap-5">
+          {hasBack && (
+            <Pressable onPress={onBack}>
+              <Icon name="IcBack" size={28} color={'white'} />
+            </Pressable>
+          )}
+          {hasLogo && <Icon name="IcBrandLogo" width={74} height={28} />}
+          {title && <Text className="subHeading2B justify-center text-white">{title}</Text>}
+        </View>
+        {hasButton &&
+          (icon ? (
+            <Pressable onPress={onPress} disabled={disabled}>
+              <Icon name={icon} size={iconSize} color={iconColor} />
+            </Pressable>
+          ) : (
+            <SaveButton label={label} onPress={onPress} isLoading={isLoading} disabled={disabled} />
+          ))}
+      </View>
+    </SafeAreaView>
+  );
+};
+
+export default CustomHeader;

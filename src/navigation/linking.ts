@@ -5,7 +5,7 @@ import { type RootStackParamList } from '@/types/navigation';
 const prefix = Linking.createURL('/');
 
 export const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: [prefix, 'parewell://', 'https://parewell.app'],
+  prefixes: [prefix, 'petfarewell://', 'https://petfarewell.site'],
   config: {
     screens: {
       Tabs: {
@@ -13,7 +13,6 @@ export const linking: LinkingOptions<RootStackParamList> = {
           Home: '',
           Diary: 'diary',
           Letter: 'letter',
-          Counseling: 'counseling',
         },
       },
     },

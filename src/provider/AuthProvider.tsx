@@ -1,23 +1,27 @@
 import React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '@/services/axiosInstance';
 import { tokenStore } from '@/services/auth/tokenStore';
-import type { User } from '@/types/auth';
+import type { AuthMeResponse } from '@/types/auth';
+import { signInWithKakao, signOutAll, deleteAccount } from '@/services/auth/kakao';
 
 type AuthContextValue = {
-  user: User | null;
-  setUser: (user: User) => void;
+  user: AuthMeResponse | null;
   loading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
-  unlink: () => Promise<void>;
+  withdraw: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  profileImageKey: string | null;
+  setProfileImageKey: (key: string | null) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthMeResponse | null>(null);
+  const [profileImageKey, setProfileImageKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshUser = async () => {
@@ -30,17 +34,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const login = async () => {
-    console.log('로그인 요청');
+    await signInWithKakao();
     await refreshUser();
   };
 
   const logout = async () => {
-    console.log('로그아웃 요청');
+    await signOutAll();
     setUser(null);
   };
 
-  const unlink = async () => {
-    console.log('회원탈퇴 요청');
+  const withdraw = async () => {
+    await deleteAccount();
     setUser(null);
   };
 
@@ -48,12 +52,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     (async () => {
       await tokenStore.loadPair();
       await refreshUser();
+      try {
+        const savedKey = await AsyncStorage.getItem('profileImageKey');
+        console.log('AsyncStorage에서 프로필 이미지 키 로드:', savedKey);
+        if (savedKey) setProfileImageKey(savedKey);
+      } catch (e) {
+        console.warn('프로필 이미지 키 로드 실패', e);
+      }
       setLoading(false);
     })();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        if (profileImageKey) {
+          await AsyncStorage.setItem('profileImageKey', profileImageKey);
+          console.log('AsyncStorage에 프로필 이미지 키 저장:', profileImageKey);
+        } else {
+          await AsyncStorage.removeItem('profileImageKey');
+          console.log('AsyncStorage에서 프로필 이미지 키 제거');
+        }
+      } catch (e) {
+        console.warn('프로필 이미지 키 저장 실패', e);
+      }
+    })();
+  }, [profileImageKey]);
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, login, logout, unlink, refreshUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        logout,
+        withdraw,
+        refreshUser,
+        profileImageKey,
+        setProfileImageKey,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

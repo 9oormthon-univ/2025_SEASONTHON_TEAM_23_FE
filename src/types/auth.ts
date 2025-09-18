@@ -1,11 +1,18 @@
 export type AppTokens = {
   accessToken: string;
   refreshToken: string;
-  accessTokenExpiresAt?: number;
 };
 
 export type User = {
-  email: string;
-  nickname?: string;
+  id: number;
+  nickname: string;
   profileImageUrl?: string;
 };
+
+export type AuthMeResponse = {
+  userId: number;
+  nickname: string;
+  profileImageUrl?: string;
+};
+
+export type AuthResponse = AppTokens & { user: User };

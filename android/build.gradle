@@ -28,6 +28,9 @@ allprojects {
       url(reactNativeAndroidDir)
     }
 
+    maven { url "$rootDir/../node_modules/@notifee/react-native/android/libs"}
+    maven { url "https://notifee.github.io/maven" }
+
     google()
     mavenCentral()
     maven { url 'https://www.jitpack.io' }

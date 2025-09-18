@@ -1,13 +1,22 @@
 import { View, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const Loader = () => {
+type LoaderProps = {
+  isPageLoader?: boolean;
+  size?: 'small' | 'large';
+  color?: string;
+};
+
+const Loader = ({ isPageLoader = false, size = 'large', color = '#FFD86F' }: LoaderProps) => {
   return (
-    <View
-      className="absolute bottom-0 left-0 right-0 top-0 justify-center bg-black/15"
-      pointerEvents="auto"
+    <SafeAreaView
+      edges={isPageLoader ? ['top'] : []}
+      className={`absolute bottom-0 left-0 right-0 ${isPageLoader ? 'top-[80px] bg-bg' : 'top-0 bg-bg/30'} z-10 justify-center`}
     >
-      <ActivityIndicator size="large" />
-    </View>
+      <View pointerEvents="auto">
+        <ActivityIndicator size={size} color={color} />
+      </View>
+    </SafeAreaView>
   );
 };
 

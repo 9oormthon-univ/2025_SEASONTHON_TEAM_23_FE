@@ -1,0 +1,218 @@
+import { useState, useEffect, useLayoutEffect, useCallback } from 'react';
+import { View, TextInput, Alert, Image, Text, Pressable, ScrollView, Platform } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import type { LetterStackParamList } from 'src/types/navigation';
+import * as ImagePicker from 'expo-image-picker';
+import { useLetterDetail } from '@/hooks/queries/useLetterDetail';
+import { useCreateLetter } from '@/hooks/mutations/useCreateLetter';
+import { useUpdateLetter } from '@/hooks/mutations/useUpdateLetter';
+import Icon from '@common/Icon';
+import { useAuth } from '@/provider/AuthProvider';
+import { useToast } from '@/provider/ToastProvider';
+import { setHeaderExtras } from '@/types/Header';
+import ToggleCard from '@common/ToggleCard';
+
+const LetterWriteScreen = () => {
+  const [focused, setFocused] = useState(false);
+  const [letter, setLetter] = useState('');
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [originalHasPhoto, setOriginalHasPhoto] = useState<boolean | null>(null);
+  const [isPublic, setIsPublic] = useState<boolean>(true);
+  const { user } = useAuth();
+  const { showToast } = useToast();
+  const navigation = useNavigation<StackNavigationProp<LetterStackParamList>>();
+  const route = useRoute<any>();
+  const editingId = route?.params?.id ?? null;
+
+  const { data: editingLetter } = useLetterDetail(editingId);
+  const { mutateAsync: createLetterAsync } = useCreateLetter();
+  const { mutateAsync: updateLetterAsync } = useUpdateLetter();
+
+  // 편집 모드일 때 데이터 설정
+  useEffect(() => {
+    if (editingLetter) {
+      setLetter(editingLetter.content ?? '');
+      setIsPublic(editingLetter.isPublic ?? true);
+      const photo = editingLetter.photoUrl ?? null;
+      setImageUri(photo);
+      setOriginalHasPhoto(!!photo);
+    }
+  }, [editingLetter]);
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const handleSave = useCallback(async () => {
+    if (isSaving || hasSubmitted) return;
+    try {
+      setIsSaving(true);
+      const normalizedImageUri = imageUri && imageUri !== '' ? imageUri : null;
+
+      const userId = (user as any)?.id ?? (user as any)?.userId;
+      if (!userId) {
+        Alert.alert('사용자 정보를 불러오지 못했습니다. 편지를 저장할 수 없습니다.');
+        console.error('유저 아이디 없음');
+        return;
+      }
+
+      if (editingId) {
+        const willRemoveImage = originalHasPhoto && normalizedImageUri === null;
+        await updateLetterAsync({
+          letterId: editingId,
+          params: {
+            content: letter,
+            isPublic,
+            image: normalizedImageUri
+              ? { uri: normalizedImageUri, name: 'photo.jpg', type: 'image/jpeg' }
+              : undefined,
+            removeImage: !!willRemoveImage,
+          },
+        });
+      } else {
+        await createLetterAsync({
+          content: letter,
+          isPublic,
+          image: normalizedImageUri
+            ? { uri: normalizedImageUri, name: 'photo.jpg', type: 'image/jpeg' }
+            : undefined,
+        });
+      }
+
+      showToast('편지가 서버에 저장되었습니다.', 'success');
+      console.log('편지 저장 완료');
+      setLetter('');
+      setImageUri(null);
+      setHasSubmitted(true);
+      navigation.navigate('LetterScreen');
+    } catch (error) {
+      console.error('편지 저장 실패:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [
+    imageUri,
+    letter,
+    isPublic,
+    editingId,
+    user,
+    navigation,
+    originalHasPhoto,
+    isSaving,
+    hasSubmitted,
+    showToast,
+  ]);
+
+  // 헤더 구성 (완료 버튼)
+  useLayoutEffect(() => {
+    setHeaderExtras(navigation, {
+      title: '기억의 별자리',
+      disabled: !letter.trim() || isSaving || hasSubmitted,
+      hasBack: true,
+      hasButton: true,
+      onBack: () => navigation.goBack(),
+      onPress: handleSave,
+    });
+  }, [navigation, handleSave, letter, isSaving, hasSubmitted, editingId]);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 1,
+      allowsMultipleSelection: false,
+      selectionLimit: 1,
+    });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+  return (
+    <ScrollView className="flex=-1 bg-bg" keyboardShouldPersistTaps="handled">
+      <View className="gap-5 px-7 pb-14 pt-10">
+        <View className="gap-4">
+          <View className="items-center gap-6">
+            <View className="items-center gap-2">
+              {Platform.OS === 'ios' ? (
+                <Image
+                  source={require('@images/star-sky.png')}
+                  style={{ width: 56 * (124 / 88), height: 56 }}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Icon name="IcStarSky" width={123} height={88} />
+              )}
+            </View>
+            <Text className="subHeading3 text-white">
+              {`사랑하는 반려동물과의 소중한 추억을 함께 나눠요`}
+            </Text>
+          </View>
+
+          <View className="gap-2">
+            {/* 입력 카드 */}
+            <View
+              className={`${focused ? 'border-gray-200' : 'border-gray-600'} rounded-[20px] border p-5`}
+            >
+              <TextInput
+                className="body1 min-h-[160px] !leading-5 text-white"
+                multiline
+                placeholder="텍스트를 입력해주세요."
+                placeholderTextColor="#9D9D9D"
+                value={letter}
+                maxLength={100}
+                onChangeText={setLetter}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                textAlignVertical="top"
+              />
+              <View className="absolute bottom-5 left-5">
+                {imageUri && (
+                  <View className="relative bottom-3 w-[80px]">
+                    <Image
+                      source={{ uri: imageUri }}
+                      className="h-[80px] w-[80px] rounded-xl border border-yellow-200 bg-[#464646]"
+                      resizeMode="cover"
+                    />
+                    <Pressable
+                      onPress={() => setImageUri(null)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      className="absolute right-1 top-1"
+                    >
+                      <Icon name="IcClose" size={20} />
+                    </Pressable>
+                  </View>
+                )}
+              </View>
+              <Text className="captionSB absolute bottom-5 right-5 text-gray-500">{`${letter.length} / 최대 100자`}</Text>
+            </View>
+
+            {/* 사진 첨부 버튼 */}
+            <View className="items-end">
+              <Pressable
+                disabled={!!imageUri}
+                onPress={pickImage}
+                className={`flex-row items-center gap-1 rounded-xl border px-4 py-2 ${imageUri ? 'border-gray-600 bg-gray-800' : 'border-yellow-200'}`}
+              >
+                <Icon name="IcPic" size={20} color={imageUri ? '#808080' : '#FFD86F'} />
+                <Text
+                  className={`body1 !leading-6  ${imageUri ? 'text-gray-600' : 'text-yellow-200'}`}
+                >
+                  {`사진 첨부`}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+
+        <ToggleCard
+          value={isPublic}
+          onChange={setIsPublic}
+          label="글을 함께 보며 위로의 별을 주고받아보세요"
+          smallText="이 글을 전체공개 하면"
+          mainText="위로의 별을 받을 수 있어요"
+        />
+      </View>
+    </ScrollView>
+  );
+};
+
+export default LetterWriteScreen;

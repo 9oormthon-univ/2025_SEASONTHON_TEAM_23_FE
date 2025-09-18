@@ -1,6 +1,4 @@
 <resources>
   <string name="app_name">PetFarewell</string>
-  <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
-  <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
-  <string name="kakao_app_key">4d5a023571508cc9cb93f870bb0a9084</string>
+  <string name="expo_runtime_version">1.0.0</string>
 </resources>
