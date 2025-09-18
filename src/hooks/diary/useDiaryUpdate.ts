@@ -2,6 +2,7 @@
 import { useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useUpdateDailyLog } from '@/hooks/mutations/useUpdateDailyLog';
+import { useToast } from '@/provider/ToastProvider';
 import { emojiKeyToMood } from '@/utils/calendar/mood';
 import type { EmojiKey } from '@/constants/diary/emoji';
 
@@ -23,6 +24,7 @@ export const useDiaryUpdate = ({
   onSuccess,
 }: UseDiaryUpdateOptions) => {
   const { mutateAsync, isPending } = useUpdateDailyLog();
+  const { showToast } = useToast();
 
   const submit = useCallback(async () => {
     try {
@@ -50,7 +52,7 @@ export const useDiaryUpdate = ({
         },
       });
 
-      Alert.alert('완료', '수정되었습니다.');
+      showToast('일기가 수정되었어요 .', 'info');
       onSuccess?.();
     } catch (e: any) {
       const msg =
@@ -59,7 +61,7 @@ export const useDiaryUpdate = ({
         '일기 수정에 실패했어요. 잠시 후 다시 시도해 주세요.';
       Alert.alert('오류', msg);
     }
-  }, [userId, logId, selectedEmoji, content, needAiReflection, mutateAsync, onSuccess]);
+  }, [userId, logId, selectedEmoji, content, needAiReflection, mutateAsync, onSuccess, showToast]);
 
   return { submit, isSubmitting: isPending };
 };

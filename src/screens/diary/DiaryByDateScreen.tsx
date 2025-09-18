@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Alert, Image, Platform } from 'react-native';
+import { View, Text, ScrollView, Pressable, Image, Platform } from 'react-native';
 import { ACTIVE_UI, EMOJIS } from '@/constants/diary/emoji';
 import Icon from '@common/Icon';
 import TextArea from '@common/TextArea';
@@ -15,6 +15,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DropDownMenu from '@common/DropDownMenu';
 import ConfirmDeleteModal from '@common/ConfirmDeleteModal';
 import { useDeleteDailyLog } from '@/hooks/mutations/useDeleteDailyLog';
+import { useToast } from '@/provider/ToastProvider';
 
 type DiaryByDateRoute = RouteProp<DiaryStackParamList, 'DiaryByDate'>;
 
@@ -30,6 +31,7 @@ const DiaryByDateScreen = () => {
   const closeMenu = useCallback(() => setMenuVisible(false), []);
 
   const { mutateAsync: deleteLog, isPending: deleting } = useDeleteDailyLog(logId);
+  const { showToast } = useToast();
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
       title: '감정기록',
@@ -54,12 +56,12 @@ const DiaryByDateScreen = () => {
     try {
       await deleteLog(logId);
       setConfirmVisible(false);
-      Alert.alert('삭제 완료', '일기가 삭제되었습니다.');
+      showToast('일기를 삭제했어요.', 'info');
       navigation.goBack();
     } catch (e: any) {
       const msg =
         e?.response?.data?.message ?? e?.message ?? '삭제에 실패했어요. 잠시 후 다시 시도해주세요.';
-      Alert.alert('오류', msg);
+      console.error(msg);
     }
   };
 
