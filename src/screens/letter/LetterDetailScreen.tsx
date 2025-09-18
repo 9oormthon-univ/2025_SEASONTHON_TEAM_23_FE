@@ -120,7 +120,7 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       if (!rawId) throw new Error('invalid_letter_id');
       await deleteLetterAsync(rawId);
       setConfirmVisible(false);
-      showToast('삭제가 완료되었어요', 'delete');
+      showToast('삭제가 완료되었어요', 'info');
       navigation.goBack();
     } catch (e) {
       Alert.alert('삭제 실패', '편지를 삭제하는 중 오류가 발생했습니다.');
