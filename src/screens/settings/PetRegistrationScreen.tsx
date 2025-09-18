@@ -9,10 +9,19 @@ import { showConflictAlert } from '@/utils/selectConflict';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ProfileStackParamList, RootStackParamList } from '@/types/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import type { Pet } from '@/types/pets';
 
 const PetRegistrationScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList & RootStackParamList>>();
+  const qc = useQueryClient();
+
+  const route = useRoute<any>();
+  const pet: Pet | undefined = route?.params?.pet; // 편집용 초기값
+  const isFromProfile = route.name === 'PetRegistrationInProfile';
+  const padding = isFromProfile ? 'pb-16 pt-10' : 'pb-[90px] pt-5';
+
   const {
     fields: { petName, selectSpecies, selectPersonality },
     setPetName,
@@ -22,18 +31,19 @@ const PetRegistrationScreen = () => {
     isPending,
     onSubmit,
   } = usePetRegistration({
-    onSuccessNav: () => {
-      if (navigation.canGoBack()) {
+    initialPet: pet,
+    onSuccessNav: async () => {
+      if (isFromProfile) {
+        // 설정에서 온 경우: 뒤로 가기
         navigation.goBack();
       } else {
-        navigation.reset({ index: 0, routes: [{ name: 'Tabs' as never }] });
+        // 루트(최초 등록) 플로우: Tabs는 아직 네비게이터에 없음
+        // -> myPets를 최신화해 needsPet=false가 되면 RootNavigator가 Tabs로 재구성됨
+        await qc.invalidateQueries({ queryKey: ['myPets'] });
+        // 여기서 navigate/reset 하지 않음!
       }
     },
   });
-
-  const route = useRoute<any>();
-  const isFromProfile = route.name === 'PetRegistrationInProfile';
-  const padding = isFromProfile ? 'pb-16 pt-10' : 'pb-[90px] pt-5';
 
   return (
     <ScrollView className="bg-bg">
