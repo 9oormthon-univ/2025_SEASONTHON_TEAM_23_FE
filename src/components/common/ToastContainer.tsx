@@ -2,18 +2,33 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useToast } from '@/provider/ToastProvider';
 import Toast from '@/components/common/Toast';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ToastContainerProps {
-  position?: 'top' | 'bottom';
+  position?: 'top' | 'bottom' | 'above-tab';
 }
 
 const ToastContainer: React.FC<ToastContainerProps> = ({ position = 'bottom' }) => {
   const { toasts, hideToast } = useToast();
+  const insets = useSafeAreaInsets();
 
-  const containerStyle = [styles.container, position === 'top' ? styles.top : styles.bottom];
+  // 탭 바 높이 계산 (TabNavigator에서와 동일한 로직)
+  const tabBarHeight = 85 + Math.max(insets.bottom, 16);
+
+  const getContainerStyle = () => {
+    switch (position) {
+      case 'top':
+        return [styles.container, styles.top];
+      case 'above-tab':
+        return [styles.container, { bottom: tabBarHeight + 16 }]; // 탭 바 위 16px 여백
+      case 'bottom':
+      default:
+        return [styles.container, styles.bottom];
+    }
+  };
 
   return (
-    <View style={containerStyle}>
+    <View style={getContainerStyle()}>
       {toasts.map((toast) => (
         <Toast
           key={toast.id}
