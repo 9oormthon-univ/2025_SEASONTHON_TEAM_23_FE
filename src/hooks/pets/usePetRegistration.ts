@@ -1,22 +1,46 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
-import { useCreatePet } from '@/hooks/mutations/useCreatePet';
 import { buildCreatePetPayload } from '@/utils/payload';
+import type { Pet } from '@/types/pets';
+import { createPet, updatePet } from '@/services/pets';
 
 // 화면에서 SelectBox가 string | number를 줄 수 있으니 타입 유연하게
 type Value = string | number;
 
 type UsePetRegistrationOptions = {
   onSuccessNav?: () => void;
+  initialPet?: Pet | null;
 };
 
 export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
-  const [petName, setPetName] = useState('');
-  const [selectSpecies, setSelectSpecies] = useState<string[]>([]);
-  const [selectPersonality, setSelectPersonality] = useState<string[]>([]);
+  const { onSuccessNav, initialPet } = opts;
+  const [petName, setPetName] = useState(initialPet?.name ?? '');
+  const [selectSpecies, setSelectSpecies] = useState<string[]>(
+    initialPet?.breed ? [String(initialPet.breed)] : []
+  );
+  const [selectPersonality, setSelectPersonality] = useState<string[]>(
+    initialPet?.personality
+      ? String(initialPet.personality)
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : []
+  );
 
-  // 서버 요청 훅
-  const { mutate: registerPet, isPending } = useCreatePet();
+  // 초기값이 바뀌는 경우 대응
+  useEffect(() => {
+    if (!initialPet) return;
+    setPetName(initialPet.name ?? '');
+    setSelectSpecies(initialPet.breed ? [String(initialPet.breed)] : []);
+    setSelectPersonality(
+      initialPet.personality
+        ? String(initialPet.personality)
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : []
+    );
+  }, [initialPet?.id]);
 
   // 검증
   const canSubmit = useMemo(
@@ -24,7 +48,8 @@ export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
     [petName, selectSpecies, selectPersonality]
   );
 
-  const disabled = !canSubmit || isPending;
+  const [isSaving, setIsSaving] = useState(false);
+  const disabled = !canSubmit || isSaving;
 
   // SelectBox onChange 핸들러 (숫자여도 문자열로 정규화)
   const handleSpeciesChange = useCallback(
@@ -37,26 +62,44 @@ export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
   );
 
   // 제출
-  const onSubmit = useCallback(() => {
-    if (!canSubmit || isPending) return;
+  const onSubmit = useCallback(async () => {
+    if (!canSubmit || isSaving) return;
+    setIsSaving(true);
 
-    const payload = buildCreatePetPayload({
-      name: petName,
-      species: selectSpecies[0], // 단일 선택
-      personalities: selectPersonality, // 다중 선택
-    });
+    try {
+      // 편집 모드면 update, 아니면 create
+      if (initialPet?.id != null) {
+        await updatePet(initialPet.id, {
+          name: petName.trim(),
+          breed: String(selectSpecies[0]),
+          personality: selectPersonality.join(','),
+        });
+      } else {
+        const payload = buildCreatePetPayload({
+          name: petName,
+          species: selectSpecies[0],
+          personalities: selectPersonality,
+        });
+        await createPet(payload);
+      }
 
-    registerPet(payload, {
-      onSuccess: () => {
-        Alert.alert('등록 완료', '반려동물 등록이 완료되었습니다.', [
-          { text: '확인', onPress: () => opts.onSuccessNav?.() },
-        ]);
-      },
-      onError: () => {
-        Alert.alert('실패', '등록 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
-      },
-    });
-  }, [canSubmit, isPending, petName, selectSpecies, selectPersonality, registerPet, opts]);
+      Alert.alert('저장 완료', '반려동물 정보가 저장되었습니다.', [
+        { text: '확인', onPress: () => onSuccessNav?.() },
+      ]);
+    } catch (e) {
+      Alert.alert('실패', '저장 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [
+    canSubmit,
+    isSaving,
+    initialPet?.id,
+    petName,
+    selectSpecies,
+    selectPersonality,
+    onSuccessNav,
+  ]);
 
   return {
     fields: {
@@ -69,7 +112,7 @@ export const usePetRegistration = (opts: UsePetRegistrationOptions = {}) => {
     handlePersonalityChange,
     canSubmit,
     disabled,
-    isPending,
+    isPending: isSaving,
     onSubmit,
   };
 };
