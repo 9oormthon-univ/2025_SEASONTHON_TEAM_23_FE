@@ -8,7 +8,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg pt-5">
-      <View className="gap-16 px-7">
+      <View className="mt-5 gap-16 px-7">
         {/* 지난 달 통계 박스 */}
         <MonthlyStatsBox />
         {/* 닉네임 & 강아지 이미지 */}
