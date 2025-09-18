@@ -28,16 +28,6 @@
   <tbody>
     <tr>
       <td>
-        <a href="https://github.com/hayrin0603" target="_blank" rel="noreferrer">
-          <img src="https://github.com/hayrin0603.png?size=140" alt="@hayrin0603" />
-        </a>
-      </td>
-      <td>
-        <a href="https://github.com/huigyeong37" target="_blank" rel="noreferrer">
-          <img src="https://github.com/huigyeong37.png?size=140" alt="@huigyeong37" />
-        </a>
-      </td>
-      <td>
         <a href="https://github.com/hxrdtxlxvx" target="_blank" rel="noreferrer">
           <img src="https://github.com/hxrdtxlxvx.png?size=140" alt="@hxrdtxlxvx" />
         </a>
@@ -47,32 +37,14 @@
           <img src="https://github.com/cjiyun.png?size=140" alt="@cjiyun" />
         </a>
       </td>
-      <td>
-        <a href="https://github.com/minsubyun1" target="_blank" rel="noreferrer">
-          <img src="https://github.com/minsubyun1.png?size=140" alt="@minsubyun1" />
-        </a>
-      </td>
-      <td>
-        <a href="https://github.com/Eunbi-Choi" target="_blank" rel="noreferrer">
-          <img src="https://github.com/Eunbi-Choi.png?size=140" alt="@Eunbi-Choi" />
-        </a>
-      </td>
     </tr>
     <tr>
-      <td><a href="https://github.com/hayrin0603" target="_blank" rel="noreferrer">전혜린</a></td>
-      <td><a href="https://github.com/huigyeong37" target="_blank" rel="noreferrer">이희경</a></td>
       <td><a href="https://github.com/hxrdtxlxvx" target="_blank" rel="noreferrer">김민주</a></td>
       <td><a href="https://github.com/cjiyun" target="_blank" rel="noreferrer">최지윤</a></td>
-      <td><a href="https://github.com/minsubyun1" target="_blank" rel="noreferrer">윤민섭</a></td>
-      <td><a href="https://github.com/Eunbi-Choi" target="_blank" rel="noreferrer">최은비</a></td>
     </tr>
     <tr>
-      <td>기획</td>
-      <td>디자인</td>
       <td>FE</td>
       <td>FE</td>
-      <td>BE</td>
-      <td>BE</td>
     </tr>
   </tbody>
 </table>
@@ -100,14 +72,6 @@
         &nbsp;
         <img src="https://img.shields.io/badge/Tailwind%20CSS-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
       </td>
-    </tr>
-    <tr>
-      <td><strong>BE</strong></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><strong>디자인</strong></td>
-      <td></td>
     </tr>
   </tbody>
 </table>
