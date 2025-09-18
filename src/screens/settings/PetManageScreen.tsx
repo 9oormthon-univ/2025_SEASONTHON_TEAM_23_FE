@@ -14,11 +14,8 @@ import PetCard from '@/components/settings/PetCard';
 
 const PetManageScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
-  const [showEmptyModal, setShowEmptyModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { pets, loading, reload, onDelete } = usePetsList({
-    onEmpty: () => setShowEmptyModal(true), // 삭제 후 0마리 → 모달
-  });
+  const { pets, loading, reload, onDelete } = usePetsList();
 
   // 돌아왔을 때(포커스 재획득) 바로 최신 목록 반영
   useFocusEffect(
@@ -38,18 +35,7 @@ const PetManageScreen = () => {
     });
   }, [navigation]);
 
-  // 루트 스택의 등록 화면으로 이동 (폴백: 프로필 스택)
-  const goToRootRegistration = useCallback(() => {
-    setShowEmptyModal(false);
-
-    // 일반적으로: ProfileStack(parent) -> Tabs(parent) -> Root
-    const maybeRoot = navigation.getParent()?.getParent();
-    if (maybeRoot && typeof (maybeRoot as any).navigate === 'function') {
-      (maybeRoot as any).navigate('PetRegistration'); // RootNavigator에 등록된 이름
-      return;
-    }
-
-    // 폴백: 같은 스택의 등록 화면
+  const goToRegistration = useCallback(() => {
     navigation.navigate('PetRegistrationInProfile');
   }, [navigation]);
 
@@ -59,6 +45,38 @@ const PetManageScreen = () => {
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
+      {pets.length === 0 && (
+        <Modal
+          visible
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+          onRequestClose={() => {}}
+        >
+          <View className="flex-1 bg-black/50">
+            <View className="flex-1 items-center justify-center px-8">
+              <Pressable
+                onPress={(e) => e.stopPropagation()}
+                className="w-full gap-8 rounded-[20px] bg-bg-light px-7 py-10"
+              >
+                <View className="items-center gap-4">
+                  <Text className="subHeading2B text-white">알림</Text>
+                  <Text className="body1 text-center !leading-6 text-gray-200">
+                    {`등록된 반려동물이 없습니다.\n반려동물을 등록해주세요.`}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={goToRegistration}
+                  className="items-center justify-center rounded-xl bg-yellow-300 py-3"
+                  activeOpacity={0.8}
+                >
+                  <Text className="subHeading2B text-gray-900">확인</Text>
+                </TouchableOpacity>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+      )}
       <ScreenHeader title="반려동물 관리" />
       <View className="gap-7 pt-7">
         <View className="gap-5 px-7">
@@ -73,30 +91,11 @@ const PetManageScreen = () => {
             keyExtractor={(item) => String(item.id)}
             ItemSeparatorComponent={() => <View className="h-4" />}
             ListEmptyComponent={() => (
-              <Modal visible={showEmptyModal} transparent animationType="fade" statusBarTranslucent>
-                <Pressable className="flex-1 bg-black/60" onPress={() => setShowEmptyModal(false)}>
-                  <View className="flex-1 items-center justify-center px-8">
-                    <Pressable
-                      onPress={(e) => e.stopPropagation()}
-                      className="w-full gap-8 rounded-[20px] bg-bg-light px-7 py-10"
-                    >
-                      <View className="items-center gap-4">
-                        <Text className="subHeading2B text-white">알림</Text>
-                        <Text className="body1 text-center !leading-6 text-gray-200">
-                          {`등록된 반려동물이 없습니다.\n반려동물을 등록해주세요.`}
-                        </Text>
-                      </View>
-                      <TouchableOpacity
-                        onPress={goToRootRegistration}
-                        className="items-center justify-center rounded-xl bg-yellow-300 py-3"
-                        activeOpacity={0.8}
-                      >
-                        <Text className="subHeading2B text-gray-900">확인</Text>
-                      </TouchableOpacity>
-                    </Pressable>
-                  </View>
-                </Pressable>
-              </Modal>
+              <View className="items-center justify-center py-32">
+                <Text className="body1 text-center !leading-6 text-gray-200">
+                  {`등록된 반려동물이 없습니다. 반려동물을 등록해주세요.`}
+                </Text>
+              </View>
             )}
             renderItem={({ item }) => (
               <PetCard
