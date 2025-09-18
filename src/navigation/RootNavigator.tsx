@@ -45,7 +45,7 @@ const RootNavigator = ({ navigationRef }: RootNavigatorProps) => {
           <Stack.Screen
             name="PetRegistration"
             component={PetRegistrationScreen}
-            options={{ header: () => <CustomHeader hasLogo bgColor="#121826" /> }}
+            options={{ headerShown: false }}
           />
         ) : (
           <>
@@ -76,7 +76,7 @@ const RootNavigator = ({ navigationRef }: RootNavigatorProps) => {
             <Stack.Screen
               name="PetRegistration"
               component={PetRegistrationScreen}
-              options={{ header: () => <CustomHeader hasLogo bgColor="#121826" /> }}
+              options={{ headerShown: false }}
             />
           </>
         )}

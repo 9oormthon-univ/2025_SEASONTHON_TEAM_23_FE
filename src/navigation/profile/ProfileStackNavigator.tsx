@@ -58,9 +58,13 @@ const ProfileStackNavigator = () => {
         })}
       />
       <Stack.Screen name="Setting" component={SettingScreen} />
-      <Stack.Screen name="ImageSetting" component={ImageSettingScreen} options={({}) => ({})} />
+      <Stack.Screen name="ImageSetting" component={ImageSettingScreen} />
       <Stack.Screen name="PetManage" component={PetManageScreen} />
-      <Stack.Screen name="PetRegistrationInProfile" component={PetRegistrationScreen} />
+      <Stack.Screen
+        name="PetRegistrationInProfile"
+        component={PetRegistrationScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
