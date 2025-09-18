@@ -28,6 +28,15 @@ export const usePetsList = (opts: Options = {}) => {
 
   const onDelete = useCallback(
     async (pet: Pet) => {
+      // 1마리면 바로 차단 (서버 호출 X)
+      if (pets.length <= 1) {
+        Alert.alert(
+          '삭제 불가',
+          '등록된 반려동물이 1마리일 때는 삭제할 수 없어요. 새 반려동물을 추가한 뒤 다시 시도해 주세요.'
+        );
+        return;
+      }
+
       try {
         await deletePet(pet.id);
         setPets((prev) => {
@@ -42,7 +51,7 @@ export const usePetsList = (opts: Options = {}) => {
         throw e;
       }
     },
-    [onEmpty]
+    [pets, onEmpty]
   );
 
   return { pets, setPets, loading, reload, onDelete };

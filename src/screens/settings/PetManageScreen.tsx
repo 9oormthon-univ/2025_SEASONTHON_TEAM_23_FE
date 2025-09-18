@@ -1,4 +1,4 @@
-import { FlatList, Text, TouchableOpacity, View, Modal, Pressable } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Pet } from '@/types/pets';
 import Loader from '@common/Loader';
@@ -11,11 +11,15 @@ import type { ProfileStackParamList } from '@/types/navigation';
 import ScreenHeader from '@/components/settings/ScreenHeader';
 import Icon from '@common/Icon';
 import PetCard from '@/components/settings/PetCard';
+import { keepAllKorean } from '@/utils/keepAll';
 
 const PetManageScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const [isDeleting, setIsDeleting] = useState(false);
-  const { pets, loading, reload, onDelete } = usePetsList();
+  const [showDeleteBlocked, setShowDeleteBlocked] = useState(false);
+  const { pets, loading, reload, onDelete } = usePetsList({
+    onEmpty: () => navigation.navigate('PetRegistrationInProfile'),
+  });
 
   // 돌아왔을 때(포커스 재획득) 바로 최신 목록 반영
   useFocusEffect(
@@ -35,54 +39,54 @@ const PetManageScreen = () => {
     });
   }, [navigation]);
 
-  const goToRegistration = useCallback(() => {
-    navigation.navigate('PetRegistrationInProfile');
-  }, [navigation]);
-
   if (loading) {
     return <Loader isPageLoader />;
   }
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
-      {pets.length === 0 && (
-        <Modal
-          visible
-          transparent
-          animationType="fade"
-          statusBarTranslucent
-          onRequestClose={() => {}}
-        >
-          <View className="flex-1 bg-black/50">
-            <View className="flex-1 items-center justify-center px-8">
-              <Pressable
-                onPress={(e) => e.stopPropagation()}
-                className="w-full gap-8 rounded-[20px] bg-bg-light px-7 py-10"
-              >
-                <View className="items-center gap-4">
-                  <Text className="subHeading2B text-white">알림</Text>
-                  <Text className="body1 text-center !leading-6 text-gray-200">
-                    {`등록된 반려동물이 없습니다.\n반려동물을 등록해주세요.`}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={goToRegistration}
-                  className="items-center justify-center rounded-xl bg-yellow-300 py-3"
-                  activeOpacity={0.8}
-                >
-                  <Text className="subHeading2B text-gray-900">확인</Text>
-                </TouchableOpacity>
-              </Pressable>
+      {/* 1마리일 때 삭제 금지 모달 */}
+      <Modal
+        visible={showDeleteBlocked}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => {}}
+      >
+        <View className="flex-1 items-center justify-center bg-black/50">
+          <View className="gap-6 rounded-[32px] bg-white px-11 py-6">
+            <View className="items-center gap-2 px-6">
+              <Icon name="IcWarning" size={40} color="#313131" />
+              <Text className="heading3 text-center !leading-10 text-gray-900">
+                {keepAllKorean('등록된 반려동물이\n1마리일 경우\n삭제가 불가합니다.')}
+              </Text>
             </View>
+            <TouchableOpacity
+              onPress={() => setShowDeleteBlocked(false)}
+              className="items-cener justify-center rounded-xl bg-gray-800 py-3"
+              activeOpacity={0.8}
+            >
+              <Text className="body1 text-center !leading-6 text-white">확인</Text>
+            </TouchableOpacity>
           </View>
-        </Modal>
-      )}
+        </View>
+      </Modal>
+
       <ScreenHeader title="반려동물 관리" />
       <View className="gap-7 pt-7">
         <View className="gap-5 px-7">
           <View className="flex-row items-center justify-between">
             <Text className="subHeading3 !leading-7 text-white">{`등록되어 있는 반려동물`}</Text>
-            <TouchableOpacity onPress={() => setIsDeleting(!isDeleting)} activeOpacity={0.8}>
+            <TouchableOpacity
+              onPress={() => {
+                if (pets.length <= 1) {
+                  setShowDeleteBlocked(true); // 1마리면 모달
+                  return;
+                }
+                setIsDeleting((v) => !v); // 그 외엔 토글;
+              }}
+              activeOpacity={0.8}
+            >
               <Text className="body1 text-gray-500">{`삭제하기`}</Text>
             </TouchableOpacity>
           </View>
