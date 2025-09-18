@@ -5,7 +5,7 @@ import { IcSuccess, IcInfo } from '../../../assets/icons';
 interface ToastProps {
   message: string;
   title?: string;
-  type?: 'success' | 'error' | 'info';
+  type?: 'success' | 'delete' | 'info';
   duration?: number;
   onHide: () => void;
   onPress?: () => void;
@@ -17,7 +17,7 @@ const typeStyles = {
   success: {
     container: 'bg-bg',
   },
-  error: {
+  delete: {
     container: 'bg-bg',
   },
   info: {
@@ -131,8 +131,8 @@ const Toast: React.FC<ToastProps> = ({
         <View className="flex-row items-center gap-3">
           <View className="justify-center pt-1">
             {type === 'success' && <IcSuccess width={24} height={24} className="text-white" />}
-            {type === 'error' && <Text className="text-xl leading-6 text-white">❌</Text>}
-            {type === 'info' && <IcInfo width={24} height={24} className="text-white" />}
+            {type === 'delete' && <IcInfo width={24} height={24} fill="#FF2E45" />}
+            {type === 'info' && <IcInfo width={24} height={24} fill="#CECECE" />}
           </View>
           <View className="flex-1 pt-1">
             {!!title && (
