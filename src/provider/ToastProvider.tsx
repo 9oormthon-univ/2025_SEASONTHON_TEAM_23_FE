@@ -4,13 +4,27 @@ import type { ReactNode } from 'react';
 interface ToastItem {
   id: string;
   message: string;
+  title?: string;
   type: 'success' | 'error' | 'info';
   duration?: number;
+  onPress?: () => void;
+  actionLabel?: string;
+  onActionPress?: () => void;
 }
 
 interface ToastContextType {
   toasts: ToastItem[];
-  showToast: (message: string, type?: 'success' | 'error' | 'info', duration?: number) => void;
+  showToast: (
+    message: string,
+    type?: 'success' | 'error' | 'info',
+    duration?: number,
+    options?: {
+      title?: string;
+      onPress?: () => void;
+      actionLabel?: string;
+      onActionPress?: () => void;
+    }
+  ) => void;
   hideToast: (id: string) => void;
 }
 
@@ -32,9 +46,25 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   const showToast = useCallback(
-    (message: string, type: 'success' | 'error' | 'info' = 'info', duration = 3000) => {
+    (
+      message: string,
+      type: 'success' | 'error' | 'info' = 'info',
+      duration = 3000,
+      options?: {
+        title?: string;
+        onPress?: () => void;
+        actionLabel?: string;
+        onActionPress?: () => void;
+      }
+    ) => {
       const id = Date.now().toString();
-      const newToast: ToastItem = { id, message, type, duration };
+      const newToast: ToastItem = {
+        id,
+        message,
+        type,
+        duration,
+        ...options,
+      };
       setToasts((prev) => [...prev, newToast]);
     },
     []

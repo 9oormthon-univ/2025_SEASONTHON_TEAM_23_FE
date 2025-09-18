@@ -18,9 +18,13 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ position = 'bottom' }) 
         <Toast
           key={toast.id}
           message={toast.message}
+          title={toast.title}
           type={toast.type}
           duration={toast.duration}
           onHide={() => hideToast(toast.id)}
+          onPress={toast.onPress}
+          actionLabel={toast.actionLabel}
+          onActionPress={toast.onActionPress}
         />
       ))}
     </View>

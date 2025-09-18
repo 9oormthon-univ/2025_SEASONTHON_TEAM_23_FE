@@ -11,6 +11,7 @@ import {
 import notifee from '@notifee/react-native';
 import { StatusBar } from 'react-native';
 import * as Font from 'expo-font';
+import ToastContainer from '@/components/common/ToastContainer';
 
 const App = () => {
   const navRef = useRef<NavigationContainerRef<any>>(null);
@@ -94,6 +95,7 @@ const App = () => {
     <AppProvider>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <RootNavigator navigationRef={navRef} />
+      <ToastContainer position="bottom" />
     </AppProvider>
   );
 };
