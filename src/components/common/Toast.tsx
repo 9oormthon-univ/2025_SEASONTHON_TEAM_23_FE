@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Text, Animated, View, Pressable, PanResponder } from 'react-native';
+import { Text, Animated, View, Pressable, PanResponder, Dimensions } from 'react-native';
+import { IcSuccess, IcInfo } from '../../../assets/icons';
 
 interface ToastProps {
   message: string;
@@ -14,16 +15,13 @@ interface ToastProps {
 
 const typeStyles = {
   success: {
-    container: 'bg-green-500',
-    icon: '✅',
+    container: 'bg-bg',
   },
   error: {
-    container: 'bg-red-500',
-    icon: '❌',
+    container: 'bg-bg',
   },
   info: {
-    container: 'bg-blue-500',
-    icon: 'ℹ️',
+    container: 'bg-bg',
   },
 };
 
@@ -109,7 +107,11 @@ const Toast: React.FC<ToastProps> = ({
     return () => clearTimeout(timer);
   }, [fadeAnim, translateY, duration, onHide, exit]);
 
-  const { container, icon } = typeStyles[type];
+  const { container } = typeStyles[type];
+
+  const screenWidth = Dimensions.get('window').width;
+  const toastWidth = Math.min(335, screenWidth * 0.9); // Max 335px or 90% of screen width
+  const toastHeight = (toastWidth / 335) * 64; // Maintain aspect ratio
 
   return (
     <Animated.View
@@ -117,23 +119,29 @@ const Toast: React.FC<ToastProps> = ({
       style={{
         opacity: fadeAnim,
         transform: [{ translateY }, { translateX }],
+        alignSelf: 'center',
       }}
-      className="w-full px-4"
+      className="px-4"
     >
       <Pressable
         onPress={() => (onPress ? onPress() : exit())}
-        className={`rounded-2xl ${container} px-4 py-3 shadow-lg shadow-black/20 active:opacity-90`}
+        className={`rounded-2xl ${container} px-4 py-4 shadow-lg shadow-black/20 active:opacity-90`}
+        style={{ width: toastWidth, height: toastHeight }}
       >
-        <View className="flex-row items-start gap-3">
-          <Text className="text-xl leading-6 text-white">{icon}</Text>
-          <View className="flex-1">
+        <View className="flex-row items-center gap-3">
+          <View className="justify-center pt-1">
+            {type === 'success' && <IcSuccess width={24} height={24} className="text-white" />}
+            {type === 'error' && <Text className="text-xl leading-6 text-white">❌</Text>}
+            {type === 'info' && <IcInfo width={24} height={24} className="text-white" />}
+          </View>
+          <View className="flex-1 pt-1">
             {!!title && (
               <Text className="text-base font-semibold text-white" numberOfLines={1}>
                 {title}
               </Text>
             )}
             {!!message && (
-              <Text className="mt-0.5 text-[13px] text-white/95" numberOfLines={3}>
+              <Text className="subHeading3 mt-0.5 text-white/95" numberOfLines={3}>
                 {message}
               </Text>
             )}
