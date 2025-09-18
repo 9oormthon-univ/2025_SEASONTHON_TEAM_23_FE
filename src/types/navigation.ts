@@ -1,9 +1,10 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import * as Icons from '@icons';
+import type { Pet } from '@/types/pets';
 
 export type RootStackParamList = {
   Onboarding: undefined;
-  Boot: undefined;
+  Gate: undefined;
   Tabs: NavigatorScreenParams<TabsParamList>;
   MyDailyLogs: undefined;
   MyLetters: undefined;
@@ -35,6 +36,8 @@ export type ProfileStackParamList = {
   ProfileMain: undefined;
   Setting: undefined;
   ImageSetting: undefined;
+  PetManage: undefined;
+  PetRegistrationInProfile: { pet?: Pet } | undefined;
 };
 
 export type IconMap = Record<

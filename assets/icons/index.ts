@@ -22,5 +22,7 @@ export { default as IcStar } from './ic-star.svg';
 export { default as IcStarSky } from './ic-starsky.svg';
 export { default as IcChevronUp } from './ic-chevron-up.svg';
 export { default as IcSetting } from './ic-setting.svg';
+export { default as IcPlus } from './ic-plus.svg';
+export { default as IcCancel } from './ic-cancel.svg';
 export { default as IcSuccess } from './ic-success.svg';
 export { default as IcInfo } from './ic-info.svg';

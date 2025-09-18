@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -13,29 +13,16 @@ import {
   KeyboardAvoidingView,
   Linking,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/provider/AuthProvider';
 import { useUpsertNickname } from '@/hooks/mutations/useUpsertNickname';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ProfileStackParamList } from '@/types/navigation';
-
-const SettingItem = ({ label, onPress }: { label: string; onPress: () => void }) => (
-  <TouchableOpacity
-    activeOpacity={0.7}
-    onPress={onPress}
-    className="flex-row items-center justify-between py-5"
-  >
-    <Text className="subHeading2B text-white">{label}</Text>
-    <Text className="subHeading2B text-white">›</Text>
-  </TouchableOpacity>
-);
-
-const Divider = () => <View className="h-px w-full bg-[#313A48]" />;
-
-const SectionTitle = ({ title }: { title: string }) => (
-  <Text className="subHeading3 mb-2 mt-8 text-gray-400">{title}</Text>
-);
+import SettingItem from '@/components/settings/SettingItem';
+import SectionTitle from '@/components/settings/SectionTitle';
+import Divider from '@/components/settings/Divider';
+import { setHeaderExtras } from '@/types/Header';
+import ScreenHeader from '@/components/settings/ScreenHeader';
 
 const SettingScreen = () => {
   const { user, logout, withdraw } = useAuth();
@@ -46,6 +33,17 @@ const SettingScreen = () => {
   const { mutate: saveNickname, isPending } = useUpsertNickname();
   const [withdrawing, setWithdrawing] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+
+  useLayoutEffect(() => {
+    setHeaderExtras(navigation, {
+      hasBack: true,
+      bgColor: '#121826',
+      onBack: () => {
+        if (navigation.canGoBack()) navigation.goBack();
+        navigation.replace('Setting');
+      },
+    });
+  }, [navigation]);
 
   const MIN = 1;
   const MAX = 12;
@@ -80,7 +78,9 @@ const SettingScreen = () => {
     navigation.navigate('ImageSetting');
   };
 
-  const onManagePets = () => {};
+  const onManagePets = () => {
+    navigation.navigate('PetManage');
+  };
 
   const confirmLogout = () => {
     Alert.alert('로그아웃', '정말 로그아웃 하시겠어요?', [
@@ -129,22 +129,40 @@ const SettingScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['bottom']} className="flex-1 bg-bg">
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}>
-        <SectionTitle title="프로필 관리" />
-        <SettingItem label="프로필 사진 변경" onPress={onChangePhoto} />
-        <SettingItem label="닉네임 변경" onPress={() => setNicknameModal(true)} />
-        <SettingItem label="반려동물 관리" onPress={onManagePets} />
-        <Divider />
-        <SectionTitle title="계정 관리" />
-        <SettingItem label={loggingOut ? '로그아웃 중...' : '로그아웃'} onPress={confirmLogout} />
-        <SettingItem
-          label={withdrawing ? '탈퇴 진행 중...' : '탈퇴하기'}
-          onPress={confirmWithdrawal}
-        />
-        <Divider />
-        <SectionTitle title="고객센터" />
-        <SettingItem label="카카오톡 채널로 이동" onPress={openChannel} />
+    <>
+      <ScrollView className="flex-1 bg-bg">
+        <ScreenHeader title="설정" />
+        <View className="gap-6 px-7 pb-24 pt-6">
+          <View className="gap-5">
+            <SectionTitle title="프로필 관리" />
+            <View className="gap-4">
+              <SettingItem label="프로필 사진 변경" onPress={onChangePhoto} />
+              <SettingItem label="닉네임 변경" onPress={() => setNicknameModal(true)} />
+              <SettingItem label="반려동물 관리" onPress={onManagePets} />
+            </View>
+          </View>
+          <Divider />
+          <View className="gap-5">
+            <SectionTitle title="계정 관리" />
+            <View className="gap-4">
+              <SettingItem
+                label={loggingOut ? '로그아웃 중...' : '로그아웃'}
+                onPress={confirmLogout}
+              />
+              <SettingItem
+                label={withdrawing ? '탈퇴 진행 중...' : '탈퇴하기'}
+                onPress={confirmWithdrawal}
+              />
+            </View>
+          </View>
+          <Divider />
+          <View className="gap-5">
+            <SectionTitle title="고객센터" />
+            <View className="gap-4">
+              <SettingItem label="카카오톡 채널로 이동" onPress={openChannel} />
+            </View>
+          </View>
+        </View>
       </ScrollView>
 
       {/* 닉네임 변경 모달 */}
@@ -233,7 +251,7 @@ const SettingScreen = () => {
           </KeyboardAvoidingView>
         </Pressable>
       </Modal>
-    </SafeAreaView>
+    </>
   );
 };
 

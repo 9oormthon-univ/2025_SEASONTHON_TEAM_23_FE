@@ -3,8 +3,9 @@ import * as Icons from '@icons';
 export type HeaderProps = {
   hasBack?: boolean;
   hasLogo?: boolean;
-  hasButton?: boolean;
   bgColor?: string;
+  hasButton?: boolean;
+  label?: string;
   icon?: keyof typeof Icons;
   iconSize?: number;
   iconColor?: string;

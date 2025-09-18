@@ -1,13 +1,28 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import { keepAllKorean } from '@/utils/keepAll';
-import SelectBox from '@common/SelectBox';
-import { PERSONALITY_CONFLICTS, PERSONALITY_OPTIONS, SPECIES_OPTIONS } from '@/types/select';
-import Input from '@common/Input';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Loader from '@common/Loader';
 import { usePetRegistration } from '@/hooks/pets/usePetRegistration';
-import { showConflictAlert } from '@/utils/selectConflict';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { ProfileStackParamList, RootStackParamList } from '@/types/navigation';
+import type { Pet } from '@/types/pets';
+import PetInfoStep from '@/components/settings/PetInfoStep';
+import { useMemo, useState } from 'react';
+import PetPersonalityStep from '@/components/settings/PetPersonalityStep';
+import ProgressBar from '@/components/settings/ProgressBar';
+import { keepAllKorean } from '@/utils/keepAll';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PetRegistrationScreen = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ProfileStackParamList & RootStackParamList>>();
+  const [step, setStep] = useState<1 | 2>(1);
+
+  const route = useRoute<any>();
+  const pet: Pet | undefined = route?.params?.pet; // 편집용 초기값
+  const isFromProfile = route.name === 'PetRegistrationInProfile';
+  const padding = isFromProfile ? 'pb-16' : 'pb-[90px]';
+  const buttonIsAbsolute = isFromProfile ? '' : 'absolute inset-x-7';
+
   const {
     fields: { petName, selectSpecies, selectPersonality },
     setPetName,
@@ -16,55 +31,87 @@ const PetRegistrationScreen = () => {
     disabled,
     isPending,
     onSubmit,
-  } = usePetRegistration();
+  } = usePetRegistration({
+    initialPet: pet,
+    onSuccessNav: async () => {
+      if (isFromProfile) {
+        // 설정에서 온 경우: 뒤로 가기
+        navigation.goBack();
+      } else {
+        navigation.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'Tabs' as never }] }));
+      }
+    },
+  });
+
+  // 타이틀
+  const title =
+    step === 1 ? '반려동물의\n기본정보를 입력해주세요.' : '반려동물\n성격을 알려주세요.';
+
+  // 1단계(이름+종) 완료 가능 조건
+  const canNext = useMemo(
+    () => petName.trim().length > 0 && selectSpecies.length === 1,
+    [petName, selectSpecies]
+  );
+
+  const ctaDisabled = step === 1 ? !canNext || isPending : disabled;
+
+  const handlePrimary = () => {
+    if (step === 1) {
+      if (!canNext) return;
+      setStep(2);
+      return;
+    }
+    // step2: 최종 제출
+    onSubmit();
+  };
 
   return (
-    <ScrollView className="bg-bg">
-      <View className="gap-32 px-7 pb-[90px] pt-5">
-        <View className="gap-[52px]">
-          <Text className="heading2SB text-white">
-            {keepAllKorean('반려동물의\n이름을 입력해주세요.')}
-          </Text>
-          <View className="gap-8">
-            <Input
-              label="이름"
-              value={petName}
-              onChange={(val) => setPetName(val)}
-              placeholder="이름을 입력해주세요."
-            />
-            <SelectBox
-              label="종"
-              items={SPECIES_OPTIONS}
-              values={selectSpecies}
-              onChange={handleSpeciesChange}
-              placeholder="종을 선택해주세요."
-              maxSelected={1}
-              closeOnSelect
-            />
-            <SelectBox
-              label="성격"
-              items={PERSONALITY_OPTIONS}
-              values={selectPersonality}
-              onChange={handlePersonalityChange}
-              placeholder="성격을 선택해주세요."
-              conflicts={PERSONALITY_CONFLICTS}
-              conflictStrategy="block"
-              onConflict={showConflictAlert}
-            />
+    <SafeAreaView edges={['top']} className="flex-1 bg-bg">
+      <ScrollView className="flex-1 px-7">
+        <ProgressBar step={step} total={2} />
+        <View className="gap-16">
+          <View className={`flex-1 gap-[52px] pb-16 pt-5 ${padding}`}>
+            <Text className="heading2SB !leading-[42px] text-white">{keepAllKorean(title)}</Text>
+
+            {step === 1 ? (
+              <PetInfoStep
+                petName={petName}
+                setPetName={setPetName}
+                selectSpecies={selectSpecies}
+                handleSpeciesChange={handleSpeciesChange}
+              />
+            ) : (
+              <PetPersonalityStep
+                selectPersonality={selectPersonality}
+                handlePersonalityChange={handlePersonalityChange}
+              />
+            )}
+          </View>
+          <View className={`${buttonIsAbsolute} bottom-14 flex-row items-center gap-3`}>
+            {step === 2 && (
+              <TouchableOpacity
+                onPress={() => setStep(1)}
+                activeOpacity={0.8}
+                className="w-full flex-1 items-center justify-center rounded-[20px] bg-gray-500 py-5"
+              >
+                <Text className="subHeading3 text-white">{`이전`}</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              disabled={ctaDisabled}
+              onPress={handlePrimary}
+              activeOpacity={0.8}
+              className={`${ctaDisabled ? 'bg-gray-500' : 'bg-yellow-200'} w-full flex-1 items-center justify-center rounded-[20px] py-5`}
+            >
+              {isPending && <Loader />}
+              <Text
+                className={`subHeading3 ${ctaDisabled ? 'text-white' : 'text-gray-900'}`}
+              >{`확인`}</Text>
+            </TouchableOpacity>
           </View>
         </View>
-        <Pressable
-          disabled={disabled}
-          onPress={onSubmit}
-          className={`${disabled ? 'bg-[#FFEBB5]' : 'bg-yellow-200'} items-center justify-center rounded-[20px] py-5`}
-        >
-          {isPending && <Loader />}
-          <Text
-            className={`subHeading3 ${disabled ? 'text-gray-700' : 'text-gray-900'}`}
-          >{`확인`}</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

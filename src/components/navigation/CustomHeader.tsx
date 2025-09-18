@@ -12,6 +12,7 @@ const CustomHeader = ({
   iconSize = 32,
   iconColor = 'white',
   hasButton,
+  label,
   title,
   onBack,
   onPress,
@@ -36,7 +37,7 @@ const CustomHeader = ({
               <Icon name={icon} size={iconSize} color={iconColor} />
             </Pressable>
           ) : (
-            <SaveButton onPress={onPress} isLoading={isLoading} disabled={disabled} />
+            <SaveButton label={label} onPress={onPress} isLoading={isLoading} disabled={disabled} />
           ))}
       </View>
     </SafeAreaView>

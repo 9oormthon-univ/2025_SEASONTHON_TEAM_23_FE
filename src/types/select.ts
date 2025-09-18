@@ -3,39 +3,59 @@ export type SelectItem = {
   value: string | number;
 };
 
-type PersonalityValue =
-  | 'prickly' // 까칠함
-  | 'active' // 활발함
-  | 'calm' // 차분함
-  | 'loyal' // 충성심이 강함
-  | 'smart' // 똑똑함
-  | 'friendly' // 친근함
-  | 'aggressive' // 사나움
-  | 'gentle'; // 순함
+export type PersonalityValue =
+  | 'cowardly' // 겁쟁이
+  | 'troublemaker' // 사고뭉치
+  | 'shy' // 낯가리는
+  | 'affectionate' // 애교쟁이
+  | 'lively' // 발랄한
+  | 'greedy' // 욕심쟁이
+  | 'elegant' // 우아한
+  | 'disobedient' // 말 안 듣는
+  | 'quirky' // 엉뚱한
+  | 'quiet' // 조용한
+  | 'gentle' // 얌전한
+  | 'smart' // 똑똑한
+  | 'obedient' // 말 잘 듣는
+  | 'assertive' // 성격있는
+  | 'cute' // 귀여운
+  | 'cheerful' // 잘 웃는
+  | 'social' // 사회성 좋은
+  | 'neat'; // 깔끔한
 
 export const PERSONALITY_OPTIONS: { label: string; value: PersonalityValue }[] = [
-  { label: '까칠함', value: 'prickly' },
-  { label: '활발함', value: 'active' },
-  { label: '차분함', value: 'calm' },
-  { label: '충성심이 강함', value: 'loyal' },
-  { label: '똑똑함', value: 'smart' },
-  { label: '친근함', value: 'friendly' },
-  { label: '사나움', value: 'aggressive' },
+  { label: '겁쟁이', value: 'cowardly' },
+  { label: '사고뭉치', value: 'troublemaker' },
+  { label: '낯가리는', value: 'shy' },
+  { label: '애교쟁이', value: 'affectionate' },
+  { label: '발랄한', value: 'lively' },
+  { label: '욕심쟁이', value: 'greedy' },
+  { label: '우아한', value: 'elegant' },
+  { label: '말 안 듣는', value: 'disobedient' },
+  { label: '엉뚱한', value: 'quirky' },
+  { label: '조용한', value: 'quiet' },
+  { label: '얌전한', value: 'gentle' },
+  { label: '똑똑한', value: 'smart' },
+  { label: '말 잘 듣는', value: 'obedient' },
+  { label: '성격있는', value: 'assertive' },
+  { label: '귀여운', value: 'cute' },
+  { label: '잘 웃는', value: 'cheerful' },
+  { label: '사회성 좋은', value: 'social' },
+  { label: '깔끔한', value: 'neat' },
 ];
 
 export const PERSONALITY_CONFLICTS: Partial<Record<PersonalityValue, PersonalityValue[]>> = {
-  active: ['calm'],
-  calm: ['active'],
+  lively: ['quiet'],
+  quiet: ['lively'],
 
-  aggressive: ['gentle'],
-  gentle: ['aggressive'],
+  gentle: ['troublemaker', 'disobedient'],
+  troublemaker: ['gentle'],
 
-  prickly: ['friendly'],
-  friendly: ['prickly'],
+  disobedient: ['obedient', 'gentle'],
+  obedient: ['disobedient'],
 
-  // 충성심/똑똑함은 상반 정의 없음
-  loyal: [],
-  smart: [],
+  shy: ['social'],
+  social: ['shy'],
 };
 
 type SpeciesValue =
