@@ -1,4 +1,4 @@
-import { Modal, View, Text, Pressable } from 'react-native';
+import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import Icon from '@common/Icon';
 import { keepAllKorean } from '@/utils/keepAll';
 
@@ -42,20 +42,20 @@ const ConfirmDeleteModal = ({
             </View>
           </View>
           <View className="flex-row gap-6">
-            <Pressable
+            <TouchableOpacity
               onPress={onConfirm}
-              android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
+              activeOpacity={0.8}
               className="items-center justify-center rounded-xl bg-error px-6 py-3"
             >
               <Text className="body1 !leading-6 text-white">{confirmLabel}</Text>
-            </Pressable>
-            <Pressable
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={onCancel}
-              android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
+              activeOpacity={0.8}
               className="items-center justify-center rounded-xl bg-gray-500 px-6 py-3"
             >
               <Text className="body1 !leading-6 text-white">{cancelLabel}</Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
