@@ -4,7 +4,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { LetterStackParamList } from 'src/types/navigation';
 import * as ImagePicker from 'expo-image-picker';
-import { fetchLetterById, createLetter, updateLetter } from '@/services/letters';
+import { useLetterDetail } from '@/hooks/queries/useLetterDetail';
+import { useCreateLetter } from '@/hooks/mutations/useCreateLetter';
+import { useUpdateLetter } from '@/hooks/mutations/useUpdateLetter';
 import Icon from '@common/Icon';
 import { useAuth } from '@/provider/AuthProvider';
 import { setHeaderExtras } from '@/types/Header';
@@ -21,22 +23,20 @@ const LetterWriteScreen = () => {
   const route = useRoute<any>();
   const editingId = route?.params?.id ?? null;
 
+  const { data: editingLetter } = useLetterDetail(editingId);
+  const { mutateAsync: createLetterAsync } = useCreateLetter();
+  const { mutateAsync: updateLetterAsync } = useUpdateLetter();
+
+  // 편집 모드일 때 데이터 설정
   useEffect(() => {
-    if (!editingId) return;
-    (async () => {
-      try {
-        const res = await fetchLetterById(editingId);
-        const data = (res as any)?.data ?? res;
-        setLetter(data?.content ?? '');
-        setIsPublic(data?.isPublic ?? true);
-        const photo = data?.photoUrl ?? null;
-        setImageUri(photo);
-        setOriginalHasPhoto(!!photo);
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-  }, [editingId]);
+    if (editingLetter) {
+      setLetter(editingLetter.content ?? '');
+      setIsPublic(editingLetter.isPublic ?? true);
+      const photo = editingLetter.photoUrl ?? null;
+      setImageUri(photo);
+      setOriginalHasPhoto(!!photo);
+    }
+  }, [editingLetter]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -55,16 +55,19 @@ const LetterWriteScreen = () => {
 
       if (editingId) {
         const willRemoveImage = originalHasPhoto && normalizedImageUri === null;
-        await updateLetter(editingId, {
-          content: letter,
-          isPublic,
-          image: normalizedImageUri
-            ? { uri: normalizedImageUri, name: 'photo.jpg', type: 'image/jpeg' }
-            : undefined,
-          removeImage: !!willRemoveImage,
+        await updateLetterAsync({
+          letterId: editingId,
+          params: {
+            content: letter,
+            isPublic,
+            image: normalizedImageUri
+              ? { uri: normalizedImageUri, name: 'photo.jpg', type: 'image/jpeg' }
+              : undefined,
+            removeImage: !!willRemoveImage,
+          },
         });
       } else {
-        await createLetter({
+        await createLetterAsync({
           content: letter,
           isPublic,
           image: normalizedImageUri

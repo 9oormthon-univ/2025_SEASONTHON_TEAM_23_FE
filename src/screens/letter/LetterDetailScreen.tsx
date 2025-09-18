@@ -1,16 +1,15 @@
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, Image, Pressable, Platform } from 'react-native';
 import { Modal } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { LetterStackParamList } from '@/types/navigation';
 import { useTribute } from '@/provider/TributeProvider';
 import { useAuth } from '@/provider/AuthProvider';
 import { formatKoreanDate } from '@/utils/formatDate';
-import {
-  fetchLetterById,
-  deleteLetter,
-  fetchTributes as fetchLetterTributes,
-} from '@/services/letters';
+import { useLetterDetail } from '@/hooks/queries/useLetterDetail';
+import { useDeleteLetter } from '@/hooks/mutations/useDeleteLetter';
+import { useLetterTributes } from '@/hooks/queries/useLetterTributes';
 import Loader from '@common/Loader';
 import Icon from '@common/Icon';
 import { setHeaderExtras } from '@/types/Header';
@@ -20,12 +19,8 @@ import ConfirmDeleteModal from '@/components/common/ConfirmDeleteModal';
 type Props = NativeStackScreenProps<LetterStackParamList, 'LetterDetail'>;
 const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const id = route?.params?.id;
-  const [letter, setLetter] = useState<any | null>(null);
-  const { toggleTribute, fetchTributes: refreshTributes } = useTribute();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { toggleTribute } = useTribute();
   const [isTributing, setIsTributing] = useState(false);
-  const [hasMyTribute, setHasMyTribute] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [imageModalVisible, setImageModalVisible] = useState(false);
@@ -37,47 +32,20 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const currentUserId = (user as any)?.userId ?? null;
 
-  useEffect(() => {
+  const { data: letter, isLoading, error } = useLetterDetail(id);
+  const { data: tributesData } = useLetterTributes(String(id));
+  const { mutateAsync: deleteLetterAsync } = useDeleteLetter();
+  const qc = useQueryClient();
+
+  const tributes = tributesData?.data ?? tributesData ?? [];
+  const hasMyTribute = Boolean(
+    Array.isArray(tributes) &&
+      tributes.find((t: any) => String(t?.fromUserId) === String(currentUserId))
+  );
+
+  useLayoutEffect(() => {
     navigation.setOptions({ title: '기억의 별자리' });
   }, [navigation]);
-
-  useEffect(() => {
-    if (!id) return;
-    const fetchDetail = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetchLetterById(id);
-        const raw = (res as any)?.data ?? res;
-        setLetter(raw);
-      } catch (e) {
-        setError('편지를 불러오지 못했습니다.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDetail();
-  }, [id]);
-
-  useEffect(() => {
-    if (!currentUserId) return;
-    void refreshTributes(currentUserId);
-  }, [currentUserId, refreshTributes]);
-
-  useEffect(() => {
-    const checkMyTribute = async () => {
-      try {
-        if (!id || !currentUserId) return;
-        const listRes = await fetchLetterTributes(String(id));
-        const arr = (listRes as any)?.data ?? listRes ?? [];
-        const mine = Array.isArray(arr)
-          ? arr.find((t: any) => String(t?.fromUserId) === String(currentUserId))
-          : undefined;
-        setHasMyTribute(Boolean(mine));
-      } catch {}
-    };
-    void checkMyTribute();
-  }, [id, currentUserId]);
 
   const handleTribute = async () => {
     if (!letter) return;
@@ -93,15 +61,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       setIsTributing(true);
       try {
         await toggleTribute(letterId, currentUserId);
-        try {
-          const res = await fetchLetterById(letterId);
-          const raw = (res as any)?.data ?? res;
-          setLetter(raw);
-        } catch {}
-        try {
-          await refreshTributes(currentUserId);
-        } catch {}
-        setHasMyTribute(false);
+        qc.invalidateQueries({ queryKey: ['letter-detail', letterId] });
+        qc.invalidateQueries({ queryKey: ['letter-tributes', letterId] });
         Alert.alert('위로의 별 전달이 취소되었습니다');
       } finally {
         setIsTributing(false);
@@ -112,15 +73,8 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     setIsTributing(true);
     try {
       await toggleTribute(letterId, currentUserId);
-      try {
-        const res = await fetchLetterById(letterId);
-        const raw = (res as any)?.data ?? res;
-        setLetter(raw);
-      } catch {}
-      try {
-        await refreshTributes(currentUserId);
-      } catch {}
-      setHasMyTribute(true);
+      qc.invalidateQueries({ queryKey: ['letter-detail', letterId] });
+      qc.invalidateQueries({ queryKey: ['letter-tributes', letterId] });
     } finally {
       setIsTributing(false);
     }
@@ -161,20 +115,20 @@ const LetterDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     try {
       const rawId = letter.id;
       if (!rawId) throw new Error('invalid_letter_id');
-      await deleteLetter(rawId);
+      await deleteLetterAsync(rawId);
       setConfirmVisible(false);
       navigation.goBack();
     } catch (e) {
       Alert.alert('삭제 실패', '편지를 삭제하는 중 오류가 발생했습니다.');
     }
-  }, [letter, navigation]);
+  }, [letter, deleteLetterAsync, navigation]);
 
-  if (loading) return <Loader isPageLoader />;
+  if (isLoading) return <Loader isPageLoader />;
   if (error)
     return (
       <View className="flex-1 items-center justify-center bg-gray-50 p-7">
         <Text className="subHeading3 px-9 py-2 text-center text-error">{`⚠️ 편지 정보를 불러오지 못했어요.`}</Text>
-        <Text className="body1 pb-4 text-error">{error}</Text>
+        <Text className="body1 pb-4 text-error">{String(error)}</Text>
       </View>
     );
   if (!letter)
