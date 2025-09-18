@@ -20,9 +20,7 @@ export default {
     },
     ios: {
       supportsTablet: true,
-      runtimeVersion: {
-        policy: '1.0.0',
-      },
+      runtimeVersion: '1.0.0',
       bundleIdentifier: 'org.name.PetFarewell',
     },
     android: {
