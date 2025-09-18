@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useToast } from '@/provider/ToastProvider';
-import Toast from './Toast';
+import Toast from '@/components/common/Toast';
 
 interface ToastContainerProps {
   position?: 'top' | 'bottom';
