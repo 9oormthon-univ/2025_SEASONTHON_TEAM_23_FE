@@ -1,9 +1,10 @@
 import { Text, TouchableOpacity, View } from 'react-native';
-import { toKoreanPersonalities, toKoreanSpecies } from '@/utils/petLabels';
+import { toKoreanSpecies } from '@/utils/petLabels';
 import Icon from '@common/Icon';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import ConfirmDeleteModal from '@common/ConfirmDeleteModal';
 import type { Pet } from '@/types/pets';
+import { PERSONALITY_OPTIONS } from '@/types/select';
 
 type PetCardProps = {
   pet: Pet;
@@ -14,6 +15,23 @@ type PetCardProps = {
 
 const PetCard = ({ pet, deletingMode = false, onEdit, onDelete }: PetCardProps) => {
   const [showModal, setShowModal] = useState(false);
+  const personalityText = useMemo(() => {
+    const values = String(pet.personality ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (values.length === 0) return '';
+
+    // value -> label 매핑
+    const labelMap: Record<string, string> = {};
+    PERSONALITY_OPTIONS.forEach((o) => (labelMap[o.value] = o.label));
+
+    const labels = values.map((v) => labelMap[v] ?? v);
+
+    if (labels.length <= 2) return labels.join(', ');
+    return `${labels.slice(0, 2).join(', ')} 외 ${labels.length - 2}개`;
+  }, [pet.personality]);
 
   return (
     <>
@@ -23,7 +41,7 @@ const PetCard = ({ pet, deletingMode = false, onEdit, onDelete }: PetCardProps) 
           <Text className="body3 text-gray-500">
             {toKoreanSpecies(pet.breed)}
             {` | `}
-            {toKoreanPersonalities(pet.personality)}
+            {personalityText ? `${personalityText}` : ''}
           </Text>
         </View>
         <View className="flex-row gap-2">
