@@ -26,29 +26,24 @@ export const usePetsList = (opts: Options = {}) => {
     void reload();
   }, [reload]);
 
-  const onDelete = useCallback((pet: Pet) => {
-    Alert.alert('삭제 확인', `${pet.name} 정보를 삭제할까요?`, [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deletePet(pet.id);
-            setPets((prev) => {
-              const next = prev.filter((p) => p.id !== pet.id);
-              if (next.length === 0) onEmpty?.(); // 0마리면 콜백
-              return next;
-            });
-          } catch (e: any) {
-            const msg =
-              e?.response?.data?.message || e?.message || '반려동물 정보를 삭제하지 못했습니다.';
-            Alert.alert('삭제 실패', msg);
-          }
-        },
-      },
-    ]);
-  }, []);
+  const onDelete = useCallback(
+    async (pet: Pet) => {
+      try {
+        await deletePet(pet.id);
+        setPets((prev) => {
+          const next = prev.filter((p) => p.id !== pet.id);
+          if (next.length === 0) onEmpty?.();
+          return next;
+        });
+      } catch (e: any) {
+        const msg =
+          e?.response?.data?.message || e?.message || '반려동물 정보를 삭제하지 못했습니다.';
+        Alert.alert('삭제 실패', msg);
+        throw e;
+      }
+    },
+    [onEmpty]
+  );
 
   return { pets, setPets, loading, reload, onDelete };
 };
