@@ -36,7 +36,6 @@ const PetManageScreen = () => {
   useLayoutEffect(() => {
     setHeaderExtras(navigation, {
       hasBack: true,
-      hasButton: true,
       onBack: () => {
         if (navigation.canGoBack()) navigation.goBack();
         navigation.replace('PetManage');
